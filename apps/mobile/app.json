@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Math Genius",
+    "slug": "math-genius",
+    "version": "0.1.0",
+    "scheme": "mathgenius",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "web": {
+      "output": "single"
+    },
+    "plugins": ["expo-router", "expo-status-bar", "expo-splash-screen", "expo-font"]
+  }
+}

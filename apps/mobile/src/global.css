@@ -1,0 +1,53 @@
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+@import 'nativewind/theme';
+
+/* Shared components use classes too. */
+@source "../../../packages/ui/src";
+
+/*
+ * Design tokens. Only semantic tokens exist: Tailwind's default palette and radii are removed
+ * so screens cannot use raw colors. Values come from the active theme in @math-genius/ui,
+ * which sets the --theme-* variables at runtime (see ThemeProvider).
+ */
+@theme {
+  --color-*: initial;
+  --radius-*: initial;
+  --text-*: initial;
+}
+
+@theme inline {
+  --color-background: var(--theme-color-background);
+  --color-surface: var(--theme-color-surface);
+  --color-border: var(--theme-color-border);
+  --color-foreground: var(--theme-color-foreground);
+  --color-muted: var(--theme-color-muted);
+  --color-primary: var(--theme-color-primary);
+  --color-on-primary: var(--theme-color-on-primary);
+  --color-secondary: var(--theme-color-secondary);
+  --color-on-secondary: var(--theme-color-on-secondary);
+
+  --radius-sm: var(--theme-radius-sm);
+  --radius-md: var(--theme-radius-md);
+  --radius-lg: var(--theme-radius-lg);
+}
+
+/* Typography scale, shared by all themes. */
+@theme {
+  --text-display: 2.25rem;
+  --text-display--line-height: 2.75rem;
+  --text-display--font-weight: 800;
+  --text-title: 1.75rem;
+  --text-title--line-height: 2.25rem;
+  --text-title--font-weight: 700;
+  --text-headline: 1.25rem;
+  --text-headline--line-height: 1.75rem;
+  --text-headline--font-weight: 600;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.5rem;
+  --text-body--font-weight: 400;
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.25rem;
+  --text-caption--font-weight: 400;
+}
