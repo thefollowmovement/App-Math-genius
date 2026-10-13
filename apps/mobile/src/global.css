@@ -33,21 +33,26 @@
   --radius-lg: var(--theme-radius-lg);
 }
 
-/* Typography scale, shared by all themes. */
+/*
+ * Typography scale, shared by all themes.
+ * Line heights are unitless ratios (line height / font size), like Tailwind's defaults: on native,
+ * NativeWind multiplies a line height read from a variable by the font size, so `2.75rem` would
+ * become 44 × 36 px.
+ */
 @theme {
   --text-display: 2.25rem;
-  --text-display--line-height: 2.75rem;
+  --text-display--line-height: calc(2.75 / 2.25);
   --text-display--font-weight: 800;
   --text-title: 1.75rem;
-  --text-title--line-height: 2.25rem;
+  --text-title--line-height: calc(2.25 / 1.75);
   --text-title--font-weight: 700;
   --text-headline: 1.25rem;
-  --text-headline--line-height: 1.75rem;
+  --text-headline--line-height: calc(1.75 / 1.25);
   --text-headline--font-weight: 600;
   --text-body: 1.0625rem;
-  --text-body--line-height: 1.5rem;
+  --text-body--line-height: calc(1.5 / 1.0625);
   --text-body--font-weight: 400;
   --text-caption: 0.875rem;
-  --text-caption--line-height: 1.25rem;
+  --text-caption--line-height: calc(1.25 / 0.875);
   --text-caption--font-weight: 400;
 }

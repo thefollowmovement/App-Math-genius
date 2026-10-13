@@ -45,7 +45,8 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 - Textes de l'interface dans `apps/mobile/src/i18n/fr.ts`.
 - Importer `View`, `Text`, `Pressable` et `ScrollView` depuis `@math-genius/ui` (versions qui acceptent `className`), jamais depuis `react-native` : une règle ESLint l'impose.
 - Couleurs et rayons uniquement via les classes sémantiques : `bg-background`, `bg-surface`, `bg-primary`, `bg-secondary`, `border-border`, `text-foreground`, `text-muted`, `text-on-primary`, `text-on-secondary`, `rounded-sm|md|lg`. La palette Tailwind par défaut est supprimée dans `apps/mobile/src/global.css`. Les espacements suivent l'échelle Tailwind (multiples de 4 px).
-- Typographie : `ThemedText` avec les variantes `display`, `title`, `headline`, `body` et `caption`.
+- Typographie : `ThemedText` avec les variantes `display`, `title`, `headline`, `body` et `caption`. Les interlignes du `@theme` sont des ratios sans unité (`calc(2.75 / 2.25)`) : en `px` ou `rem`, NativeWind les multiplie par la taille de police sur natif.
+- `apps/mobile/src/screens/welcome.styles.test.tsx` rend l'écran d'accueil avec les styles natifs réels (Tailwind puis le compilateur NativeWind, mêmes options que Metro via `native-css.config.js`). Pour un nouvel écran, ajoute le même type de test.
 - Un thème = un fichier de tokens dans `packages/ui/src/theme/themes/`, enregistré dans `themes/index.ts`. `ThemeProvider` injecte ses valeurs en variables CSS `--theme-*` ; `useTheme()` sert seulement aux API qui n'acceptent pas de classe (barre d'état, navigation, Skia). Les tests vérifient le contraste WCAG AA de chaque thème.
 - `packages/shared`, `packages/curriculum` et `packages/exercise-engine` n'importent ni React, ni React Native, ni Expo (règle ESLint).
 - Ajouter une dépendance à l'app : `pnpm --filter @math-genius/mobile exec expo install <paquet>` pour garder des versions compatibles avec le SDK.
