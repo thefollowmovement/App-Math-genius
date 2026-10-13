@@ -14,6 +14,7 @@ export const kawaii: Theme = {
     onPrimary: '#46233A',
     secondary: '#BFE6F5',
     onSecondary: '#173F4F',
+    danger: '#B42318',
   },
   radii: {
     sm: 12,

@@ -1,18 +1,135 @@
 export const fr = {
+  common: {
+    loading: 'Chargement…',
+    back: 'Retour',
+  },
   welcome: {
     title: 'Bienvenue !',
     subtitle: 'Qui utilise l’app aujourd’hui ?',
     parent: 'Je suis un parent',
     child: 'Je suis un enfant',
   },
-  parentSpace: {
+  signUp: {
+    title: 'Créer mon compte parent',
+    intro:
+      'Votre enfant n’aura ni email ni mot de passe : c’est vous qui créez et gérez son profil.',
+    displayName: 'Votre prénom',
+    email: 'Email',
+    password: 'Mot de passe (8 caractères minimum)',
+    consent:
+      'J’accepte la politique de confidentialité et je consens au traitement des données de mes enfants (pseudo, classe, résultats).',
+    submit: 'Créer mon compte',
+    hasAccount: 'J’ai déjà un compte',
+    errors: {
+      displayName: 'Indiquez votre prénom.',
+      email: 'Cet email n’est pas valide.',
+      password: 'Le mot de passe doit faire au moins 8 caractères.',
+      acceptsPrivacyPolicy: 'Votre consentement est nécessaire pour créer le compte.',
+    },
+  },
+  signIn: {
     title: 'Espace parent',
+    email: 'Email',
+    password: 'Mot de passe',
+    submit: 'Me connecter',
+    noAccount: 'Créer un compte',
+    errors: {
+      email: 'Cet email n’est pas valide.',
+      password: 'Saisissez votre mot de passe.',
+    },
   },
-  childSpace: {
-    title: 'Espace enfant',
+  parentHome: {
+    title: 'Mes enfants',
+    greeting: (name: string) => `Bonjour ${name} !`,
+    empty: 'Ajoutez le profil de votre enfant pour commencer.',
+    addChild: 'Ajouter un enfant',
+    childMode: 'Passer en mode enfant',
+    signOut: 'Me déconnecter',
   },
-  comingSoon: {
-    title: 'Bientôt disponible',
-    body: 'Cet espace arrive dans la prochaine version de l’app.',
+  childForm: {
+    title: 'Ajouter un enfant',
+    displayName: 'Prénom ou pseudo',
+    displayNameHint: 'Pas de nom de famille : un prénom ou un pseudo suffit.',
+    gender: 'Fille ou garçon',
+    genderHint: 'Sert à proposer un thème et un avatar de départ, modifiables ensuite.',
+    grade: 'Classe',
+    birthYear: 'Année de naissance (facultatif)',
+    choose: 'Choisir…',
+    notProvided: 'Non renseignée',
+    submit: 'Ajouter',
+    errors: {
+      displayName: 'Indiquez un prénom ou un pseudo (30 caractères maximum).',
+      gender: 'Choisissez fille ou garçon.',
+      grade: 'Choisissez la classe.',
+    },
+  },
+  childDetail: {
+    pairTitle: 'Relier le téléphone de l’enfant',
+    pairSteps:
+      'Sur le téléphone de l’enfant, ouvrez l’app, touchez « Je suis un enfant » puis scannez ce QR code ou tapez le code.',
+    createCode: 'Afficher un code',
+    newCode: 'Nouveau code',
+    codeLabel: 'Code',
+    expiresIn: (minutes: number) =>
+      minutes > 1 ? `Valable encore ${minutes} minutes` : 'Valable encore 1 minute',
+    expired: 'Ce code a expiré.',
+    paired: 'Appareil relié !',
+    devicesTitle: 'Appareils reliés',
+    noDevices: 'Aucun appareil relié pour l’instant.',
+    pairedOn: (date: string) => `Relié depuis le ${date}`,
+    revoke: 'Retirer',
+  },
+  pairDevice: {
+    title: 'Relie ton appareil',
+    intro: 'Demande à ton parent d’afficher le code dans son app.',
+    scan: 'Scanne le QR code',
+    allowCamera: 'Autoriser la caméra',
+    cameraDenied: 'La caméra n’est pas autorisée : tape le code à la place.',
+    orType: 'ou tape le code',
+    code: 'Code à 6 caractères',
+    submit: 'Valider',
+    parentSession:
+      'Cet appareil est connecté avec un compte parent : choisis directement ton profil.',
+    errors: {
+      code: 'Le code fait 6 lettres ou chiffres.',
+    },
+  },
+  profiles: {
+    title: 'Qui joue aujourd’hui ?',
+    empty: 'Aucun profil sur cet appareil.',
+    pairAnother: 'Ajouter un profil',
+  },
+  childHome: {
+    greeting: (name: string) => `Bonjour ${name} !`,
+    soon: 'Ta première aventure arrive bientôt.',
+    switchProfile: 'Changer de profil',
+  },
+  genders: {
+    girl: 'Fille',
+    boy: 'Garçon',
+  },
+  grades: {
+    CP: 'CP',
+    CE1: 'CE1',
+    CE2: 'CE2',
+    CM1: 'CM1',
+    CM2: 'CM2',
+    '6e': '6e',
+    '5e': '5e',
+    '4e': '4e',
+    '3e': '3e',
+  },
+  platforms: {
+    ios: 'iPhone ou iPad',
+    android: 'Android',
+    web: 'Navigateur',
+  },
+  errors: {
+    invalidCredentials: 'Email ou mot de passe incorrect.',
+    emailTaken: 'Un compte existe déjà avec cet email.',
+    invalidPairingCode: 'Ce code ne marche pas. Vérifie-le ou demande un nouveau code.',
+    deviceInOtherFamily: 'Cet appareil est déjà relié à une autre famille.',
+    network: 'Pas de connexion. Vérifiez le réseau et réessayez.',
+    unknown: 'Une erreur est survenue. Réessayez.',
   },
 } as const;

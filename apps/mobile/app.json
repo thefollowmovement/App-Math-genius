@@ -12,6 +12,20 @@
     "web": {
       "output": "single"
     },
-    "plugins": ["expo-router", "expo-status-bar", "expo-splash-screen", "expo-font"]
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-splash-screen",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "La caméra sert à scanner le QR code affiché par ton parent pour relier cet appareil.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ]
+    ]
   }
 }

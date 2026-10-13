@@ -21,6 +21,8 @@ const readablePairs: [keyof Theme['colors'], keyof Theme['colors']][] = [
   ['muted', 'background'],
   ['onPrimary', 'primary'],
   ['onSecondary', 'secondary'],
+  ['danger', 'background'],
+  ['danger', 'surface'],
 ];
 
 describe.each(Object.values(themes))('theme $id', (theme) => {

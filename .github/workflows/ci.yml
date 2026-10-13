@@ -26,3 +26,22 @@ jobs:
       - run: pnpm test
       - name: Bundle the app for iOS, Android and web
         run: pnpm --filter @math-genius/mobile export
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Start Postgres with the migrations
+        run: pnpm exec supabase db start
+      - name: RLS and pairing tests
+        run: pnpm supabase:test
+      - name: Lint database functions
+        run: pnpm exec supabase db lint --level warning --fail-on warning
+      - name: Generated types match the schema
+        run: pnpm supabase:types && git diff --exit-code packages/shared/src/database.types.ts

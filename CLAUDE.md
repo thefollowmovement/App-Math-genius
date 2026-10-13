@@ -44,13 +44,21 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 - Routes Expo Router dans `apps/mobile/src/app` (uniquement des fichiers de route) ; le corps des écrans va dans `apps/mobile/src/screens`.
 - Textes de l'interface dans `apps/mobile/src/i18n/fr.ts`.
 - Importer `View`, `Text`, `Pressable` et `ScrollView` depuis `@math-genius/ui` (versions qui acceptent `className`), jamais depuis `react-native` : une règle ESLint l'impose.
-- Couleurs et rayons uniquement via les classes sémantiques : `bg-background`, `bg-surface`, `bg-primary`, `bg-secondary`, `border-border`, `text-foreground`, `text-muted`, `text-on-primary`, `text-on-secondary`, `rounded-sm|md|lg`. La palette Tailwind par défaut est supprimée dans `apps/mobile/src/global.css`. Les espacements suivent l'échelle Tailwind (multiples de 4 px).
+- Couleurs et rayons uniquement via les classes sémantiques : `bg-background`, `bg-surface`, `bg-primary`, `bg-secondary`, `border-border`, `text-foreground`, `text-muted`, `text-on-primary`, `text-on-secondary`, `text-danger`, `border-danger`, `rounded-sm|md|lg|full`. La palette Tailwind par défaut est supprimée dans `apps/mobile/src/global.css`. Les espacements suivent l'échelle Tailwind (multiples de 4 px).
 - Typographie : `ThemedText` avec les variantes `display`, `title`, `headline`, `body` et `caption`. Les interlignes du `@theme` sont des ratios sans unité (`calc(2.75 / 2.25)`) : en `px` ou `rem`, NativeWind les multiplie par la taille de police sur natif.
-- `apps/mobile/src/screens/welcome.styles.test.tsx` rend l'écran d'accueil avec les styles natifs réels (Tailwind puis le compilateur NativeWind, mêmes options que Metro via `native-css.config.js`). Pour un nouvel écran, ajoute le même type de test.
+- `apps/mobile/src/screens/screens.styles.test.tsx` rend chaque écran avec les styles natifs réels (Tailwind puis le compilateur NativeWind, mêmes options que Metro via `native-css.config.js`) et vérifie espacements et interlignes. Ajoute chaque nouvel écran à sa liste.
 - Un thème = un fichier de tokens dans `packages/ui/src/theme/themes/`, enregistré dans `themes/index.ts`. `ThemeProvider` injecte ses valeurs en variables CSS `--theme-*` ; `useTheme()` sert seulement aux API qui n'acceptent pas de classe (barre d'état, navigation, Skia). Les tests vérifient le contraste WCAG AA de chaque thème.
 - `packages/shared`, `packages/curriculum` et `packages/exercise-engine` n'importent ni React, ni React Native, ni Expo (règle ESLint).
 - Ajouter une dépendance à l'app : `pnpm --filter @math-genius/mobile exec expo install <paquet>` pour garder des versions compatibles avec le SDK.
+- Écrans purs dans `apps/mobile/src/screens` (données et callbacks en props) ; les routes de `src/app` les branchent sur les hooks de `src/data` (TanStack Query + Supabase). Dans Jest, `@expo/ui` est remplacé par `apps/mobile/jest/expo-ui.tsx`.
 - `lightningcss` est figé en 1.30.1 : NativeWind v5 (`react-native-css`) casse sur `var()` avec les versions suivantes. Ne le mets pas à jour sans vérifier `pnpm --filter @math-genius/mobile export`.
+
+## Comptes et base de données
+
+- Le parent se connecte par email et mot de passe ; à l'inscription, un trigger crée sa famille avec le consentement horodaté. L'appareil d'un enfant reçoit une session anonyme Supabase, reliée à un profil par `redeem_pairing_code` ; `revoke_device` lui retire tout accès.
+- Les écritures sensibles passent par des fonctions SQL `security definer` qui vérifient l'appelant ; les tables concernées n'ont pas de politique d'écriture.
+- Erreurs métier des fonctions SQL : `raise exception '<code>' using errcode = 'PTxyz'` (PostgREST renvoie le statut HTTP xyz). L'app les traduit dans `apps/mobile/src/data/errors.ts` et `strings.errors`.
+- Après une migration : `pnpm supabase:reset`, `pnpm supabase:test`, puis `pnpm supabase:types` (la CI vérifie que les types sont à jour).
 
 ## Façon de travailler
 
@@ -65,6 +73,7 @@ Prérequis : Node 22 (`.nvmrc`), pnpm 10 (`corepack enable`), Docker pour Supaba
 | Besoin | Commande |
 | --- | --- |
 | Installer les dépendances | `pnpm install` |
+| Configurer l'app (Supabase local) | `cp apps/mobile/.env.example apps/mobile/.env.local` ; sur un téléphone, remplacer `127.0.0.1` par l'adresse IP locale de l'ordinateur |
 | Lancer l'app (menu Expo : `i` iOS, `a` Android, `w` web) | `pnpm mobile` |
 | Ouvrir directement sur iOS / Android / navigateur | `pnpm ios` / `pnpm android` / `pnpm web` |
 | Tester sur un vrai téléphone | app Expo Go, puis scanner le QR code affiché par `pnpm mobile` |
@@ -74,6 +83,8 @@ Prérequis : Node 22 (`.nvmrc`), pnpm 10 (`corepack enable`), Docker pour Supaba
 | Démarrer / arrêter Supabase local | `pnpm supabase:start` / `pnpm supabase:stop` |
 | URL et clés locales (API `http://127.0.0.1:54321`, Studio `http://127.0.0.1:54323`) | `pnpm supabase:status` |
 | Réappliquer migrations et seed | `pnpm supabase:reset` |
+| Tests RLS et fonctions SQL (Supabase démarré) | `pnpm supabase:test` |
+| Régénérer les types TypeScript de la base | `pnpm supabase:types` |
 | Créer une migration | `pnpm exec supabase migration new <nom>` |
 
-La CI (`.github/workflows/ci.yml`) lance format, lint, typecheck, tests et le bundle des trois plateformes sur chaque pull request.
+La CI (`.github/workflows/ci.yml`) lance format, lint, typecheck, tests et le bundle des trois plateformes sur chaque pull request, et un job base de données : tests RLS, lint SQL et types générés à jour.
