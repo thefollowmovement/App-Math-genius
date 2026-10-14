@@ -60,6 +60,14 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 - Erreurs métier des fonctions SQL : `raise exception '<code>' using errcode = 'PTxyz'` (PostgREST renvoie le statut HTTP xyz). L'app les traduit dans `apps/mobile/src/data/errors.ts` et `strings.errors`.
 - Après une migration : `pnpm supabase:reset`, `pnpm supabase:test`, puis `pnpm supabase:types` (la CI vérifie que les types sont à jour).
 
+## Référentiel et moteur d'exercices
+
+- `packages/curriculum` : compétences de la CE2 à la 5e, par niveau (`src/grades/`). Les codes `<niveau>.<slug>` sont stables (la maîtrise de chaque enfant y est rattachée) : ne jamais les renommer. Prérequis du même niveau ou d'un niveau inférieur, sans cycle (testé). Le contenu est un brouillon à faire relire par un enseignant.
+- Ajouter un générateur : un fichier dans `packages/exercise-engine/src/generators/<niveau>/`, de moins de 30 lignes non vides (vérifié par un test), qui importe tout depuis `../kit`, puis une ligne dans `generators/index.ts`. Les tests de 1 000 tirages par difficulté s'appliquent alors automatiquement.
+- Réponses en nombres exacts (`r()`, `decimal()`), jamais de flottants ; nombres affichés au format français avec `n()`, `frac()`, `op()`.
+- Chaque exercice porte un `check` : le calcul ou l'énoncé derrière la réponse, écrit avec les nombres de l'énoncé. L'oracle des tests (`src/testing/oracle.ts`, en BigInt, sans code commun avec le moteur) le recalcule et vérifie que chaque nombre du `check` apparaît bien dans l'énoncé. Pour une nouvelle notion (formule, unité), ajouter sa fonction à l'oracle avec un test, pas au moteur.
+- Le correcteur (`gradeResponse`) accepte toutes les écritures d'une même valeur (0,5 = 0.5 = 1/2), sauf si l'exercice impose `forms` ou `irreducible` ; il distingue une valeur juste mal écrite (`wrong-form`, `not-irreducible`) d'une erreur.
+
 ## Façon de travailler
 
 - Une phase = une branche. Ne code rien au-delà de la phase demandée.
@@ -79,6 +87,7 @@ Prérequis : Node 22 (`.nvmrc`), pnpm 10 (`corepack enable`), Docker pour Supaba
 | Tester sur un vrai téléphone | app Expo Go, puis scanner le QR code affiché par `pnpm mobile` |
 | Lint, types, tests, format | `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm format:check` (`pnpm format` corrige) |
 | Tests d'un seul paquet | `pnpm --filter @math-genius/ui test` |
+| Catalogue d'exemples d'exercices à faire relire (Markdown) | `pnpm --filter @math-genius/exercise-engine catalog > catalogue.md` |
 | Bundle iOS + Android + web (comme la CI) | `pnpm --filter @math-genius/mobile export` |
 | Démarrer / arrêter Supabase local | `pnpm supabase:start` / `pnpm supabase:stop` |
 | URL et clés locales (API `http://127.0.0.1:54321`, Studio `http://127.0.0.1:54323`) | `pnpm supabase:status` |
