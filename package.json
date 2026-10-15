@@ -20,7 +20,8 @@
     "supabase:reset": "supabase db reset",
     "supabase:status": "supabase status",
     "supabase:test": "supabase test db",
-    "supabase:types": "supabase gen types --lang typescript --local --schema public > packages/shared/src/database.types.ts && prettier --write packages/shared/src/database.types.ts"
+    "supabase:types": "supabase gen types --lang typescript --local --schema public > packages/shared/src/database.types.ts && prettier --write packages/shared/src/database.types.ts",
+    "curriculum:sql": "pnpm --filter @math-genius/curriculum sql"
   },
   "devDependencies": {
     "eslint": "^9.39.5",

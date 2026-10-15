@@ -6,3 +6,6 @@ export const GRADES = ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e']
 export const gradeSchema = z.enum(GRADES);
 
 export type Grade = z.infer<typeof gradeSchema>;
+
+/** Position of a grade in school order, to compare grades (CP = 0). */
+export const gradeRank = (grade: Grade): number => GRADES.indexOf(grade);

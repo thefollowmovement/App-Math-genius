@@ -3,10 +3,14 @@ import { ActivityIndicator, Pressable } from '../primitives';
 import { ThemedText } from './themed-text';
 
 const variantClassNames = {
-  primary: { container: 'bg-primary', label: 'text-on-primary' },
-  secondary: { container: 'bg-secondary', label: 'text-on-secondary' },
-  ghost: { container: 'bg-transparent', label: 'text-foreground' },
-  danger: { container: 'bg-transparent border border-danger', label: 'text-danger' },
+  primary: { container: 'bg-primary', label: 'text-on-primary', tone: 'onPrimary' },
+  secondary: { container: 'bg-secondary', label: 'text-on-secondary', tone: 'onSecondary' },
+  ghost: { container: 'bg-transparent', label: 'text-foreground', tone: 'default' },
+  danger: {
+    container: 'bg-transparent border border-danger',
+    label: 'text-danger',
+    tone: 'danger',
+  },
 } as const;
 
 const sizeClassNames = {
@@ -27,6 +31,8 @@ type ButtonProps = {
   loading?: boolean;
   /** Layout only (width, margins). */
   className?: string;
+  /** Spoken label when the title is a symbol (◀, ▶). */
+  accessibilityLabel?: string;
   testID?: string;
 };
 
@@ -38,6 +44,7 @@ export function Button({
   disabled = false,
   loading = false,
   className,
+  accessibilityLabel,
   testID,
 }: ButtonProps) {
   const inactive = disabled || loading;
@@ -45,7 +52,7 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={accessibilityLabel ?? title}
       accessibilityState={{ disabled: inactive, busy: loading }}
       disabled={inactive}
       onPress={onPress}
@@ -59,7 +66,7 @@ export function Button({
       )}
     >
       {loading && <ActivityIndicator className={variantClassNames[variant].label} />}
-      <ThemedText variant="headline" className={variantClassNames[variant].label}>
+      <ThemedText variant="headline" tone={variantClassNames[variant].tone}>
         {title}
       </ThemedText>
     </Pressable>

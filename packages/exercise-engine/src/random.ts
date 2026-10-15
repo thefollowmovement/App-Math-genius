@@ -49,3 +49,11 @@ export function createRng(seed: number): Rng {
     chance: (probability) => next() < probability,
   };
 }
+
+/** Independent 31-bit seed for the `index`-th draw of a sequence started from `seed`. */
+export function deriveSeed(seed: number, index: number): number {
+  let h = (seed ^ Math.imul(index + 1, 0x9e3779b1)) >>> 0;
+  h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  return (h ^ (h >>> 16)) >>> 1;
+}

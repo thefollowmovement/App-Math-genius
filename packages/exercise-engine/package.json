@@ -19,6 +19,7 @@
     "typescript": "~6.0.3"
   },
   "dependencies": {
-    "@math-genius/curriculum": "workspace:*"
+    "@math-genius/curriculum": "workspace:*",
+    "@math-genius/shared": "workspace:*"
   }
 }

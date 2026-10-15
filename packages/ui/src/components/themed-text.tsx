@@ -15,6 +15,9 @@ const toneClassNames = {
   default: 'text-foreground',
   muted: 'text-muted',
   danger: 'text-danger',
+  onPrimary: 'text-on-primary',
+  onSecondary: 'text-on-secondary',
+  onSuccess: 'text-on-success',
 } as const;
 
 export type ThemedTextVariant = keyof typeof variantClassNames;
@@ -26,7 +29,10 @@ type ThemedTextProps = ComponentProps<typeof Text> & {
   tone?: ThemedTextTone;
 };
 
-/** Text drawn from the typography scale. `className` is for layout only (margins, alignment). */
+/**
+ * Text drawn from the typography scale. The color comes from `tone` (one color class per text);
+ * `className` is for layout only (margins, alignment).
+ */
 export function ThemedText({ variant = 'body', tone, className, ...props }: ThemedTextProps) {
   const resolvedTone = tone ?? (variant === 'caption' ? 'muted' : 'default');
   return (

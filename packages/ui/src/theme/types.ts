@@ -20,6 +20,10 @@ export interface ThemeColors {
   onSecondary: string;
   /** Errors and destructive actions, readable on `background` and `surface`. */
   danger: string;
+  /** Right answers and completed goals (fills and borders). */
+  success: string;
+  /** Text and icons drawn on `success`. */
+  onSuccess: string;
 }
 
 /** Corner radii in density-independent pixels. */
