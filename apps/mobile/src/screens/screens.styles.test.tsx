@@ -1,7 +1,9 @@
+import { DEFAULT_ROUTINE } from '@math-genius/shared';
 import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
 import type { Child } from '@/data/children';
+import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
 import {
@@ -24,6 +26,7 @@ import { PairDevice } from './pair-device';
 import { ParentHome } from './parent-home';
 import { PracticeScreen } from './practice';
 import { ProfilePicker } from './profile-picker';
+import { RoutineSettings } from './routine-settings';
 import { SignIn } from './sign-in';
 import { SessionDetail } from './session-detail';
 import { SessionSummary } from './session-summary';
@@ -40,6 +43,12 @@ const lea: Child = {
   theme_id: 'kawaii',
 };
 const tom: Child = { ...lea, id: 'tom', display_name: 'Tom', gender: 'boy', grade: 'CM1' };
+const vacation: VacationRow = {
+  id: 'toussaint',
+  child_id: 'lea',
+  from_date: '2026-10-17',
+  to_date: '2026-11-01',
+};
 
 const screens: { name: string; render: () => ReactElement }[] = [
   {
@@ -59,8 +68,12 @@ const screens: { name: string; render: () => ReactElement }[] = [
         parentName="Camille"
         childProfiles={[lea, tom]}
         today={{
-          lea: { status: 'done', main: sessionRow() },
-          tom: { status: 'in_progress', main: sessionRow({ completed_at: null, answered: 12 }) },
+          lea: { status: 'done', main: sessionRow(), startsAt: null },
+          tom: {
+            status: 'in_progress',
+            main: sessionRow({ completed_at: null, answered: 12 }),
+            startsAt: null,
+          },
         }}
         onAddChild={jest.fn()}
         onOpenChild={jest.fn()}
@@ -85,6 +98,9 @@ const screens: { name: string; render: () => ReactElement }[] = [
           sessionRow({ id: 'bonus', kind: 'bonus', completed_at: null, flagged: true }),
         ]}
         onOpenSession={jest.fn()}
+        routine={{ ...DEFAULT_ROUTINE, weekendStartTime: '10:30' }}
+        vacations={[vacation]}
+        onEditRoutine={jest.fn()}
         pairing={{
           status: 'showing',
           code: 'ABC234',
@@ -97,6 +113,25 @@ const screens: { name: string; render: () => ReactElement }[] = [
         devices={[{ id: 'phone', platform: 'ios', paired_at: '2026-10-13T12:00:00Z' }]}
         revokingDeviceId={null}
         onRevokeDevice={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'RoutineSettings',
+    render: () => (
+      <RoutineSettings
+        routine={{ ...DEFAULT_ROUTINE, wednesdayStartTime: '14:00' }}
+        onSave={jest.fn()}
+        saving={false}
+        saved
+        saveError="network"
+        vacations={[vacation]}
+        today="2026-10-16"
+        onAddVacation={jest.fn()}
+        addingVacation={false}
+        vacationError={null}
+        removingVacationId={null}
+        onRemoveVacation={jest.fn()}
       />
     ),
   },
@@ -118,6 +153,8 @@ const screens: { name: string; render: () => ReactElement }[] = [
       <ChildHome
         child={lea}
         practice={{ status: 'in-progress', percent: 40 }}
+        plan="planned"
+        goal={{ type: 'duration', minutes: 15 }}
         sync="offline"
         onStart={jest.fn()}
         onSwitchProfile={jest.fn()}

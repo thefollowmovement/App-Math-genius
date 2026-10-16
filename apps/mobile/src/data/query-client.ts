@@ -13,8 +13,8 @@ export const queryClient = new QueryClient({
   },
 });
 
-/** Only the profiles are kept on the device; practice data has its own store. */
-const PERSISTED_QUERIES = new Set(['children']);
+/** Only profiles and routines are kept on the device; practice data has its own store. */
+const PERSISTED_QUERIES = new Set(['children', 'routines']);
 
 export const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
   persister: createAsyncStoragePersister({

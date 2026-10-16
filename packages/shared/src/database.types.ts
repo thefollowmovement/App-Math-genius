@@ -450,6 +450,57 @@ export type Database = {
           },
         ];
       };
+      routines: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          days: number[];
+          deadline_time: string;
+          goal_type: Database['public']['Enums']['session_goal_type'];
+          goal_value: number;
+          id: string;
+          start_time: string;
+          updated_at: string;
+          wednesday_start_time: string | null;
+          weekend_start_time: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          days: number[];
+          deadline_time: string;
+          goal_type: Database['public']['Enums']['session_goal_type'];
+          goal_value: number;
+          id?: string;
+          start_time: string;
+          updated_at?: string;
+          wednesday_start_time?: string | null;
+          weekend_start_time?: string | null;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          days?: number[];
+          deadline_time?: string;
+          goal_type?: Database['public']['Enums']['session_goal_type'];
+          goal_value?: number;
+          id?: string;
+          start_time?: string;
+          updated_at?: string;
+          wednesday_start_time?: string | null;
+          weekend_start_time?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'routines_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: true;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       sessions: {
         Row: {
           answered: number;
@@ -565,6 +616,42 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      vacations: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          from_date: string;
+          id: string;
+          to_date: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          from_date: string;
+          id?: string;
+          to_date: string;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          from_date?: string;
+          id?: string;
+          to_date?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'vacations_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Views: {

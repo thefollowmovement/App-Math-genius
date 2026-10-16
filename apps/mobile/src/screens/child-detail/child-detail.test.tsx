@@ -1,3 +1,4 @@
+import { DEFAULT_ROUTINE } from '@math-genius/shared';
 import { screen, userEvent } from '@testing-library/react-native';
 import type { ComponentProps } from 'react';
 
@@ -23,6 +24,9 @@ function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
       child={lea}
       sessions={[]}
       onOpenSession={jest.fn()}
+      routine={null}
+      vacations={[]}
+      onEditRoutine={jest.fn()}
       pairing={{ status: 'idle' }}
       creatingCode={false}
       pairingError={null}
@@ -36,6 +40,27 @@ function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
 }
 
 describe('ChildDetail', () => {
+  it('offers to set a routine', async () => {
+    const onEditRoutine = jest.fn();
+    const user = userEvent.setup();
+    await renderDetail({ onEditRoutine });
+    expect(screen.getByText(strings.routine.none)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: strings.routine.set }));
+    expect(onEditRoutine).toHaveBeenCalled();
+  });
+
+  it('sums up the routine and the coming holidays', async () => {
+    await renderDetail({
+      routine: DEFAULT_ROUTINE,
+      vacations: [{ id: 'v', child_id: 'lea', from_date: '2026-10-17', to_date: '2026-11-01' }],
+    });
+    expect(screen.getByText(strings.routine.deadlineLine('20:30'))).toBeOnTheScreen();
+    expect(
+      screen.getByText(strings.routine.vacationLine('17 octobre', '1 novembre')),
+    ).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: strings.routine.edit })).toBeOnTheScreen();
+  });
+
   it('shows the code and how long it stays valid', async () => {
     await renderDetail({
       pairing: { status: 'showing', code: 'ABC234', link: 'link', secondsLeft: 125 },

@@ -4,6 +4,8 @@ import { LoadingScreen } from '@/components/loading-screen';
 import { useChild } from '@/data/children';
 import { useRevokeDevice } from '@/data/devices';
 import { useTodaySessions } from '@/data/family-sessions';
+import { routineOf, vacationsOf } from '@/data/routine-plan';
+import { useRoutines } from '@/data/routines';
 import { usePairingPanel } from '@/hooks/use-pairing-panel';
 import { ChildDetail } from '@/screens/child-detail';
 
@@ -14,6 +16,7 @@ export default function ChildDetailRoute() {
   const panel = usePairingPanel(id);
   const revokeDevice = useRevokeDevice();
   const sessions = useTodaySessions();
+  const routines = useRoutines();
 
   if (!child.data) return <LoadingScreen />;
 
@@ -25,6 +28,11 @@ export default function ChildDetailRoute() {
         sessions={(sessions.data ?? []).filter((session) => session.child_id === id)}
         onOpenSession={(sessionId) =>
           router.push({ pathname: '/parent/sessions/[id]', params: { id: sessionId } })
+        }
+        routine={routineOf(routines.data, id)}
+        vacations={vacationsOf(routines.data, id)}
+        onEditRoutine={() =>
+          router.push({ pathname: '/parent/children/[id]/routine', params: { id } })
         }
         pairing={panel.pairing}
         creatingCode={panel.creatingCode}

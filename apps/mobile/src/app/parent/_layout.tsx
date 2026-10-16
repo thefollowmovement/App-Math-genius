@@ -28,7 +28,8 @@ export default function ParentLayout() {
           }}
         />
         <Stack.Screen name="children/new" options={{ title: strings.childForm.title }} />
-        <Stack.Screen name="children/[id]" />
+        <Stack.Screen name="children/[id]/index" />
+        <Stack.Screen name="children/[id]/routine" options={{ title: strings.routine.title }} />
         <Stack.Screen name="sessions/[id]" options={{ title: strings.sessionDetail.title }} />
       </Stack.Protected>
       <Stack.Protected guard={!isParent}>

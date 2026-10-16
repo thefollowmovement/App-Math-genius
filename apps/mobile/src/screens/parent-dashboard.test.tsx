@@ -22,6 +22,7 @@ const lea: Child = {
   theme_id: 'kawaii',
 };
 const tom: Child = { ...lea, id: 'tom', display_name: 'Tom' };
+const zoe: Child = { ...lea, id: 'zoe', display_name: 'Zoé' };
 const t = strings.todaySessions;
 
 describe('parent home', () => {
@@ -29,10 +30,11 @@ describe('parent home', () => {
     await renderWithTheme(
       <ParentHome
         parentName="Camille"
-        childProfiles={[lea, tom]}
+        childProfiles={[lea, tom, zoe]}
         today={{
-          lea: { status: 'done', main: sessionRow() },
-          tom: { status: 'not_started', main: null },
+          lea: { status: 'done', main: sessionRow(), startsAt: null },
+          tom: { status: 'not_started', main: null, startsAt: 17 * 60 },
+          zoe: { status: 'missed', main: null, startsAt: null },
         }}
         onAddChild={jest.fn()}
         onOpenChild={jest.fn()}
@@ -45,7 +47,15 @@ describe('parent home', () => {
         strings.parentHome.todayLine(strings.parentHome.today.done, '36/45 · 15 min'),
       ),
     ).toBeOnTheScreen();
-    expect(screen.getByText(strings.parentHome.today.not_started)).toBeOnTheScreen();
+    expect(
+      screen.getByText(
+        strings.parentHome.todayLine(
+          strings.parentHome.today.not_started,
+          strings.parentHome.startsAt('17:00'),
+        ),
+      ),
+    ).toBeOnTheScreen();
+    expect(screen.getByText(strings.parentHome.today.missed)).toBeOnTheScreen();
   });
 });
 

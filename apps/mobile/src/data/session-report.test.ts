@@ -1,4 +1,5 @@
 import { formatAnswer, rational } from '@math-genius/exercise-engine';
+import type { DayPlan } from '@math-genius/shared';
 
 import { exerciseOfType } from '@/test-utils/exercises';
 import { attemptRow, sessionRow } from '@/test-utils/family';
@@ -6,28 +7,59 @@ import { rightResponse, wrongResponse } from '@/test-utils/responses';
 
 import { attemptViews, childDay, familyDay, parseResponse, sessionState } from './session-report';
 
+const PLANNED: DayPlan = { kind: 'planned', start: 17 * 60, deadline: 20 * 60 + 30 };
+const AT = (hours: number, minutes = 0) => hours * 60 + minutes;
+
 describe('a child’s day', () => {
-  it('is not started without sessions', () => {
-    expect(childDay([])).toEqual({ status: 'not_started', main: null });
+  it('is not started without sessions, with its start time while it is to come', () => {
+    expect(childDay([])).toEqual({ status: 'not_started', main: null, startsAt: null });
+    expect(childDay([], PLANNED, AT(16, 30)).startsAt).toBe(AT(17));
+    expect(childDay([], PLANNED, AT(17, 10))).toMatchObject({
+      status: 'not_started',
+      startsAt: null,
+    });
   });
 
   it('is in progress while a session is open, and sums up with the daily session', () => {
     const daily = sessionRow({ completed_at: null, answered: 10, score: 8 });
-    expect(childDay([daily])).toEqual({ status: 'in_progress', main: daily });
+    expect(childDay([daily])).toEqual({ status: 'in_progress', main: daily, startsAt: null });
   });
 
   it('is done once a session ends, even if bonus training follows', () => {
     const daily = sessionRow();
     const bonus = sessionRow({ id: 'bonus', kind: 'bonus', started_at: '2026-10-16T16:00:00Z' });
-    expect(childDay([daily, bonus])).toEqual({ status: 'done', main: daily });
+    expect(childDay([daily, bonus])).toMatchObject({ status: 'done', main: daily });
     const playing = { ...bonus, completed_at: null };
-    expect(childDay([daily, playing]).status).toBe('in_progress');
+    expect(childDay([daily, playing]).status).toBe('done');
   });
 
-  it('splits the family’s sessions by child', () => {
-    const day = familyDay(['lea', 'tom'], [sessionRow({ child_id: 'tom' })]);
+  it('is missed past the deadline without a finished session, done if one ends late', () => {
+    const playing = sessionRow({ completed_at: null });
+    expect(childDay([], PLANNED, AT(20, 29)).status).toBe('not_started');
+    expect(childDay([], PLANNED, AT(20, 30)).status).toBe('missed');
+    expect(childDay([playing], PLANNED, AT(21)).status).toBe('missed');
+    expect(childDay([sessionRow()], PLANNED, AT(21)).status).toBe('done');
+  });
+
+  it('is off on a day off or during holidays, unless the child plays anyway', () => {
+    expect(childDay([], { kind: 'off' }, AT(21)).status).toBe('off');
+    expect(childDay([], { kind: 'vacation' }, AT(21)).status).toBe('vacation');
+    expect(childDay([sessionRow({ completed_at: null })], { kind: 'vacation' }).status).toBe(
+      'in_progress',
+    );
+    expect(childDay([], { kind: 'no_routine' }, AT(23)).status).toBe('not_started');
+  });
+
+  it('splits the family’s sessions and plans by child', () => {
+    const day = familyDay(
+      ['lea', 'tom', 'zoe'],
+      [sessionRow({ child_id: 'tom' })],
+      (id) => (id === 'zoe' ? PLANNED : { kind: 'no_routine' }),
+      AT(21),
+    );
     expect(day.lea?.status).toBe('not_started');
     expect(day.tom?.status).toBe('done');
+    expect(day.zoe?.status).toBe('missed');
   });
 
   it('labels each session', () => {

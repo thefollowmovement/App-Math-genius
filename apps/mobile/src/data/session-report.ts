@@ -6,14 +6,14 @@ import {
   type Exercise,
   type ExerciseResponse,
 } from '@math-genius/exercise-engine';
-import type { Json } from '@math-genius/shared';
+import type { DayPlan, Json } from '@math-genius/shared';
 
 import { responseText, rightAnswerText } from '@/utils/exercise-text';
 
 import type { AttemptRow, SessionRow } from './family-sessions';
 
-/** Where a child stands today. "Manqué" comes with routines and their deadline. */
-export type DayStatus = 'not_started' | 'in_progress' | 'done';
+/** Where a child stands today, from their sessions and what the routine plans. */
+export type DayStatus = 'not_started' | 'in_progress' | 'done' | 'missed' | 'off' | 'vacation';
 
 /** A session as the parent reads it. */
 export type SessionState = 'in_progress' | 'validated' | 'not_validated';
@@ -30,24 +30,54 @@ export type ChildDay = {
   status: DayStatus;
   /** The session to sum the day up with: the daily one, else the latest. */
   main: SessionRow | null;
+  /** Planned start, in minutes since midnight, while the session is still to come. */
+  startsAt: number | null;
 };
 
-export function childDay(sessions: readonly SessionRow[]): ChildDay {
-  if (sessions.length === 0) return { status: 'not_started', main: null };
+const NOTHING_PLANNED: DayPlan = { kind: 'no_routine' };
+
+/**
+ * A finished session makes the day done, even late. Past the deadline of a planned day, nothing
+ * finished means missed (the server reminders apply the same rule). On a day off or during
+ * holidays, a child who plays anyway still shows as playing or done.
+ */
+export function childDay(
+  sessions: readonly SessionRow[],
+  plan: DayPlan = NOTHING_PLANNED,
+  minute = 0,
+): ChildDay {
   const daily = sessions.filter((session) => session.kind === 'daily');
   const main = (daily.length > 0 ? daily : sessions).at(-1) ?? null;
-  const done = sessions.some((session) => session.completed_at !== null);
-  const playing = sessions.some((session) => session.completed_at === null);
-  return { status: playing ? 'in_progress' : done ? 'done' : 'not_started', main };
+  const planned = plan.kind === 'planned' ? plan : null;
+  const day = (status: DayStatus): ChildDay => ({
+    status,
+    main,
+    startsAt: status === 'not_started' && planned && minute < planned.start ? planned.start : null,
+  });
+
+  if (sessions.some((session) => session.completed_at !== null)) return day('done');
+  if (planned && minute >= planned.deadline) return day('missed');
+  if (sessions.length > 0) return day('in_progress');
+  if (plan.kind === 'off' || plan.kind === 'vacation') return day(plan.kind);
+  return day('not_started');
 }
 
 /** Today's state of each child, by child id. */
 export function familyDay(
   childIds: readonly string[],
   sessions: readonly SessionRow[],
+  planOf: (childId: string) => DayPlan = () => NOTHING_PLANNED,
+  minute = 0,
 ): Record<string, ChildDay> {
   return Object.fromEntries(
-    childIds.map((id) => [id, childDay(sessions.filter((session) => session.child_id === id))]),
+    childIds.map((id) => [
+      id,
+      childDay(
+        sessions.filter((session) => session.child_id === id),
+        planOf(id),
+        minute,
+      ),
+    ]),
   );
 }
 

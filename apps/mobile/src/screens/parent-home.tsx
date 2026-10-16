@@ -3,6 +3,7 @@ import { Avatar, Button, Pressable, Screen, ThemedText, View } from '@math-geniu
 import type { Child } from '@/data/children';
 import { type ChildDay, minutesOf } from '@/data/session-report';
 import { strings } from '@/i18n';
+import { timeText } from '@/utils/routine-text';
 
 const t = strings.parentHome;
 
@@ -59,8 +60,16 @@ export function ParentHome({
 
 function TodayLine({ day }: { day: ChildDay | undefined }) {
   if (!day) return null;
-  const { main } = day;
-  const score =
-    main && main.answered > 0 ? t.todayScore(main.score, main.answered, minutesOf(main)) : null;
-  return <ThemedText>{t.todayLine(t.today[day.status], score)}</ThemedText>;
+  const { main, startsAt } = day;
+  const detail =
+    main && main.answered > 0
+      ? t.todayScore(main.score, main.answered, minutesOf(main))
+      : startsAt !== null
+        ? t.startsAt(timeText(startsAt))
+        : null;
+  return (
+    <ThemedText tone={day.status === 'missed' ? 'danger' : 'default'}>
+      {t.todayLine(t.today[day.status], detail)}
+    </ThemedText>
+  );
 }

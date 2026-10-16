@@ -1,13 +1,16 @@
+import type { Routine } from '@math-genius/shared';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import type { Child } from '@/data/children';
 import type { PairedDevice } from '@/data/devices';
 import type { SessionRow } from '@/data/family-sessions';
 import type { ErrorKind } from '@/data/errors';
+import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
 
 import { TodaySessions } from '../today-sessions';
 import { PairingPanel, type PairingState } from './pairing-panel';
+import { RoutinePanel } from './routine-panel';
 
 export type { PairingState };
 
@@ -19,6 +22,10 @@ type ChildDetailProps = {
   /** The child's sessions today. */
   sessions: readonly SessionRow[];
   onOpenSession: (sessionId: string) => void;
+  routine: Routine | null;
+  /** Current and coming holidays. */
+  vacations: readonly VacationRow[];
+  onEditRoutine: () => void;
   pairing: PairingState;
   creatingCode: boolean;
   pairingError: ErrorKind | null;
@@ -32,6 +39,9 @@ export function ChildDetail({
   child,
   sessions,
   onOpenSession,
+  routine,
+  vacations,
+  onEditRoutine,
   pairing,
   creatingCode,
   pairingError,
@@ -44,6 +54,7 @@ export function ChildDetail({
     <Screen>
       <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
+      <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
       <PairingPanel
         pairing={pairing}
         creating={creatingCode}

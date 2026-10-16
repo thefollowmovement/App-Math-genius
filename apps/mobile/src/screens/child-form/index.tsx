@@ -4,12 +4,11 @@ import { Button, Screen, TextField } from '@math-genius/ui';
 import { useState } from 'react';
 
 import { ErrorMessage } from '@/components/error-message';
+import { PickerField } from '@/components/picker-field';
 import type { ErrorKind } from '@/data/errors';
 import { useFieldErrors } from '@/hooks/use-field-errors';
 import { strings } from '@/i18n';
 import { plausibleBirthYears } from '@/utils/birth-years';
-
-import { PickerField } from './picker-field';
 
 const t = strings.childForm;
 const NOT_CHOSEN = '';
