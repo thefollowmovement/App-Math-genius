@@ -45,6 +45,52 @@ export const fr = {
     addChild: 'Ajouter un enfant',
     childMode: 'Passer en mode enfant',
     signOut: 'Me déconnecter',
+    today: {
+      not_started: 'Pas encore de séance aujourd’hui',
+      in_progress: 'Séance en cours',
+      done: 'Séance du jour faite',
+    },
+    todayScore: (score: number, answered: number, minutes: number) =>
+      `${score}/${answered} · ${minutes}\u00a0min`,
+    todayLine: (status: string, score: string | null) => (score ? `${status} · ${score}` : status),
+  },
+  todaySessions: {
+    title: 'Aujourd’hui',
+    empty: 'Aucune séance aujourd’hui pour l’instant.',
+    kinds: {
+      daily: 'Séance du jour',
+      bonus: 'Entraînement bonus',
+      placement: 'Test de départ',
+      boss: 'Défi de fin d’île',
+    },
+    states: {
+      in_progress: 'En cours',
+      validated: 'Validée',
+      not_validated: 'Terminée, non validée',
+    },
+    startedAt: (time: string) => `Commencée à ${time}`,
+    score: (score: number, answered: number) =>
+      answered === 0
+        ? 'Pas encore de réponse'
+        : `${score} bonne${score > 1 ? 's' : ''} réponse${score > 1 ? 's' : ''} sur ${answered}`,
+    duration: (minutes: number) => (minutes < 1 ? 'Moins d’1\u00a0min' : `${minutes}\u00a0min`),
+    summary: (scoreText: string, durationText: string) => `${scoreText} · ${durationText}`,
+    flagged: 'Beaucoup de réponses très rapides\u00a0: peut-être tapées au hasard.',
+    open: 'Voir les questions',
+  },
+  sessionDetail: {
+    title: 'Détail de la séance',
+    question: (position: number, skill: string) => `Question ${position} · ${skill}`,
+    answer: (text: string) => `Réponse\u00a0: ${text}`,
+    rightAnswer: (text: string) => `Bonne réponse\u00a0: ${text}`,
+    meta: (correct: boolean, seconds: number, hintUsed: boolean) =>
+      [
+        correct ? 'Juste' : 'Erreur',
+        `${seconds}\u00a0s`,
+        ...(hintUsed ? ['avec indice'] : []),
+      ].join(' · '),
+    unavailable: 'Cet exercice n’existe plus dans cette version de l’app.',
+    empty: 'Aucune réponse pour l’instant.',
   },
   childForm: {
     title: 'Ajouter un enfant',

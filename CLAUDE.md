@@ -77,6 +77,11 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 - La table `skills` est remplie par des migrations générées depuis `packages/curriculum` : après un changement du référentiel, lancer `pnpm curriculum:sql` (un test échoue sinon). Appliquer les migrations avant de publier une version de l'app qui utilise de nouvelles compétences.
 - Tests de l'app : `jest/setup.ts` simule AsyncStorage, NetInfo et Gesture Handler ; Reanimated tourne grâce au resolver de `react-native-worklets`. `fetch` est simulé par `jest-expo` : les tests ne joignent jamais Supabase, d'où le transport injectable de `sync-engine.ts`.
 
+## Suivi parent (phase 4)
+
+- Séances du jour côté parent : `apps/mobile/src/data/family-sessions.ts` (requêtes et abonnement Realtime) et `data/session-report.ts` (état du jour par enfant, état d'une séance, lecture des réponses stockées). La table `sessions` est publiée dans Supabase Realtime (migration `*_parent_live_sessions.sql`) ; Realtime applique ses politiques RLS, donc un parent ne reçoit que les séances de ses enfants. Un seul abonnement, ouvert dans `app/parent/_layout.tsx`, rafraîchit toutes les pages parent ; il recharge aussi les séances dès qu'il est actif, pour ne rien manquer de ce qui précède.
+- Le texte des exercices n'est jamais stocké : le détail d'une séance les reconstruit avec le moteur (générateur, difficulté, graine). Un générateur retiré d'une version de l'app s'affiche comme « exercice indisponible ».
+
 ## Façon de travailler
 
 - Une phase = une branche. Ne code rien au-delà de la phase demandée.

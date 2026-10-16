@@ -2,9 +2,11 @@ import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import type { Child } from '@/data/children';
 import type { PairedDevice } from '@/data/devices';
+import type { SessionRow } from '@/data/family-sessions';
 import type { ErrorKind } from '@/data/errors';
 import { strings } from '@/i18n';
 
+import { TodaySessions } from '../today-sessions';
 import { PairingPanel, type PairingState } from './pairing-panel';
 
 export type { PairingState };
@@ -14,6 +16,9 @@ const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' });
 
 type ChildDetailProps = {
   child: Child;
+  /** The child's sessions today. */
+  sessions: readonly SessionRow[];
+  onOpenSession: (sessionId: string) => void;
   pairing: PairingState;
   creatingCode: boolean;
   pairingError: ErrorKind | null;
@@ -25,6 +30,8 @@ type ChildDetailProps = {
 
 export function ChildDetail({
   child,
+  sessions,
+  onOpenSession,
   pairing,
   creatingCode,
   pairingError,
@@ -36,6 +43,7 @@ export function ChildDetail({
   return (
     <Screen>
       <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>
+      <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
       <PairingPanel
         pairing={pairing}
         creating={creatingCode}

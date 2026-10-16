@@ -1,7 +1,7 @@
 import NetInfo from '@react-native-community/netinfo';
-import { onlineManager } from '@tanstack/react-query';
+import { focusManager, onlineManager } from '@tanstack/react-query';
 import { useSyncExternalStore } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 let listening = false;
 
@@ -16,6 +16,13 @@ export function startNetworkListener() {
   onlineManager.setEventListener((setOnline) =>
     NetInfo.addEventListener((state) => setOnline(state.isConnected !== false)),
   );
+  // Coming back to the app refreshes stale data (a parent reopening it sees today's sessions).
+  focusManager.setEventListener((setFocused) => {
+    const subscription = AppState.addEventListener('change', (state) =>
+      setFocused(state === 'active'),
+    );
+    return () => subscription.remove();
+  });
 }
 
 const subscribe = (onChange: () => void) => onlineManager.subscribe(onChange);

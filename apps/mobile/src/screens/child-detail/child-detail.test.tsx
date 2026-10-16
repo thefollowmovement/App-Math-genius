@@ -21,6 +21,8 @@ function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
   return renderWithTheme(
     <ChildDetail
       child={lea}
+      sessions={[]}
+      onOpenSession={jest.fn()}
       pairing={{ status: 'idle' }}
       creatingCode={false}
       pairingError={null}

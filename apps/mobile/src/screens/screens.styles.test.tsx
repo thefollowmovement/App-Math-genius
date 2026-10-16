@@ -12,7 +12,9 @@ import {
   unreasonableLayoutValues,
 } from '@/test-utils/native-styles';
 
+import { attemptViews } from '@/data/session-report';
 import { EXERCISE_TYPES, exerciseOfType } from '@/test-utils/exercises';
+import { attemptRow, sessionRow } from '@/test-utils/family';
 import { rightResponse, wrongResponse } from '@/test-utils/responses';
 
 import { ChildDetail } from './child-detail';
@@ -23,6 +25,7 @@ import { ParentHome } from './parent-home';
 import { PracticeScreen } from './practice';
 import { ProfilePicker } from './profile-picker';
 import { SignIn } from './sign-in';
+import { SessionDetail } from './session-detail';
 import { SessionSummary } from './session-summary';
 import { SignUp } from './sign-up';
 
@@ -55,6 +58,10 @@ const screens: { name: string; render: () => ReactElement }[] = [
       <ParentHome
         parentName="Camille"
         childProfiles={[lea, tom]}
+        today={{
+          lea: { status: 'done', main: sessionRow() },
+          tom: { status: 'in_progress', main: sessionRow({ completed_at: null, answered: 12 }) },
+        }}
         onAddChild={jest.fn()}
         onOpenChild={jest.fn()}
         onChildMode={jest.fn()}
@@ -73,6 +80,11 @@ const screens: { name: string; render: () => ReactElement }[] = [
     render: () => (
       <ChildDetail
         child={lea}
+        sessions={[
+          sessionRow(),
+          sessionRow({ id: 'bonus', kind: 'bonus', completed_at: null, flagged: true }),
+        ]}
+        onOpenSession={jest.fn()}
         pairing={{
           status: 'showing',
           code: 'ABC234',
@@ -111,6 +123,25 @@ const screens: { name: string; render: () => ReactElement }[] = [
         onSwitchProfile={jest.fn()}
       />
     ),
+  },
+  {
+    name: 'SessionDetail',
+    render: () => {
+      const exercise = exerciseOfType('numeric');
+      return (
+        <SessionDetail
+          session={sessionRow({ goal_met: false, flagged: true })}
+          attempts={attemptViews([
+            attemptRow(exercise, wrongResponse(exercise)),
+            attemptRow(exercise, rightResponse(exercise), {
+              position: 1,
+              is_correct: true,
+              hint_used: true,
+            }),
+          ])}
+        />
+      );
+    },
   },
   {
     name: 'SessionSummary',
