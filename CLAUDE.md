@@ -85,15 +85,17 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 
 ## Commandes
 
-Prérequis : Node 22 (`.nvmrc`), pnpm 10 (`corepack enable`), Docker pour Supabase local.
+Prérequis : Node 22 (`.nvmrc`), pnpm 10 (`corepack enable`), Docker Desktop installé et lancé pour Supabase local.
+
+Sur un téléphone (Expo Go), `127.0.0.1` désigne le téléphone lui-même. En développement, l'app remplace donc l'hôte d'une URL Supabase locale par l'adresse IP du Mac sur le réseau, déduite de l'hôte Metro (`Constants.expoConfig.hostUri`, voir `apps/mobile/src/lib/dev-host.ts`) : rien à modifier dans `.env.local`. Il faut que le téléphone et le Mac soient sur le même Wi-Fi, que Docker Desktop tourne avec `pnpm supabase:start` (l'API écoute sur toutes les interfaces, port 54321) et, si le pare-feu de macOS est actif, qu'il accepte les connexions entrantes vers Docker. En mode tunnel (`--tunnel`), seul Metro passe : Supabase local n'est alors pas joignable.
 
 | Besoin | Commande |
 | --- | --- |
 | Installer les dépendances | `pnpm install` |
-| Configurer l'app (Supabase local) | `cp apps/mobile/.env.example apps/mobile/.env.local` ; sur un téléphone, remplacer `127.0.0.1` par l'adresse IP locale de l'ordinateur |
+| Configurer l'app (Supabase local) | `cp apps/mobile/.env.example apps/mobile/.env.local` (garder `127.0.0.1` : sur téléphone, l'app le remplace par l'IP du Mac) |
 | Lancer l'app (menu Expo : `i` iOS, `a` Android, `w` web) | `pnpm mobile` |
 | Ouvrir directement sur iOS / Android / navigateur | `pnpm ios` / `pnpm android` / `pnpm web` |
-| Tester sur un vrai téléphone | app Expo Go, puis scanner le QR code affiché par `pnpm mobile` |
+| Tester sur un vrai téléphone (même Wi-Fi que le Mac, Docker Desktop lancé) | `pnpm supabase:start`, puis `pnpm mobile` et scanner le QR code avec Expo Go |
 | Lint, types, tests, format | `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm format:check` (`pnpm format` corrige) |
 | Tests d'un seul paquet | `pnpm --filter @math-genius/ui test` |
 | Catalogue d'exemples d'exercices à faire relire (Markdown) | `pnpm --filter @math-genius/exercise-engine catalog > catalogue.md` |
