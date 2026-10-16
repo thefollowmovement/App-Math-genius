@@ -1,26 +1,34 @@
 import '../global.css';
 
 import { ThemeProvider, themes, useTheme } from '@math-genius/ui';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { queryClient } from '@/data/query-client';
+import { startNetworkListener } from '@/data/network';
+import { startSyncTriggers } from '@/data/practice/sync';
+import { persistOptions, queryClient } from '@/data/query-client';
 import { startSessionListener } from '@/data/session';
 import { useStackScreenOptions } from '@/hooks/use-stack-screen-options';
 
 export default function RootLayout() {
   useEffect(() => {
+    startNetworkListener();
     startSessionListener();
+    startSyncTriggers();
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={themes.kawaii}>
-        <RootStack />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
+        <ThemeProvider theme={themes.kawaii}>
+          <RootStack />
+        </ThemeProvider>
+      </PersistQueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -35,3 +43,5 @@ function RootStack() {
     </>
   );
 }
+
+const styles = StyleSheet.create({ root: { flex: 1 } });

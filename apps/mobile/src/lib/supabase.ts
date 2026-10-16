@@ -5,10 +5,12 @@ import { AppState, Platform } from 'react-native';
 import { env } from './env';
 import { secureStorage } from './secure-storage';
 
+export const AUTH_STORAGE_KEY = 'math-genius.auth';
+
 export const supabase = createClient<Database>(env.supabaseUrl, env.supabaseKey, {
   auth: {
     storage: secureStorage,
-    storageKey: 'math-genius.auth',
+    storageKey: AUTH_STORAGE_KEY,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

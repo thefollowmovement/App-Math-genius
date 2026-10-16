@@ -582,7 +582,7 @@ On construit par phases courtes, chacune testable par ta fille : d'abord une bou
 | 2. Référentiel + moteur | Compétences CE2 → 5e d'abord (cœur des difficultés), 30 générateurs, correcteur, tests de 1 000 tirages | Zéro réponse fausse sur les tests ; ajout d'un générateur en moins de 30 lignes |
 | 3. Séance et adaptatif | Écran exercice, clavier intégré, composition de séance, maîtrise Elo, hors-ligne | Une séance de 15 min jouable sans réseau, synchronisée ensuite |
 | 4. Routine et rappels | Réglages parent, pg\_cron, escalade, tableau de bord temps réel | Rappel parent reçu à H+60 si séance non faite, même app enfant fermée |
-| 5. Gamification | XP, série, gel, gemmes, coffres, badges, carte du monde, boutique, récompenses parent | Fin de séance avec animation, série et coffre corrects sur 7 jours simulés |
+| 5. Gamification | XP, série, gel, gemmes, coffres, badges, carte du monde, boutique, récompenses parent ; recorrection côté serveur obligatoire avant d’attribuer XP et gemmes | Fin de séance avec animation, série et coffre corrects sur 7 jours simulés |
 | 6. Thèmes et avatars | 3 thèmes complets (kawaii, manga, espace), éditeur d'avatar, mascotte | Changer de thème ne demande aucun code d'écran |
 | 7. Positionnement | Test adaptatif, carte des résultats, pré-remplissage de la maîtrise | Résultat cohérent pour 3 profils d'élèves simulés |
 | 7b. Profil et univers | Questionnaire « Ton univers », types d'erreurs par générateur, profil d'apprentissage recalculé chaque nuit, résumé compact | Forces et points à travailler cohérents sur 3 profils simulés ; parent peut modifier ou désactiver |

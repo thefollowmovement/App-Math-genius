@@ -21,7 +21,7 @@ export function Avatar({ name, size = 'md', className }: AvatarProps) {
       accessible={false}
       className={cx('items-center justify-center rounded-full bg-primary', circle, className)}
     >
-      <ThemedText variant={variant} className="text-on-primary">
+      <ThemedText variant={variant} tone="onPrimary">
         {name.trim().charAt(0).toUpperCase()}
       </ThemedText>
     </View>

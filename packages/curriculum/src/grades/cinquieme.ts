@@ -12,6 +12,7 @@ export const cinquiemeSkills = defineGradeSkills('5e', '2026', [
   {
     code: '5e.relatifs-addition-soustraction',
     domain: 'numbers',
+    automatism: true,
     title: 'Additionner et soustraire des nombres relatifs',
     prerequisites: ['5e.relatifs-reperage'],
   },

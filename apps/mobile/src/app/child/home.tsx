@@ -2,14 +2,25 @@ import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
 import { useChild } from '@/data/children';
+import { useIsOnline } from '@/data/network';
+import { hasUnsentAnswers, usePracticeStore } from '@/data/practice/practice-store';
+import { practiceStatus } from '@/data/practice/summary';
+import { usePracticeSync } from '@/data/practice/sync';
 import { useAccountKind } from '@/data/session';
+import { useStartSession } from '@/hooks/use-start-session';
 import { ChildHome } from '@/screens/child-home';
+import { localDate } from '@/utils/local-date';
 
 export default function ChildHomeRoute() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const kind = useAccountKind();
   const child = useChild(id);
+  const practice = usePracticeStore((state) => state.children[id]);
+  const unsent = usePracticeStore((state) => hasUnsentAnswers(state.children[id]));
+  const online = useIsOnline();
+  const start = useStartSession(child.data);
+  usePracticeSync(child.data?.id);
 
   if (child.isPending) return <LoadingScreen />;
   if (!child.data) return <Redirect href="/child" />;
@@ -19,6 +30,9 @@ export default function ChildHomeRoute() {
   return (
     <ChildHome
       child={child.data}
+      practice={practiceStatus(practice, child.data.grade, localDate())}
+      sync={!online ? 'offline' : unsent ? 'syncing' : 'idle'}
+      onStart={() => start()}
       onSwitchProfile={
         kind === 'parent' || profileCount > 1 ? () => router.replace('/child/profiles') : undefined
       }

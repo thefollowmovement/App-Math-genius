@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
 import type { Child } from '@/data/children';
+import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
 import {
   badLineHeights,
@@ -11,13 +12,18 @@ import {
   unreasonableLayoutValues,
 } from '@/test-utils/native-styles';
 
+import { EXERCISE_TYPES, exerciseOfType } from '@/test-utils/exercises';
+import { rightResponse, wrongResponse } from '@/test-utils/responses';
+
 import { ChildDetail } from './child-detail';
 import { ChildForm } from './child-form';
 import { ChildHome } from './child-home';
 import { PairDevice } from './pair-device';
 import { ParentHome } from './parent-home';
+import { PracticeScreen } from './practice';
 import { ProfilePicker } from './profile-picker';
 import { SignIn } from './sign-in';
+import { SessionSummary } from './session-summary';
 import { SignUp } from './sign-up';
 
 const globalCss = compileGlobalCss();
@@ -94,7 +100,68 @@ const screens: { name: string; render: () => ReactElement }[] = [
       <ProfilePicker childProfiles={[lea, tom]} onPick={jest.fn()} onPairAnother={jest.fn()} />
     ),
   },
-  { name: 'ChildHome', render: () => <ChildHome child={lea} onSwitchProfile={jest.fn()} /> },
+  {
+    name: 'ChildHome',
+    render: () => (
+      <ChildHome
+        child={lea}
+        practice={{ status: 'in-progress', percent: 40 }}
+        sync="offline"
+        onStart={jest.fn()}
+        onSwitchProfile={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'SessionSummary',
+    render: () => (
+      <SessionSummary
+        summary={{
+          goalMet: true,
+          answered: 45,
+          correct: 37,
+          minutes: 15,
+          progressed: [{ title: 'Connaître les tables de multiplication de 2 à 10', mastery: 72 }],
+        }}
+        saved={false}
+        onBonus={jest.fn()}
+        onHome={jest.fn()}
+      />
+    ),
+  },
+  ...EXERCISE_TYPES.flatMap((type) => {
+    const exercise = exerciseOfType(type);
+    const screen = (feedback: 'none' | 'right' | 'wrong') => (
+      <PracticeScreen
+        exercise={exercise}
+        slot="automatism"
+        twin
+        reminder={feedback === 'none'}
+        progress={0.4}
+        hintShown={false}
+        notice={feedback === 'none' ? strings.practice.unreadable : null}
+        feedback={
+          feedback === 'none'
+            ? null
+            : {
+                response: feedback === 'right' ? rightResponse(exercise) : wrongResponse(exercise),
+                correct: feedback === 'right',
+                fast: true,
+                finished: false,
+              }
+        }
+        onShowHint={jest.fn()}
+        onSubmit={jest.fn()}
+        onContinue={jest.fn()}
+        onPause={jest.fn()}
+      />
+    );
+    return [
+      { name: `Practice (${type})`, render: () => screen('none') },
+      { name: `Practice (${type}, wrong answer)`, render: () => screen('wrong') },
+      { name: `Practice (${type}, right answer)`, render: () => screen('right') },
+    ];
+  }),
 ];
 
 describe.each(screens)('$name with native styles', ({ render }) => {

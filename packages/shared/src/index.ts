@@ -10,8 +10,8 @@ export {
   type ParentSignIn,
   type ParentSignUp,
 } from './accounts';
-export type { Database, Enums, Tables } from './database.types';
-export { GRADES, gradeSchema, type Grade } from './grade';
+export type { Database, Enums, Json, Tables } from './database.types';
+export { GRADES, gradeRank, gradeSchema, type Grade } from './grade';
 export {
   PAIRING_CODE_ALPHABET,
   PAIRING_CODE_LENGTH,

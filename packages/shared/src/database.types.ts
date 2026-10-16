@@ -3,6 +3,156 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      attempts: {
+        Row: {
+          answer: NonNullable<Json>;
+          answered_at: string;
+          child_id: string;
+          created_at: string;
+          difficulty: number;
+          generator_id: string;
+          hint_used: boolean;
+          id: string;
+          is_correct: boolean;
+          learner_elo: number;
+          position: number;
+          reminder: boolean;
+          seed: number;
+          session_id: string;
+          skill_code: string;
+          slot: Database['public']['Enums']['session_slot'];
+          time_ms: number;
+          twin_of: number | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answer: NonNullable<Json>;
+          answered_at: string;
+          child_id: string;
+          created_at?: string;
+          difficulty: number;
+          generator_id: string;
+          hint_used?: boolean;
+          id?: string;
+          is_correct: boolean;
+          learner_elo: number;
+          position: number;
+          reminder?: boolean;
+          seed: number;
+          session_id: string;
+          skill_code: string;
+          slot: Database['public']['Enums']['session_slot'];
+          time_ms: number;
+          twin_of?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          answer?: NonNullable<Json>;
+          answered_at?: string;
+          child_id?: string;
+          created_at?: string;
+          difficulty?: number;
+          generator_id?: string;
+          hint_used?: boolean;
+          id?: string;
+          is_correct?: boolean;
+          learner_elo?: number;
+          position?: number;
+          reminder?: boolean;
+          seed?: number;
+          session_id?: string;
+          skill_code?: string;
+          slot?: Database['public']['Enums']['session_slot'];
+          time_ms?: number;
+          twin_of?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'attempts_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'attempts_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'attempts_skill_code_fkey';
+            columns: ['skill_code'];
+            isOneToOne: false;
+            referencedRelation: 'skills';
+            referencedColumns: ['code'];
+          },
+        ];
+      };
+      child_skill_mastery: {
+        Row: {
+          attempts_count: number;
+          child_id: string;
+          created_at: string;
+          elo: number;
+          id: string;
+          last_practiced_at: string | null;
+          mastered_at: string | null;
+          mastery: number;
+          sessions_streak: number;
+          skill_code: string;
+          status: Database['public']['Enums']['mastery_status'];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attempts_count: number;
+          child_id: string;
+          created_at?: string;
+          elo: number;
+          id?: string;
+          last_practiced_at?: string | null;
+          mastered_at?: string | null;
+          mastery: number;
+          sessions_streak: number;
+          skill_code: string;
+          status: Database['public']['Enums']['mastery_status'];
+          updated_at?: string;
+        };
+        Update: {
+          attempts_count?: number;
+          child_id?: string;
+          created_at?: string;
+          elo?: number;
+          id?: string;
+          last_practiced_at?: string | null;
+          mastered_at?: string | null;
+          mastery?: number;
+          sessions_streak?: number;
+          skill_code?: string;
+          status?: Database['public']['Enums']['mastery_status'];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_skill_mastery_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_skill_mastery_skill_code_fkey';
+            columns: ['skill_code'];
+            isOneToOne: false;
+            referencedRelation: 'skills';
+            referencedColumns: ['code'];
+          },
+        ];
+      };
       children: {
         Row: {
           avatar: NonNullable<Json>;
@@ -155,6 +305,37 @@ export type Database = {
         };
         Relationships: [];
       };
+      item_ratings: {
+        Row: {
+          answers_count: number;
+          created_at: string;
+          difficulty: number;
+          generator_id: string;
+          id: string;
+          rating: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answers_count?: number;
+          created_at?: string;
+          difficulty: number;
+          generator_id: string;
+          id?: string;
+          rating: number;
+          updated_at?: string;
+        };
+        Update: {
+          answers_count?: number;
+          created_at?: string;
+          difficulty?: number;
+          generator_id?: string;
+          id?: string;
+          rating?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       pairing_codes: {
         Row: {
           child_id: string;
@@ -269,6 +450,122 @@ export type Database = {
           },
         ];
       };
+      sessions: {
+        Row: {
+          answered: number;
+          child_id: string;
+          completed_at: string | null;
+          created_at: string;
+          device_id: string | null;
+          duration_s: number;
+          flagged: boolean;
+          goal_met: boolean;
+          goal_type: Database['public']['Enums']['session_goal_type'];
+          goal_value: number;
+          id: string;
+          kind: Database['public']['Enums']['session_kind'];
+          local_date: string;
+          score: number;
+          started_at: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answered?: number;
+          child_id: string;
+          completed_at?: string | null;
+          created_at?: string;
+          device_id?: string | null;
+          duration_s?: number;
+          flagged?: boolean;
+          goal_met?: boolean;
+          goal_type: Database['public']['Enums']['session_goal_type'];
+          goal_value: number;
+          id: string;
+          kind: Database['public']['Enums']['session_kind'];
+          local_date: string;
+          score?: number;
+          started_at: string;
+          updated_at?: string;
+        };
+        Update: {
+          answered?: number;
+          child_id?: string;
+          completed_at?: string | null;
+          created_at?: string;
+          device_id?: string | null;
+          duration_s?: number;
+          flagged?: boolean;
+          goal_met?: boolean;
+          goal_type?: Database['public']['Enums']['session_goal_type'];
+          goal_value?: number;
+          id?: string;
+          kind?: Database['public']['Enums']['session_kind'];
+          local_date?: string;
+          score?: number;
+          started_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'sessions_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'sessions_device_id_fkey';
+            columns: ['device_id'];
+            isOneToOne: false;
+            referencedRelation: 'devices';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      skills: {
+        Row: {
+          automatism: boolean;
+          code: string;
+          created_at: string;
+          domain: Database['public']['Enums']['skill_domain'];
+          grade: Database['public']['Enums']['grade'];
+          id: string;
+          prerequisites: string[];
+          program_version: string;
+          subject: string;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          automatism?: boolean;
+          code: string;
+          created_at?: string;
+          domain: Database['public']['Enums']['skill_domain'];
+          grade: Database['public']['Enums']['grade'];
+          id?: string;
+          prerequisites?: string[];
+          program_version: string;
+          subject?: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          automatism?: boolean;
+          code?: string;
+          created_at?: string;
+          domain?: Database['public']['Enums']['skill_domain'];
+          grade?: Database['public']['Enums']['grade'];
+          id?: string;
+          prerequisites?: string[];
+          program_version?: string;
+          subject?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -289,12 +586,44 @@ export type Database = {
         }[];
       };
       revoke_device: { Args: { p_device_id: string }; Returns: undefined };
+      sync_session: {
+        Args: { p_session: Json };
+        Returns: {
+          answered: number;
+          child_id: string;
+          completed_at: string | null;
+          created_at: string;
+          device_id: string | null;
+          duration_s: number;
+          flagged: boolean;
+          goal_met: boolean;
+          goal_type: Database['public']['Enums']['session_goal_type'];
+          goal_value: number;
+          id: string;
+          kind: Database['public']['Enums']['session_kind'];
+          local_date: string;
+          score: number;
+          started_at: string;
+          updated_at: string;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'sessions';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
     };
     Enums: {
       child_gender: 'girl' | 'boy';
       device_platform: 'ios' | 'android' | 'web';
       grade: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
+      mastery_status: 'to_discover' | 'in_progress' | 'mastered' | 'to_review';
       parent_role: 'owner' | 'co_parent';
+      session_goal_type: 'duration' | 'count';
+      session_kind: 'daily' | 'bonus' | 'placement' | 'boss';
+      session_slot: 'current' | 'review' | 'automatism' | 'challenge';
+      skill_domain: 'numbers' | 'measures' | 'geometry' | 'data';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -409,7 +738,12 @@ export const Constants = {
       child_gender: ['girl', 'boy'],
       device_platform: ['ios', 'android', 'web'],
       grade: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
+      mastery_status: ['to_discover', 'in_progress', 'mastered', 'to_review'],
       parent_role: ['owner', 'co_parent'],
+      session_goal_type: ['duration', 'count'],
+      session_kind: ['daily', 'bonus', 'placement', 'boss'],
+      session_slot: ['current', 'review', 'automatism', 'challenge'],
+      skill_domain: ['numbers', 'measures', 'geometry', 'data'],
     },
   },
 } as const;
