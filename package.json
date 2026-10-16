@@ -1,0 +1,30 @@
+{
+  "name": "math-genius",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "mobile": "pnpm --filter @math-genius/mobile start",
+    "ios": "pnpm --filter @math-genius/mobile ios",
+    "android": "pnpm --filter @math-genius/mobile android",
+    "web": "pnpm --filter @math-genius/mobile web",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r test",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset",
+    "supabase:status": "supabase status"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~57.0.2",
+    "prettier": "^3.9.10",
+    "supabase": "^2.120.0",
+    "typescript": "~6.0.3"
+  }
+}
