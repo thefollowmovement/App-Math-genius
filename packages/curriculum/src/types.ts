@@ -1,0 +1,33 @@
+import type { Grade } from '@math-genius/shared';
+
+/** The four columns of the programme table in docs/specs.md. */
+export const DOMAINS = ['numbers', 'measures', 'geometry', 'data'] as const;
+export type Domain = (typeof DOMAINS)[number];
+
+export type SkillDefinition = {
+  /** Stable identifier `<grade>.<slug>`, stored with every child's mastery: never rename it. */
+  code: string;
+  domain: Domain;
+  /** French title, as a teacher would phrase the expected skill. */
+  title: string;
+  /** Codes of the skills to master first (same or earlier grade). */
+  prerequisites: readonly string[];
+};
+
+export type Skill = SkillDefinition & {
+  subject: 'math';
+  grade: Grade;
+  /** School year from which the programme behind this skill applies (see docs/specs.md). */
+  programVersion: string;
+};
+
+/** Adds the grade-wide fields while keeping each code as a literal type. */
+export function defineGradeSkills<const T extends readonly SkillDefinition[]>(
+  grade: Grade,
+  programVersion: string,
+  skills: T,
+): { [K in keyof T]: T[K] & Skill } {
+  return skills.map((skill) => ({ ...skill, subject: 'math', grade, programVersion })) as {
+    [K in keyof T]: T[K] & Skill;
+  };
+}
