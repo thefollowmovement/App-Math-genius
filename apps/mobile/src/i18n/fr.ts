@@ -179,6 +179,26 @@ export const fr = {
       period: (from: string, to: string) => `Du ${from} au ${to}`,
     },
   },
+  nudge: {
+    title: (name: string) => `Envoyer un message à ${name}`,
+    intro: 'Il s’affiche sur son appareil, même app fermée.',
+    suggestions: [
+      'C’est l’heure de ta séance de maths\u00a0!',
+      'Tu fais ta mission du jour maintenant\u00a0?',
+      'Je compte sur toi pour ta séance.',
+    ],
+    message: 'Message',
+    send: 'Envoyer',
+    sent: 'Message envoyé.',
+    noDevice: (name: string) =>
+      `Aucun appareil de ${name} n’affiche les notifications\u00a0: ouvrez l’app sur son appareil et autorisez-les.`,
+    errors: {
+      message: 'Écrivez un message (120 caractères maximum).',
+    },
+  },
+  notifications: {
+    channel: 'Rappels de séance',
+  },
   pairDevice: {
     title: 'Relie ton appareil',
     intro: 'Demande à ton parent d’afficher le code dans son app.',
@@ -315,6 +335,8 @@ export const fr = {
     emailTaken: 'Un compte existe déjà avec cet email.',
     invalidPairingCode: 'Ce code ne marche pas. Vérifie-le ou demande un nouveau code.',
     deviceInOtherFamily: 'Cet appareil est déjà relié à une autre famille.',
+    tooManyMessages:
+      'Vous venez d’envoyer un message\u00a0: attendez 2\u00a0minutes avant le suivant.',
     network: 'Pas de connexion. Vérifiez le réseau et réessayez.',
     unknown: 'Une erreur est survenue. Réessayez.',
   },

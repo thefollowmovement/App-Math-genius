@@ -336,6 +336,79 @@ export type Database = {
         };
         Relationships: [];
       };
+      notifications: {
+        Row: {
+          audience: Database['public']['Enums']['notification_audience'];
+          body: string;
+          child_id: string;
+          created_at: string;
+          dedup_key: string;
+          family_id: string;
+          id: string;
+          kind: Database['public']['Enums']['notification_kind'];
+          push_errors: Json | null;
+          push_request_id: number | null;
+          push_status: number | null;
+          push_tokens: string[];
+          sent_at: string | null;
+          title: string;
+          updated_at: string;
+          url: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          audience: Database['public']['Enums']['notification_audience'];
+          body: string;
+          child_id: string;
+          created_at?: string;
+          dedup_key: string;
+          family_id: string;
+          id?: string;
+          kind: Database['public']['Enums']['notification_kind'];
+          push_errors?: Json | null;
+          push_request_id?: number | null;
+          push_status?: number | null;
+          push_tokens?: string[];
+          sent_at?: string | null;
+          title: string;
+          updated_at?: string;
+          url: string;
+        };
+        Update: {
+          audience?: Database['public']['Enums']['notification_audience'];
+          body?: string;
+          child_id?: string;
+          created_at?: string;
+          dedup_key?: string;
+          family_id?: string;
+          id?: string;
+          kind?: Database['public']['Enums']['notification_kind'];
+          push_errors?: Json | null;
+          push_request_id?: number | null;
+          push_status?: number | null;
+          push_tokens?: string[];
+          sent_at?: string | null;
+          title?: string;
+          updated_at?: string;
+          url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_family_id_fkey';
+            columns: ['family_id'];
+            isOneToOne: false;
+            referencedRelation: 'families';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       pairing_codes: {
         Row: {
           child_id: string;
@@ -449,6 +522,34 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      push_tokens: {
+        Row: {
+          created_at: string;
+          id: string;
+          platform: Database['public']['Enums']['device_platform'];
+          token: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          platform: Database['public']['Enums']['device_platform'];
+          token: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          platform?: Database['public']['Enums']['device_platform'];
+          token?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
       };
       routines: {
         Row: {
@@ -672,7 +773,12 @@ export type Database = {
           display_name: string;
         }[];
       };
+      register_push_token: {
+        Args: { p_platform: Database['public']['Enums']['device_platform']; p_token: string };
+        Returns: undefined;
+      };
       revoke_device: { Args: { p_device_id: string }; Returns: undefined };
+      send_child_message: { Args: { p_child_id: string; p_message: string }; Returns: number };
       sync_session: {
         Args: { p_session: Json };
         Returns: {
@@ -700,12 +806,22 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      unregister_push_token: { Args: { p_token: string }; Returns: undefined };
     };
     Enums: {
       child_gender: 'girl' | 'boy';
       device_platform: 'ios' | 'android' | 'web';
       grade: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
       mastery_status: 'to_discover' | 'in_progress' | 'mastered' | 'to_review';
+      notification_audience: 'child' | 'parent';
+      notification_kind:
+        | 'routine_soon'
+        | 'routine_start'
+        | 'routine_nudge'
+        | 'not_started'
+        | 'missed'
+        | 'session_done'
+        | 'parent_message';
       parent_role: 'owner' | 'co_parent';
       session_goal_type: 'duration' | 'count';
       session_kind: 'daily' | 'bonus' | 'placement' | 'boss';
@@ -826,6 +942,16 @@ export const Constants = {
       device_platform: ['ios', 'android', 'web'],
       grade: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
       mastery_status: ['to_discover', 'in_progress', 'mastered', 'to_review'],
+      notification_audience: ['child', 'parent'],
+      notification_kind: [
+        'routine_soon',
+        'routine_start',
+        'routine_nudge',
+        'not_started',
+        'missed',
+        'session_done',
+        'parent_message',
+      ],
       parent_role: ['owner', 'co_parent'],
       session_goal_type: ['duration', 'count'],
       session_kind: ['daily', 'bonus', 'placement', 'boss'],

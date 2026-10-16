@@ -3,6 +3,7 @@ export type ErrorKind =
   | 'emailTaken'
   | 'invalidPairingCode'
   | 'deviceInOtherFamily'
+  | 'tooManyMessages'
   | 'network'
   | 'unknown';
 
@@ -20,6 +21,7 @@ export function errorKind(error: unknown): ErrorKind {
   if (code === 'user_already_exists' || /already registered/i.test(text)) return 'emailTaken';
   if (text.includes('invalid_pairing_code')) return 'invalidPairingCode';
   if (text.includes('device_in_other_family')) return 'deviceInOtherFamily';
+  if (text.includes('too_many_messages')) return 'tooManyMessages';
   if (/network request failed|failed to fetch|fetch failed/i.test(text)) return 'network';
   return 'unknown';
 }

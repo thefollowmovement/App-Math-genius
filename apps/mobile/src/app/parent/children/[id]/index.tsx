@@ -1,7 +1,9 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
+import { useSendChildMessage } from '@/data/child-messages';
 import { useChild } from '@/data/children';
+import { errorKind } from '@/data/errors';
 import { useRevokeDevice } from '@/data/devices';
 import { useTodaySessions } from '@/data/family-sessions';
 import { routineOf, vacationsOf } from '@/data/routine-plan';
@@ -17,6 +19,7 @@ export default function ChildDetailRoute() {
   const revokeDevice = useRevokeDevice();
   const sessions = useTodaySessions();
   const routines = useRoutines();
+  const message = useSendChildMessage(id);
 
   if (!child.data) return <LoadingScreen />;
 
@@ -34,6 +37,12 @@ export default function ChildDetailRoute() {
         onEditRoutine={() =>
           router.push({ pathname: '/parent/children/[id]/routine', params: { id } })
         }
+        nudge={{
+          onSend: (text) => message.mutate(text),
+          sending: message.isPending,
+          result: message.data === undefined ? null : message.data > 0 ? 'sent' : 'no_device',
+          error: message.error ? errorKind(message.error) : null,
+        }}
         pairing={panel.pairing}
         creatingCode={panel.creatingCode}
         pairingError={panel.pairingError}

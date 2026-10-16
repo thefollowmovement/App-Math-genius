@@ -9,10 +9,18 @@ import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
 
 import { TodaySessions } from '../today-sessions';
+import { NudgePanel, type NudgeResult } from './nudge-panel';
 import { PairingPanel, type PairingState } from './pairing-panel';
 import { RoutinePanel } from './routine-panel';
 
-export type { PairingState };
+export type { NudgeResult, PairingState };
+
+export type NudgeState = {
+  onSend: (message: string) => void;
+  sending: boolean;
+  result: NudgeResult;
+  error: ErrorKind | null;
+};
 
 const t = strings.childDetail;
 const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' });
@@ -26,6 +34,8 @@ type ChildDetailProps = {
   /** Current and coming holidays. */
   vacations: readonly VacationRow[];
   onEditRoutine: () => void;
+  /** Messages to the child, once a device is paired. */
+  nudge: NudgeState;
   pairing: PairingState;
   creatingCode: boolean;
   pairingError: ErrorKind | null;
@@ -42,6 +52,7 @@ export function ChildDetail({
   routine,
   vacations,
   onEditRoutine,
+  nudge,
   pairing,
   creatingCode,
   pairingError,
@@ -55,6 +66,7 @@ export function ChildDetail({
       <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
       <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
+      {devices.length > 0 ? <NudgePanel childName={child.display_name} {...nudge} /> : null}
       <PairingPanel
         pairing={pairing}
         creating={creatingCode}

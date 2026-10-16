@@ -2,7 +2,7 @@ import '../global.css';
 
 import { ThemeProvider, themes, useTheme } from '@math-genius/ui';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { Stack } from 'expo-router';
+import { router, Stack, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
@@ -13,6 +13,9 @@ import { startSyncTriggers } from '@/data/practice/sync';
 import { persistOptions, queryClient } from '@/data/query-client';
 import { startSessionListener } from '@/data/session';
 import { useStackScreenOptions } from '@/hooks/use-stack-screen-options';
+import { onNotificationTapped, showNotificationsInForeground } from '@/lib/notifications';
+
+showNotificationsInForeground();
 
 export default function RootLayout() {
   useEffect(() => {
@@ -20,6 +23,8 @@ export default function RootLayout() {
     startSessionListener();
     startSyncTriggers();
   }, []);
+  // A tapped reminder opens its screen: the child's home, or the child's page for a parent.
+  useEffect(() => onNotificationTapped((route) => router.push(route as Href)), []);
 
   return (
     <GestureHandlerRootView style={styles.root}>

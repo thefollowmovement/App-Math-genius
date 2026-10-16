@@ -18,6 +18,7 @@
       "expo-splash-screen",
       "expo-font",
       "expo-secure-store",
+      "expo-notifications",
       [
         "expo-camera",
         {

@@ -27,6 +27,7 @@ function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
       routine={null}
       vacations={[]}
       onEditRoutine={jest.fn()}
+      nudge={{ onSend: jest.fn(), sending: false, result: null, error: null }}
       pairing={{ status: 'idle' }}
       creatingCode={false}
       pairingError={null}
@@ -59,6 +60,39 @@ describe('ChildDetail', () => {
       screen.getByText(strings.routine.vacationLine('17 octobre', '1 novembre')),
     ).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: strings.routine.edit })).toBeOnTheScreen();
+  });
+
+  it('lets the parent message a child with a paired device', async () => {
+    const onSend = jest.fn();
+    const user = userEvent.setup();
+    await renderDetail({
+      devices: [{ id: 'phone', platform: 'ios', paired_at: '2026-10-13T12:00:00Z' }],
+      nudge: { onSend, sending: false, result: null, error: null },
+    });
+    const [, second] = strings.nudge.suggestions;
+    await user.press(screen.getByRole('radio', { name: second }));
+    await user.press(screen.getByRole('button', { name: strings.nudge.send }));
+    expect(onSend).toHaveBeenCalledWith(second);
+
+    await user.clear(screen.getByLabelText(strings.nudge.message));
+    await user.press(screen.getByRole('button', { name: strings.nudge.send }));
+    expect(screen.getByText(strings.nudge.errors.message)).toBeOnTheScreen();
+    await user.type(screen.getByLabelText(strings.nudge.message), '  On y va ?  ');
+    await user.press(screen.getByRole('button', { name: strings.nudge.send }));
+    expect(onSend).toHaveBeenLastCalledWith('On y va ?');
+  });
+
+  it('says when no device shows the message', async () => {
+    await renderDetail({
+      devices: [{ id: 'phone', platform: 'ios', paired_at: '2026-10-13T12:00:00Z' }],
+      nudge: { onSend: jest.fn(), sending: false, result: 'no_device', error: null },
+    });
+    expect(screen.getByText(strings.nudge.noDevice('Léa'))).toBeOnTheScreen();
+  });
+
+  it('offers no message before a device is paired', async () => {
+    await renderDetail();
+    expect(screen.queryByText(strings.nudge.title('Léa'))).toBeNull();
   });
 
   it('shows the code and how long it stays valid', async () => {

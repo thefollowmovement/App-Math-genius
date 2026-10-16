@@ -85,6 +85,11 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 - Statut du jour (`childDay`) : une séance terminée fait « terminé », même en retard ; passé l'heure limite d'un jour prévu, rien de terminé fait « manqué » ; un jour de repos ou de vacances sans séance n'est pas manqué. Le tableau de bord recalcule ce statut chaque minute (`hooks/use-local-clock.ts`), sans recharger.
 - Une nouvelle séance prend l'objectif de la routine (`use-start-session.ts`), 15 minutes sans routine ; la routine est gardée sur l'appareil (cache TanStack Query persisté) pour démarrer hors-ligne. Une séance en cours garde l'objectif de son début. Les fonctions pures sont dans `data/routine-plan.ts`, les requêtes Supabase dans `data/routines.ts`.
 - Heures et dates se choisissent avec le `Picker` d'@expo/ui (créneaux de 15 minutes) : le `DateTimePicker` d'@expo/ui n'affiche rien sur le web.
+- Rappels côté serveur (migration `*_reminders.sql`) : pg_cron lance `private.run_reminders()` chaque minute. `private.enqueue_reminders(p_now)` met en file les étapes dues, à l'heure de la famille (`families.timezone`) : H − 10, H et H + 30 pour l'enfant, H + 60 et l'heure limite pour le parent, plus la fin de la séance du jour. Une étape part dans les 10 minutes qui suivent son heure, sinon elle est sautée (jamais de rappel en retard) ; rien un jour de repos, en vacances ou après une séance terminée, et pas de rappel à l'enfant pendant qu'il joue (réponse envoyée depuis moins de 10 minutes). `notifications.dedup_key` empêche tout doublon. Les tests pgTAP passent `p_now` pour simuler l'horloge.
+- Envoi : `private.send_notifications` poste à l'API Expo Push avec pg_net (aucune Edge Function, aucune clé : l'API Expo Push n'en demande pas tant que la sécurité renforcée des push n'est pas activée sur le projet Expo). `private.collect_push_receipts` lit les réponses à la minute suivante et supprime le jeton d'un appareil désinstallé (`DeviceNotRegistered`). Les notifications sont gardées 30 jours.
+- Les textes des notifications sont écrits en SQL (`private.notification_content`) : le téléphone les affiche lui-même, app fermée. C'est la seule exception à `fr.ts`.
+- Jetons push : `register_push_token` (au démarrage, parent et appareil enfant, une fois les notifications autorisées), `unregister_push_token` (à la déconnexion). Code de l'app : `lib/notifications.ts` (permission, jeton, ouverture de l'écran au toucher, limitée aux routes `/child/` et `/parent/`) et `data/push.ts`. Sans `expo.extra.eas.projectId` dans `app.json` (écrit par `eas init`), l'app ne demande pas de jeton. Le web n'en a pas.
+- Message du parent : `send_child_message` (120 caractères, un toutes les 2 minutes par enfant, envoyé tout de suite) renvoie le nombre d'appareils joints ; 0 veut dire qu'aucun appareil de l'enfant n'a autorisé les notifications.
 
 ## Façon de travailler
 
@@ -108,6 +113,8 @@ Sur un téléphone (Expo Go), `127.0.0.1` désigne le téléphone lui-même. En 
 
 Les types TypeScript restent générés depuis la base locale (`pnpm supabase:types`) : appliquer les mêmes migrations aux deux bases.
 
+**Notifications sur téléphone** : il faut un projet EAS. Lancer une fois `npx eas-cli init` dans `apps/mobile` (gratuit, aucun build ; demande un compte Expo) : il écrit `extra.eas.projectId` dans `app.json`, à commiter. Sur iPhone, Expo Go reçoit alors les notifications. Sur Android, Expo Go ne reçoit plus de notifications à distance depuis le SDK 53 : il faut un build de développement (`eas build`, qui consomme des crédits : demander avant). Avec Supabase local, les rappels partent du conteneur Docker de la base, qui doit pouvoir joindre `exp.host`. Pour suivre les envois : `select kind, title, body, sent_at, push_status, push_errors from notifications order by created_at desc;` dans Studio.
+
 | Besoin | Commande |
 | --- | --- |
 | Installer les dépendances | `pnpm install` |
@@ -128,5 +135,6 @@ Les types TypeScript restent générés depuis la base locale (`pnpm supabase:ty
 | Créer une migration | `pnpm exec supabase migration new <nom>` |
 | Relier le dépôt au projet Supabase en ligne | `pnpm exec supabase login`, puis `pnpm exec supabase link --project-ref <ref>` |
 | Envoyer migrations et configuration Auth au projet en ligne | `pnpm exec supabase db push`, puis `pnpm exec supabase config push` |
+| Créer le projet EAS (identifiant requis pour les notifications push) | `cd apps/mobile && npx eas-cli init` |
 
 La CI (`.github/workflows/ci.yml`) lance format, lint, typecheck, tests et le bundle des trois plateformes sur chaque pull request, et un job base de données : tests RLS, lint SQL et types générés à jour.

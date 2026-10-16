@@ -40,3 +40,4 @@ export {
   type Vacation,
   type Weekday,
 } from './routine';
+export { CHILD_MESSAGE_MAX_LENGTH, childMessageSchema } from './notifications';

@@ -101,6 +101,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
         routine={{ ...DEFAULT_ROUTINE, weekendStartTime: '10:30' }}
         vacations={[vacation]}
         onEditRoutine={jest.fn()}
+        nudge={{ onSend: jest.fn(), sending: false, result: 'no_device', error: 'tooManyMessages' }}
         pairing={{
           status: 'showing',
           code: 'ABC234',
