@@ -28,6 +28,30 @@ export function Checkbox({
   );
 }
 
+export function Switch({
+  value,
+  onValueChange,
+  label,
+  testID,
+}: {
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  label?: string;
+  testID?: string;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: value }}
+      onPress={() => onValueChange(!value)}
+      testID={testID}
+    >
+      <Text>{label}</Text>
+    </Pressable>
+  );
+}
+
 type ItemProps = { label: string; value: string | number };
 
 function PickerItem(_props: ItemProps): null {

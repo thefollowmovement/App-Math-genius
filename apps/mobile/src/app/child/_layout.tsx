@@ -1,8 +1,10 @@
 import { Stack } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
+import { useChildren } from '@/data/children';
 import { usePracticeHydrated } from '@/data/practice/practice-store';
-import { useSessionStore } from '@/data/session';
+import { usePushRegistration } from '@/data/push';
+import { useAccountKind, useSessionStore } from '@/data/session';
 import { useStackScreenOptions } from '@/hooks/use-stack-screen-options';
 
 export default function ChildLayout() {
@@ -10,6 +12,11 @@ export default function ChildLayout() {
   // Sessions are saved on the device: wait for them before anything can start a new one.
   const hydrated = usePracticeHydrated();
   const screenOptions = useStackScreenOptions();
+  const kind = useAccountKind();
+  const paired = (useChildren().data?.length ?? 0) > 0;
+  // Reminders reach the child's device, app closed; once paired, it also tells the parent whether
+  // it can show them. A parent in child mode keeps their own alerts.
+  usePushRegistration(kind === 'device' && paired ? 'device' : null);
 
   if (!ready || !hydrated) return <LoadingScreen />;
 

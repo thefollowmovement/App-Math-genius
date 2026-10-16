@@ -1,3 +1,4 @@
+import { DEFAULT_SESSION_GOAL } from '@math-genius/exercise-engine';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
@@ -6,10 +7,12 @@ import { useIsOnline } from '@/data/network';
 import { hasUnsentAnswers, usePracticeStore } from '@/data/practice/practice-store';
 import { practiceStatus } from '@/data/practice/summary';
 import { usePracticeSync } from '@/data/practice/sync';
+import { childPlan, routineOf } from '@/data/routine-plan';
+import { useRoutines } from '@/data/routines';
 import { useAccountKind } from '@/data/session';
+import { useLocalClock } from '@/hooks/use-local-clock';
 import { useStartSession } from '@/hooks/use-start-session';
 import { ChildHome } from '@/screens/child-home';
-import { localDate } from '@/utils/local-date';
 
 export default function ChildHomeRoute() {
   const router = useRouter();
@@ -20,6 +23,8 @@ export default function ChildHomeRoute() {
   const unsent = usePracticeStore((state) => hasUnsentAnswers(state.children[id]));
   const online = useIsOnline();
   const start = useStartSession(child.data);
+  const routines = useRoutines();
+  const { date } = useLocalClock();
   usePracticeSync(child.data?.id);
 
   if (child.isPending) return <LoadingScreen />;
@@ -30,7 +35,9 @@ export default function ChildHomeRoute() {
   return (
     <ChildHome
       child={child.data}
-      practice={practiceStatus(practice, child.data.grade, localDate())}
+      practice={practiceStatus(practice, child.data.grade, date)}
+      plan={childPlan(routines.data, id, date).kind}
+      goal={routineOf(routines.data, id)?.goal ?? DEFAULT_SESSION_GOAL}
       sync={!online ? 'offline' : unsent ? 'syncing' : 'idle'}
       onStart={() => start()}
       onSwitchProfile={
