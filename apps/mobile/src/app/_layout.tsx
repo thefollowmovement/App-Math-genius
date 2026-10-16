@@ -1,37 +1,37 @@
 import '../global.css';
 
 import { ThemeProvider, themes, useTheme } from '@math-genius/ui';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 
-import { strings } from '@/i18n';
+import { queryClient } from '@/data/query-client';
+import { startSessionListener } from '@/data/session';
+import { useStackScreenOptions } from '@/hooks/use-stack-screen-options';
 
 export default function RootLayout() {
+  useEffect(() => {
+    startSessionListener();
+  }, []);
+
   return (
-    <ThemeProvider theme={themes.kawaii}>
-      <RootStack />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={themes.kawaii}>
+        <RootStack />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
 function RootStack() {
-  const { colorScheme, colors } = useTheme();
+  const { colorScheme } = useTheme();
+  const screenOptions = useStackScreenOptions();
 
   return (
     <>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-      <Stack
-        screenOptions={{
-          contentStyle: { backgroundColor: colors.background },
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.foreground,
-          headerShadowVisible: false,
-        }}
-      >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="parent" options={{ title: strings.parentSpace.title }} />
-        <Stack.Screen name="child" options={{ title: strings.childSpace.title }} />
-      </Stack>
+      <Stack screenOptions={{ ...screenOptions, headerShown: false }} />
     </>
   );
 }

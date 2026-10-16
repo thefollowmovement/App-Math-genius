@@ -1,0 +1,70 @@
+import type { ChildProfile, Tables } from '@math-genius/shared';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { supabase } from '@/lib/supabase';
+
+import { useUserId } from './session';
+
+export type Child = Pick<
+  Tables<'children'>,
+  'id' | 'display_name' | 'gender' | 'grade' | 'birth_year' | 'theme_id'
+>;
+
+const CHILD_COLUMNS = 'id, display_name, gender, grade, birth_year, theme_id';
+
+/** A parent gets their family's children; a paired device gets its own (RLS decides). */
+export function useChildren() {
+  const userId = useUserId();
+  return useQuery({
+    queryKey: ['children', userId],
+    enabled: userId !== undefined,
+    queryFn: async (): Promise<Child[]> => {
+      const { data, error } = await supabase
+        .from('children')
+        .select(CHILD_COLUMNS)
+        .order('created_at');
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useChild(childId: string | undefined) {
+  const children = useChildren();
+  return {
+    isPending: children.isPending,
+    data: children.data?.find((child) => child.id === childId),
+    allProfiles: children.data ?? [],
+  };
+}
+
+export function useCreateChild() {
+  const userId = useUserId();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (profile: ChildProfile): Promise<Child> => {
+      const { data: parent, error: parentError } = await supabase
+        .from('parents')
+        .select('family_id')
+        .eq('user_id', userId ?? '')
+        .single();
+      if (parentError) throw parentError;
+
+      const { data, error } = await supabase
+        .from('children')
+        .insert({
+          family_id: parent.family_id,
+          display_name: profile.displayName,
+          gender: profile.gender,
+          grade: profile.grade,
+          birth_year: profile.birthYear,
+        })
+        .select(CHILD_COLUMNS)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
+  });
+}

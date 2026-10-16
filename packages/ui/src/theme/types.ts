@@ -18,6 +18,8 @@ export interface ThemeColors {
   secondary: string;
   /** Text and icons drawn on `secondary`. */
   onSecondary: string;
+  /** Errors and destructive actions, readable on `background` and `surface`. */
+  danger: string;
 }
 
 /** Corner radii in density-independent pixels. */
