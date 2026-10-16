@@ -89,6 +89,16 @@ Prérequis : Node 22 (`.nvmrc`), pnpm 10 (`corepack enable`), Docker Desktop ins
 
 Sur un téléphone (Expo Go), `127.0.0.1` désigne le téléphone lui-même. En développement, l'app remplace donc l'hôte d'une URL Supabase locale par l'adresse IP du Mac sur le réseau, déduite de l'hôte Metro (`Constants.expoConfig.hostUri`, voir `apps/mobile/src/lib/dev-host.ts`) : rien à modifier dans `.env.local`. Il faut que le téléphone et le Mac soient sur le même Wi-Fi, que Docker Desktop tourne avec `pnpm supabase:start` (l'API écoute sur toutes les interfaces, port 54321) et, si le pare-feu de macOS est actif, qu'il accepte les connexions entrantes vers Docker. En mode tunnel (`--tunnel`), seul Metro passe : Supabase local n'est alors pas joignable.
 
+**Supabase en ligne** (tests sur de vrais téléphones sans Mac allumé, ou hors du Wi-Fi local). Créer un projet sur supabase.com (région Europe), puis depuis la racine du dépôt :
+
+1. `pnpm exec supabase login`, puis `pnpm exec supabase link --project-ref <ref>` (le `ref` est dans l'URL du projet ; le mot de passe demandé est celui de la base).
+2. `pnpm exec supabase db push` : applique toutes les migrations de `supabase/migrations`, y compris les `*_skills.sql` générées depuis le référentiel. À relancer après chaque nouvelle migration. `seed.sql` n'est pas envoyé.
+3. `pnpm exec supabase config push` : envoie la configuration Auth de `supabase/config.toml` (connexions anonymes activées, mot de passe de 8 caractères minimum). Attention, elle envoie aussi les réglages de développement : `site_url` en `localhost` et emails non confirmés. Très bien pour un projet de test, à revoir avant la production.
+4. Dans le tableau de bord, Authentication → Sign In / Providers : vérifier que « Allow anonymous sign-ins » est activé. Sans cette option, un téléphone enfant ne peut pas être appairé.
+5. Dans `apps/mobile/.env.local` : `EXPO_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co` et `EXPO_PUBLIC_SUPABASE_KEY=` la clé publishable (Project Settings → API Keys, `sb_publishable_…`). Jamais la clé secrète ni `service_role`. Relancer `pnpm mobile`, car les variables `EXPO_PUBLIC_` sont figées au démarrage de Metro. Une URL en ligne n'est jamais réécrite par `dev-host.ts`.
+
+Les types TypeScript restent générés depuis la base locale (`pnpm supabase:types`) : appliquer les mêmes migrations aux deux bases.
+
 | Besoin | Commande |
 | --- | --- |
 | Installer les dépendances | `pnpm install` |
@@ -107,5 +117,7 @@ Sur un téléphone (Expo Go), `127.0.0.1` désigne le téléphone lui-même. En 
 | Régénérer les types TypeScript de la base | `pnpm supabase:types` |
 | Charger le référentiel modifié dans la base (nouvelle migration `*_skills.sql`) | `pnpm curriculum:sql` |
 | Créer une migration | `pnpm exec supabase migration new <nom>` |
+| Relier le dépôt au projet Supabase en ligne | `pnpm exec supabase login`, puis `pnpm exec supabase link --project-ref <ref>` |
+| Envoyer migrations et configuration Auth au projet en ligne | `pnpm exec supabase db push`, puis `pnpm exec supabase config push` |
 
 La CI (`.github/workflows/ci.yml`) lance format, lint, typecheck, tests et le bundle des trois plateformes sur chaque pull request, et un job base de données : tests RLS, lint SQL et types générés à jour.
