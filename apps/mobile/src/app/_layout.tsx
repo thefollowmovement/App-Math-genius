@@ -15,16 +15,18 @@ import { startSessionListener } from '@/data/session';
 import { useStackScreenOptions } from '@/hooks/use-stack-screen-options';
 import { onNotificationTapped, showNotificationsInForeground } from '@/lib/notifications';
 
-showNotificationsInForeground();
-
 export default function RootLayout() {
   useEffect(() => {
     startNetworkListener();
     startSessionListener();
     startSyncTriggers();
   }, []);
+  // Notifications are optional (none on web or in Expo Go on Android): loaded here, never at import.
   // A tapped reminder opens its screen: the child's home, or the child's page for a parent.
-  useEffect(() => onNotificationTapped((route) => router.push(route as Href)), []);
+  useEffect(() => {
+    showNotificationsInForeground();
+    return onNotificationTapped((route) => router.push(route as Href));
+  }, []);
 
   return (
     <GestureHandlerRootView style={styles.root}>

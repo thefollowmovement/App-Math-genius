@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
+import { useChildren } from '@/data/children';
 import { usePracticeHydrated } from '@/data/practice/practice-store';
 import { usePushRegistration } from '@/data/push';
 import { useAccountKind, useSessionStore } from '@/data/session';
@@ -12,8 +13,10 @@ export default function ChildLayout() {
   const hydrated = usePracticeHydrated();
   const screenOptions = useStackScreenOptions();
   const kind = useAccountKind();
-  // Reminders reach the child's device, app closed. A parent in child mode keeps their own alerts.
-  usePushRegistration(kind === 'device');
+  const paired = (useChildren().data?.length ?? 0) > 0;
+  // Reminders reach the child's device, app closed; once paired, it also tells the parent whether
+  // it can show them. A parent in child mode keeps their own alerts.
+  usePushRegistration(kind === 'device' && paired ? 'device' : null);
 
   if (!ready || !hydrated) return <LoadingScreen />;
 

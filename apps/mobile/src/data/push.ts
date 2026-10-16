@@ -1,37 +1,41 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
-import { pushToken } from '@/lib/notifications';
+import { pushSetup } from '@/lib/notifications';
 import { supabase } from '@/lib/supabase';
 
-import { useUserId } from './session';
+import { useUserId, type AccountKind } from './session';
 
 /** Token registered for the signed-in account, removed at sign-out. */
 let registered: string | null = null;
 
 /**
  * Registers this phone for the account's notifications: reminders for a child device, alerts for
- * a parent. Nothing happens on web or until notifications are allowed.
+ * a parent. A child device also tells the server whether it can show them, for its parent.
  */
-export function usePushRegistration(enabled: boolean) {
+export function usePushRegistration(account: AccountKind | null) {
   const userId = useUserId();
   useEffect(() => {
-    if (!enabled || !userId || (Platform.OS !== 'ios' && Platform.OS !== 'android')) return;
-    const platform = Platform.OS;
+    if (!account || !userId) return;
     let cancelled = false;
     void (async () => {
-      const token = await pushToken();
-      if (!token || cancelled) return;
-      const { error } = await supabase.rpc('register_push_token', {
-        p_token: token,
-        p_platform: platform,
-      });
-      if (!error) registered = token;
+      const setup = await pushSetup();
+      if (!setup || cancelled) return;
+      if (setup.status === 'enabled' && (Platform.OS === 'ios' || Platform.OS === 'android')) {
+        const { error } = await supabase.rpc('register_push_token', {
+          p_token: setup.token,
+          p_platform: Platform.OS,
+        });
+        if (!error) registered = setup.token;
+      }
+      if (account === 'device' && !cancelled) {
+        await supabase.rpc('report_push_status', { p_status: setup.status });
+      }
     })();
     return () => {
       cancelled = true;
     };
-  }, [enabled, userId]);
+  }, [account, userId]);
 }
 
 /** Before signing out: this phone stops receiving the account's notifications. */

@@ -129,6 +129,14 @@ export const fr = {
     noDevices: 'Aucun appareil relié pour l’instant.',
     pairedOn: (date: string) => `Relié depuis le ${date}`,
     revoke: 'Retirer',
+    push: {
+      enabled: 'Notifications activées.',
+      denied:
+        'Notifications refusées sur cet appareil\u00a0: autorisez-les dans les réglages du téléphone pour qu’il reçoive les rappels.',
+      unsupported:
+        'Cet appareil ne peut pas recevoir de notifications (navigateur, ou version de test de l’app comme Expo Go sur Android)\u00a0: rappels et messages ne lui parviennent pas.',
+      unknown: 'Notifications\u00a0: état pas encore connu, ouvrez l’app sur cet appareil.',
+    },
   },
   routine: {
     title: 'Routine',
@@ -191,7 +199,9 @@ export const fr = {
     send: 'Envoyer',
     sent: 'Message envoyé.',
     noDevice: (name: string) =>
-      `Aucun appareil de ${name} n’affiche les notifications\u00a0: ouvrez l’app sur son appareil et autorisez-les.`,
+      `Message non reçu\u00a0: aucun appareil de ${name} ne reçoit les notifications (voir « Appareils reliés »).`,
+    unreachable: (name: string) =>
+      `Aucun appareil de ${name} ne reçoit les notifications pour l’instant\u00a0: les rappels et ce message ne lui parviendront pas.`,
     errors: {
       message: 'Écrivez un message (120 caractères maximum).',
     },

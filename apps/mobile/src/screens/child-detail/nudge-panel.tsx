@@ -13,6 +13,8 @@ export type NudgeResult = 'sent' | 'no_device' | null;
 
 type NudgePanelProps = {
   childName: string;
+  /** Some device of the child reported that it shows notifications. */
+  reachable: boolean;
   onSend: (message: string) => void;
   sending: boolean;
   result: NudgeResult;
@@ -20,7 +22,14 @@ type NudgePanelProps = {
 };
 
 /** A message for the child, picked from suggestions or written, shown on their devices. */
-export function NudgePanel({ childName, onSend, sending, result, error }: NudgePanelProps) {
+export function NudgePanel({
+  childName,
+  reachable,
+  onSend,
+  sending,
+  result,
+  error,
+}: NudgePanelProps) {
   const [message, setMessage] = useState<string>(t.suggestions[0]);
   const [invalid, setInvalid] = useState(false);
   const [edited, setEdited] = useState(false);
@@ -43,6 +52,7 @@ export function NudgePanel({ childName, onSend, sending, result, error }: NudgeP
         {t.title(childName)}
       </ThemedText>
       <ThemedText variant="caption">{t.intro}</ThemedText>
+      {reachable ? null : <ThemedText tone="danger">{t.unreachable(childName)}</ThemedText>}
       <View className="gap-2">
         {t.suggestions.map((suggestion) => (
           <Pressable

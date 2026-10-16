@@ -242,6 +242,8 @@ export type Database = {
           id: string;
           last_seen_at: string;
           platform: Database['public']['Enums']['device_platform'];
+          push_status: Database['public']['Enums']['push_status'] | null;
+          push_status_at: string | null;
           revoked_at: string | null;
           updated_at: string;
           user_id: string;
@@ -253,6 +255,8 @@ export type Database = {
           id?: string;
           last_seen_at?: string;
           platform: Database['public']['Enums']['device_platform'];
+          push_status?: Database['public']['Enums']['push_status'] | null;
+          push_status_at?: string | null;
           revoked_at?: string | null;
           updated_at?: string;
           user_id: string;
@@ -263,6 +267,8 @@ export type Database = {
           id?: string;
           last_seen_at?: string;
           platform?: Database['public']['Enums']['device_platform'];
+          push_status?: Database['public']['Enums']['push_status'] | null;
+          push_status_at?: string | null;
           revoked_at?: string | null;
           updated_at?: string;
           user_id?: string;
@@ -777,6 +783,10 @@ export type Database = {
         Args: { p_platform: Database['public']['Enums']['device_platform']; p_token: string };
         Returns: undefined;
       };
+      report_push_status: {
+        Args: { p_status: Database['public']['Enums']['push_status'] };
+        Returns: boolean;
+      };
       revoke_device: { Args: { p_device_id: string }; Returns: undefined };
       send_child_message: { Args: { p_child_id: string; p_message: string }; Returns: number };
       sync_session: {
@@ -823,6 +833,7 @@ export type Database = {
         | 'session_done'
         | 'parent_message';
       parent_role: 'owner' | 'co_parent';
+      push_status: 'enabled' | 'denied' | 'unsupported';
       session_goal_type: 'duration' | 'count';
       session_kind: 'daily' | 'bonus' | 'placement' | 'boss';
       session_slot: 'current' | 'review' | 'automatism' | 'challenge';
@@ -953,6 +964,7 @@ export const Constants = {
         'parent_message',
       ],
       parent_role: ['owner', 'co_parent'],
+      push_status: ['enabled', 'denied', 'unsupported'],
       session_goal_type: ['duration', 'count'],
       session_kind: ['daily', 'bonus', 'placement', 'boss'],
       session_slot: ['current', 'review', 'automatism', 'challenge'],

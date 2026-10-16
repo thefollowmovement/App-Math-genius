@@ -3,12 +3,19 @@ import { screen, userEvent } from '@testing-library/react-native';
 import type { ComponentProps } from 'react';
 
 import type { Child } from '@/data/children';
+import type { PairedDevice } from '@/data/devices';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
 
 import { ChildDetail } from '.';
 
 const t = strings.childDetail;
+const phone = (push_status: PairedDevice['push_status']): PairedDevice => ({
+  id: 'phone',
+  platform: 'android',
+  push_status,
+  paired_at: '2026-10-13T12:00:00Z',
+});
 const lea: Child = {
   id: 'lea',
   display_name: 'Léa',
@@ -66,9 +73,11 @@ describe('ChildDetail', () => {
     const onSend = jest.fn();
     const user = userEvent.setup();
     await renderDetail({
-      devices: [{ id: 'phone', platform: 'ios', paired_at: '2026-10-13T12:00:00Z' }],
+      devices: [phone('enabled')],
       nudge: { onSend, sending: false, result: null, error: null },
     });
+    expect(screen.getByText(t.push.enabled)).toBeOnTheScreen();
+    expect(screen.queryByText(strings.nudge.unreachable('Léa'))).toBeNull();
     const [, second] = strings.nudge.suggestions;
     await user.press(screen.getByRole('radio', { name: second }));
     await user.press(screen.getByRole('button', { name: strings.nudge.send }));
@@ -84,10 +93,23 @@ describe('ChildDetail', () => {
 
   it('says when no device shows the message', async () => {
     await renderDetail({
-      devices: [{ id: 'phone', platform: 'ios', paired_at: '2026-10-13T12:00:00Z' }],
+      devices: [phone(null)],
       nudge: { onSend: jest.fn(), sending: false, result: 'no_device', error: null },
     });
     expect(screen.getByText(strings.nudge.noDevice('Léa'))).toBeOnTheScreen();
+    expect(screen.getByText(t.push.unknown)).toBeOnTheScreen();
+  });
+
+  it('warns that a device without push (Expo Go on Android, a browser) gets no reminder', async () => {
+    await renderDetail({ devices: [phone('unsupported')] });
+    expect(screen.getByText(t.push.unsupported)).toBeOnTheScreen();
+    expect(screen.getByText(strings.nudge.unreachable('Léa'))).toBeOnTheScreen();
+  });
+
+  it('tells the parent when the child refused notifications', async () => {
+    await renderDetail({ devices: [phone('denied')] });
+    expect(screen.getByText(t.push.denied)).toBeOnTheScreen();
+    expect(screen.getByText(strings.nudge.unreachable('Léa'))).toBeOnTheScreen();
   });
 
   it('offers no message before a device is paired', async () => {
@@ -121,7 +143,7 @@ describe('ChildDetail', () => {
     await renderDetail({
       onCreateCode,
       onRevokeDevice,
-      devices: [{ id: 'phone', platform: 'android', paired_at: '2026-10-13T12:00:00Z' }],
+      devices: [phone('enabled')],
     });
 
     await user.press(screen.getByRole('button', { name: t.createCode }));

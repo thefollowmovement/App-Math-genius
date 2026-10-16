@@ -14,7 +14,7 @@ export default function ParentLayout() {
   // One Realtime subscription for every parent screen: sessions update as children play.
   useLiveSessions(isParent);
   // Alerts (session not started, missed, finished) reach the parent's phone.
-  usePushRegistration(isParent);
+  usePushRegistration(isParent ? 'parent' : null);
 
   if (!ready) return <LoadingScreen />;
 

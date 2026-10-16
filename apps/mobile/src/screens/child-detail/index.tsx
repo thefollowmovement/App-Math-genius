@@ -66,7 +66,13 @@ export function ChildDetail({
       <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
       <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
-      {devices.length > 0 ? <NudgePanel childName={child.display_name} {...nudge} /> : null}
+      {devices.length > 0 ? (
+        <NudgePanel
+          childName={child.display_name}
+          reachable={devices.some((device) => device.push_status === 'enabled')}
+          {...nudge}
+        />
+      ) : null}
       <PairingPanel
         pairing={pairing}
         creating={creatingCode}
@@ -86,6 +92,7 @@ export function ChildDetail({
               <ThemedText variant="caption">
                 {t.pairedOn(dateFormat.format(new Date(device.paired_at)))}
               </ThemedText>
+              <PushStatusLine status={device.push_status} />
             </View>
             <Button
               variant="danger"
@@ -97,5 +104,15 @@ export function ChildDetail({
         ))}
       </View>
     </Screen>
+  );
+}
+
+/** Whether reminders can reach this device, as it reported it. */
+function PushStatusLine({ status }: { status: PairedDevice['push_status'] }) {
+  const cannot = status === 'denied' || status === 'unsupported';
+  return (
+    <ThemedText variant="caption" tone={cannot ? 'danger' : 'muted'}>
+      {t.push[status ?? 'unknown']}
+    </ThemedText>
   );
 }

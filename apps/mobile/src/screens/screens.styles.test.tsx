@@ -111,7 +111,14 @@ const screens: { name: string; render: () => ReactElement }[] = [
         creatingCode={false}
         pairingError={null}
         onCreateCode={jest.fn()}
-        devices={[{ id: 'phone', platform: 'ios', paired_at: '2026-10-13T12:00:00Z' }]}
+        devices={[
+          {
+            id: 'phone',
+            platform: 'android',
+            push_status: 'unsupported',
+            paired_at: '2026-10-13T12:00:00Z',
+          },
+        ]}
         revokingDeviceId={null}
         onRevokeDevice={jest.fn()}
       />
