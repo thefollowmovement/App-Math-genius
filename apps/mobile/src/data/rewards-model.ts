@@ -2,9 +2,11 @@ import {
   SHOP_ITEMS,
   SHOP_KINDS,
   awardSchema,
+  isChallengeCode,
   isShopItemCode,
   levelProgress,
   type Award,
+  type ChallengeCode,
   type ShopItem,
   type ShopItemCode,
   type ShopKind,
@@ -115,4 +117,23 @@ export type AwardState =
 export function awardState(saved: boolean, award: Award | null | undefined): AwardState {
   if (award) return { status: 'ready', award };
   return saved ? { status: 'computing' } : { status: 'waiting' };
+}
+
+/** This week's challenge, as weekly_challenge returns it. */
+export type WeeklyChallenge = {
+  code: ChallengeCode;
+  threshold: number;
+  progress: number;
+  gems: number;
+  completed: boolean;
+};
+
+/** Null for a challenge this version of the app does not know (a newer server). */
+export function parseWeeklyChallenge(value: unknown): WeeklyChallenge | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const { code, threshold, progress, gems, completed } = value as Record<string, unknown>;
+  if (typeof code !== 'string' || !isChallengeCode(code)) return null;
+  if (typeof threshold !== 'number' || typeof progress !== 'number') return null;
+  if (typeof gems !== 'number' || typeof completed !== 'boolean') return null;
+  return { code, threshold, progress, gems, completed };
 }

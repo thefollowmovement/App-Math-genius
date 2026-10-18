@@ -18,7 +18,7 @@ describe('badgeGroups', () => {
       'progression',
     ]);
     expect(all.map((badge) => badge.code).sort()).toEqual(BADGES.map((badge) => badge.code).sort());
-    expect(BADGE_COUNT).toBe(41);
+    expect(BADGE_COUNT).toBe(43);
   });
 
   it('puts earned badges first', () => {

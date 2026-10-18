@@ -10,9 +10,11 @@ import {
   awardsFromResponse,
   parseAward,
   parseOpenedChest,
+  parseWeeklyChallenge,
   progressView,
   type OpenedChest,
   type Rewards,
+  type WeeklyChallenge,
 } from './rewards-model';
 
 /**
@@ -68,6 +70,19 @@ export function useRewards(childId: string | undefined) {
         badges: badges.count ?? 0,
         items: items.data,
       };
+    },
+  });
+}
+
+/** This week's challenge and how far the child is (computed by the server). */
+export function useWeeklyChallenge(childId: string | undefined) {
+  return useQuery({
+    queryKey: ['rewards', childId, 'challenge'],
+    enabled: childId !== undefined,
+    queryFn: async (): Promise<WeeklyChallenge | null> => {
+      const { data, error } = await supabase.rpc('weekly_challenge', { p_child_id: childId ?? '' });
+      if (error) throw error;
+      return parseWeeklyChallenge(data);
     },
   });
 }

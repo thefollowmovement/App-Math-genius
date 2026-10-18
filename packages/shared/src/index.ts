@@ -77,3 +77,13 @@ export {
   type ShopItemCode,
   type ShopKind,
 } from './shop';
+export {
+  CHALLENGES,
+  CHALLENGE_METRICS,
+  challengeOfWeek,
+  isChallengeCode,
+  weekStart,
+  type Challenge,
+  type ChallengeCode,
+  type ChallengeMetric,
+} from './challenges';

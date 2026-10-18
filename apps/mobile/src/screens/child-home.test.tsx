@@ -150,7 +150,13 @@ describe('SessionSummary', () => {
         summary={summary}
         saved
         // A badge from a newer server is left out.
-        award={{ status: 'ready', award: award({ badges: ['perfect-1', 'from-the-future'] }) }}
+        award={{
+          status: 'ready',
+          award: award({
+            badges: ['perfect-1', 'from-the-future'],
+            challenge: { code: 'perfect-1', gems: 20 },
+          }),
+        }}
         onOpenChest={onOpenChest}
         onOpenBadges={onOpenBadges}
         onBonus={jest.fn()}
@@ -162,6 +168,7 @@ describe('SessionSummary', () => {
     expect(screen.getByText(strings.award.streak(4))).toBeOnTheScreen();
     expect(screen.getByText(strings.award.streakUp)).toBeOnTheScreen();
     expect(screen.getByText(strings.award.gems(5))).toBeOnTheScreen();
+    expect(screen.getByText(strings.award.challengeDone(20))).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: strings.award.openChest }));
     expect(onOpenChest).toHaveBeenCalledWith('chest-1');
     expect(screen.getByText(strings.award.newBadges(1))).toBeOnTheScreen();
@@ -255,6 +262,7 @@ describe('ChildHome rewards', () => {
           { id: 'chest-1', kind: 'common' },
           { id: 'chest-2', kind: 'rare' },
         ])}
+        challenge={{ code: 'daily-5', threshold: 5, progress: 3, gems: 20, completed: false }}
         onOpenChest={onOpenChest}
         onOpenBadges={onOpenBadges}
         sync="idle"
@@ -264,7 +272,9 @@ describe('ChildHome rewards', () => {
     expect(screen.getByLabelText(strings.rewards.streakLabel(4))).toBeOnTheScreen();
     expect(screen.getByLabelText(strings.rewards.gemsLabel(45))).toBeOnTheScreen();
     expect(screen.getByText(strings.rewards.level(5))).toBeOnTheScreen();
-    expect(screen.getByRole('progressbar')).toHaveAccessibilityValue({ min: 0, max: 500, now: 40 });
+    expect(
+      screen.getByRole('progressbar', { name: strings.rewards.levelLabel(5, 40, 500) }),
+    ).toHaveAccessibilityValue({ min: 0, max: 500, now: 40 });
     expect(screen.getByText(strings.rewards.chestsWaiting(2))).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: strings.rewards.openChest }));
     expect(onOpenChest).toHaveBeenCalledWith('chest-1');
@@ -275,5 +285,9 @@ describe('ChildHome rewards', () => {
       screen.getByLabelText(strings.shop.companionLabel(strings.shop.items.kitten.name)),
     ).toBeOnTheScreen();
     expect(screen.queryByLabelText(/Ton accessoire/)).toBeNull();
+    // This week's challenge.
+    expect(screen.getByText(strings.challenge.items['daily-5'])).toBeOnTheScreen();
+    expect(screen.getByLabelText(strings.challenge.progressLabel(3, 5))).toBeOnTheScreen();
+    expect(screen.getByText(strings.challenge.reward(20))).toBeOnTheScreen();
   });
 });

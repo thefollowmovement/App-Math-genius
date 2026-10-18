@@ -7,6 +7,7 @@ import {
   progressView,
   shopGroups,
   wornItems,
+  parseWeeklyChallenge,
 } from './rewards-model';
 
 describe('rewards from the server', () => {
@@ -71,5 +72,27 @@ describe('shop', () => {
   it('knows the item worn of each kind', () => {
     expect(wornItems(items)).toEqual({ companion: 'kitten', accessory: 'crown' });
     expect(wornItems([])).toEqual({});
+  });
+});
+
+describe('parseWeeklyChallenge', () => {
+  it('reads what weekly_challenge returns, and leaves out unknown challenges', () => {
+    const value = {
+      code: 'daily-5',
+      threshold: 5,
+      gems: 20,
+      week_start: '2026-10-12',
+      progress: 4,
+      completed: false,
+    };
+    expect(parseWeeklyChallenge(value)).toEqual({
+      code: 'daily-5',
+      threshold: 5,
+      gems: 20,
+      progress: 4,
+      completed: false,
+    });
+    expect(parseWeeklyChallenge({ ...value, code: 'from-the-future' })).toBeNull();
+    expect(parseWeeklyChallenge(null)).toBeNull();
   });
 });

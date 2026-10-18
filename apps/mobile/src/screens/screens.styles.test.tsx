@@ -172,6 +172,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
         plan="planned"
         goal={{ type: 'duration', minutes: 15 }}
         rewards={rewards([{ id: 'chest-1', kind: 'common' }])}
+        challenge={{ code: 'combo-10', threshold: 10, progress: 4, gems: 15, completed: false }}
         onOpenChest={jest.fn()}
         onOpenBadges={jest.fn()}
         sync="offline"

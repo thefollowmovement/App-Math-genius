@@ -4,10 +4,11 @@ import { Avatar, Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import type { Child } from '@/data/children';
 import type { PracticeStatus } from '@/data/practice/summary';
-import { wornItems, type Rewards } from '@/data/rewards-model';
+import { wornItems, type Rewards, type WeeklyChallenge } from '@/data/rewards-model';
 import { strings } from '@/i18n';
 import { goalText } from '@/utils/routine-text';
 
+import { ChallengeCard } from './rewards/challenge-card';
 import { ProgressStrip } from './rewards/progress-strip';
 
 const t = strings.childHome;
@@ -23,6 +24,8 @@ type ChildHomeProps = {
   goal: SessionGoal;
   /** Missing until the first award, or while loading. */
   rewards?: Rewards;
+  /** This week's challenge, once known. */
+  challenge?: WeeklyChallenge | null;
   onOpenChest?: (chestId: string) => void;
   onOpenBadges?: () => void;
   onOpenMap?: () => void;
@@ -56,6 +59,7 @@ export function ChildHome({
   plan,
   goal,
   rewards,
+  challenge,
   onOpenChest,
   onOpenBadges,
   onOpenMap,
@@ -119,6 +123,7 @@ export function ChildHome({
           onPress={onStart}
         />
       )}
+      {challenge ? <ChallengeCard challenge={challenge} /> : null}
       {onOpenMap ? <Button variant="ghost" title={strings.map.open} onPress={onOpenMap} /> : null}
       {onOpenShop ? (
         <Button variant="ghost" title={strings.shop.open} onPress={onOpenShop} />

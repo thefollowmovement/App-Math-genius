@@ -58,6 +58,11 @@ export function AwardPanel({ state, onOpenChest, onOpenBadges }: AwardPanelProps
         ) : null}
         {streakUp ? <ThemedText>{t.streakUp}</ThemedText> : null}
         {award.gems > 0 ? <ThemedText>{t.gems(award.gems)}</ThemedText> : null}
+        {award.challenge ? (
+          <ThemedText variant="headline" className="text-center">
+            {t.challengeDone(award.challenge.gems)}
+          </ThemedText>
+        ) : null}
         {award.boss ? <BossResult boss={award.boss} answered={award.answered} /> : null}
         {badges.length > 0 ? (
           <View className="w-full items-center gap-2 pt-2">

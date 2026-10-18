@@ -1,4 +1,4 @@
-import type { BadgeCode, ShopItemCode } from '@math-genius/shared';
+import type { BadgeCode, ChallengeCode, ShopItemCode } from '@math-genius/shared';
 
 export const fr = {
   common: {
@@ -367,6 +367,7 @@ export const fr = {
     openChest: 'Ouvrir mon coffre',
     newBadges: (count: number) => (count > 1 ? 'Nouveaux badges\u00a0!' : 'Nouveau badge\u00a0!'),
     seeBadges: 'Voir mes badges',
+    challengeDone: (gems: number) => `🏅 Défi de la semaine réussi\u00a0! +${gems}\u00a0gemmes`,
     bossWon: 'Boss vaincu\u00a0!',
     islandDone: (island: string) => `Tu as terminé ${island}\u00a0!`,
     bossWonAgain: 'Tu l’as encore battu, bravo\u00a0!',
@@ -385,6 +386,24 @@ export const fr = {
     total: (total: number) => `Tu as maintenant ${total}\u00a0gemme${total > 1 ? 's' : ''}.`,
     done: 'Super\u00a0!',
     gone: 'Ce coffre est déjà ouvert.',
+  },
+  challenge: {
+    title: 'Défi de la semaine',
+    icon: '🏅',
+    /** One per code of packages/shared/src/challenges.ts. */
+    items: {
+      'daily-5': 'Réussis 5 missions du jour cette semaine.',
+      'correct-150': 'Donne 150 bonnes réponses cette semaine.',
+      'combo-10': 'Enchaîne 10 bonnes réponses d’affilée.',
+      'skills-6': 'Réussis des exercices dans 6 compétences différentes.',
+      'perfect-1': 'Fais une séance d’au moins 10 exercices sans aucune erreur.',
+      'minutes-60': 'Entraîne-toi 60 minutes cette semaine.',
+    } satisfies Record<ChallengeCode, string>,
+    progress: (value: number, threshold: number) => `${value} / ${threshold}`,
+    progressLabel: (value: number, threshold: number) =>
+      `Défi avancé\u00a0: ${value} sur ${threshold}`,
+    reward: (gems: number) => `À gagner\u00a0: ${gems}\u00a0gemmes`,
+    done: 'Défi réussi\u00a0! Un nouveau défi arrive lundi.',
   },
   shop: {
     title: 'Boutique',
@@ -639,6 +658,16 @@ export const fr = {
         icon: '🐉',
         title: 'Boss sans faute',
         description: 'Vaincre un boss sans aucune erreur',
+      },
+      'challenge-1': {
+        icon: '🏅',
+        title: 'Premier défi',
+        description: 'Réussir un défi de la semaine',
+      },
+      'challenge-5': {
+        icon: '🎖️',
+        title: 'Cinq défis',
+        description: 'Réussir 5 défis de la semaine',
       },
     } satisfies Record<BadgeCode, { icon: string; title: string; description: string }>,
   },

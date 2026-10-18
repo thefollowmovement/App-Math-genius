@@ -129,6 +129,96 @@ export type Database = {
         };
         Relationships: [];
       };
+      challenge_completions: {
+        Row: {
+          challenge_code: string;
+          child_id: string;
+          completed_at: string;
+          created_at: string;
+          id: string;
+          session_id: string | null;
+          updated_at: string;
+          week_start: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          challenge_code: string;
+          child_id: string;
+          completed_at: string;
+          created_at?: string;
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+          week_start: string;
+        };
+        Update: {
+          challenge_code?: string;
+          child_id?: string;
+          completed_at?: string;
+          created_at?: string;
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+          week_start?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'challenge_completions_challenge_code_fkey';
+            columns: ['challenge_code'];
+            isOneToOne: false;
+            referencedRelation: 'challenges';
+            referencedColumns: ['code'];
+          },
+          {
+            foreignKeyName: 'challenge_completions_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'challenge_completions_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      challenges: {
+        Row: {
+          code: string;
+          created_at: string;
+          gems: number;
+          id: string;
+          metric: string;
+          position: number;
+          threshold: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          created_at?: string;
+          gems: number;
+          id?: string;
+          metric: string;
+          position: number;
+          threshold: number;
+          updated_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          gems?: number;
+          id?: string;
+          metric?: string;
+          position?: number;
+          threshold?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       chests: {
         Row: {
           child_id: string;
@@ -1227,6 +1317,7 @@ export type Database = {
         };
       };
       unregister_push_token: { Args: { p_token: string }; Returns: undefined };
+      weekly_challenge: { Args: { p_child_id: string; p_now?: string }; Returns: Json };
     };
     Enums: {
       badge_category: 'regularity' | 'mastery' | 'discovery' | 'progression';

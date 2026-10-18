@@ -22,5 +22,7 @@ export const awardSchema = z.object({
     .object({ grade: z.string(), domain: z.string(), passed: z.boolean(), first: z.boolean() })
     .nullable()
     .default(null),
+  /** The weekly challenge this session completed, and its gems (*_challenges.sql). */
+  challenge: z.object({ code: z.string(), gems: z.int() }).nullable().default(null),
 });
 export type Award = z.infer<typeof awardSchema>;

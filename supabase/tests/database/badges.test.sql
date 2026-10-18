@@ -88,7 +88,7 @@ select ok(
    where oid in ('public.badges'::regclass, 'public.child_badges'::regclass)),
   'RLS is enabled on badges and child badges'
 );
-select is((select count(*)::int from public.badges), 41, 'The catalog holds 41 badges');
+select is((select count(*)::int from public.badges), 43, 'The catalog holds 43 badges');
 select ok(
   (select bool_and(private.badge_metrics('00000000-0000-4000-8000-0000000000c1') ? b.metric)
    from public.badges b),
@@ -159,7 +159,7 @@ select is(
     'streak_best', 7, 'validated_daily', 9, 'weekend_sessions', 2, 'comebacks', 1,
     'best_combo', 10, 'perfect_sessions', 1, 'correct_answers', 82, 'bonus_sessions', 0,
     'rare_chests', 1, 'explored_skills', 1, 'level', 4, 'islands_completed', 0,
-    'perfect_bosses', 0),
+    'perfect_bosses', 0, 'challenges_completed', 0),
   'The measures behind the badges'
 );
 
@@ -202,7 +202,7 @@ select is(
   '{bonus-1,perfect-1,sessions-1}',
   'Bob only reads Tom''s badges'
 );
-select is((select count(*)::int from public.badges), 41, 'Everyone signed in reads the catalog');
+select is((select count(*)::int from public.badges), 43, 'Everyone signed in reads the catalog');
 select throws_ok(
   $$select public.child_badge_metrics('00000000-0000-4000-8000-0000000000c1')$$,
   'PT404', 'child_not_found',

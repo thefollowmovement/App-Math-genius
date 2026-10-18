@@ -170,7 +170,9 @@ select ok(
 select is(
   (select row(xp, level, gems, streak_current, streak_best, freezes)::text from public.progress
    where child_id = '00000000-0000-4000-8000-0000000000c3'),
-  row(7 * 120, 4, 7 * 5, 7, 7, 1)::text,
+  -- Gems: 5 per validated session, and 25 for the week's challenge (a perfect session,
+  -- challenges.test.sql).
+  row(7 * 120, 4, 7 * 5 + 25, 7, 7, 1)::text,
   'Progress adds up the week: XP, level, the gems of validated sessions, streak and freeze'
 );
 
@@ -183,8 +185,8 @@ select is(
 select is(
   (select count(*)::int from public.gem_transactions
    where child_id = '00000000-0000-4000-8000-0000000000c3'),
-  7,
-  'and pays nothing twice'
+  8,
+  'and pays nothing twice (7 sessions and the week''s challenge)'
 );
 
 -- A routine, a freeze, holidays and a session synced late (Léa) ------------------------------------
@@ -273,7 +275,7 @@ select pg_temp.as_user('00000000-0000-4000-8000-0000000000a1');
 select is(
   (public.open_chest((select c.id from public.chests c
     where c.child_id = '00000000-0000-4000-8000-0000000000c3' and c.kind = 'rare')) ->> 'total_gems')::int,
-  35 + (select c.gems from public.chests c
+  35 + 25 + (select c.gems from public.chests c
         where c.child_id = '00000000-0000-4000-8000-0000000000c3' and c.kind = 'rare'),
   'Opening a chest adds its gems'
 );
@@ -296,7 +298,8 @@ select throws_ok(
 );
 select is(
   (public.buy_freeze('00000000-0000-4000-8000-0000000000c1')).gems,
-  6 * 5 - 30,
+  -- 6 validated sessions and the challenge of the week of 12 October (a perfect session).
+  6 * 5 + 25 - 30,
   'A freeze costs 30 gems'
 );
 select throws_ok(

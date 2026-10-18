@@ -7,7 +7,7 @@ import { useIsOnline } from '@/data/network';
 import { hasUnsentAnswers, usePracticeStore } from '@/data/practice/practice-store';
 import { practiceStatus } from '@/data/practice/summary';
 import { usePracticeSync } from '@/data/practice/sync';
-import { useRewards } from '@/data/rewards';
+import { useRewards, useWeeklyChallenge } from '@/data/rewards';
 import { childPlan, routineOf } from '@/data/routine-plan';
 import { useRoutines } from '@/data/routines';
 import { useAccountKind } from '@/data/session';
@@ -26,6 +26,7 @@ export default function ChildHomeRoute() {
   const start = useStartSession(child.data);
   const routines = useRoutines();
   const rewards = useRewards(child.data?.id);
+  const challenge = useWeeklyChallenge(child.data?.id);
   const { date } = useLocalClock();
   usePracticeSync(child.data?.id);
 
@@ -41,6 +42,7 @@ export default function ChildHomeRoute() {
       plan={childPlan(routines.data, id, date).kind}
       goal={routineOf(routines.data, id)?.goal ?? DEFAULT_SESSION_GOAL}
       rewards={rewards.data}
+      challenge={challenge.data}
       onOpenChest={(chest) => router.push({ pathname: '/child/chest', params: { id, chest } })}
       onOpenBadges={() => router.push({ pathname: '/child/badges', params: { id } })}
       onOpenMap={() => router.push({ pathname: '/child/map', params: { id } })}

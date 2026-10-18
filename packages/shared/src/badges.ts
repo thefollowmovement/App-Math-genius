@@ -1,5 +1,5 @@
 /**
- * Badges, earned on the server (supabase/migrations/*_badges.sql, *_islands.sql) when one of the
+ * Badges, earned on the server (supabase/migrations/*_badges.sql, *_islands.sql, *_challenges.sql) when one of the
  * child's measures reaches a threshold. The migrations hold the same catalog, in the same order
  * (badges.test.ts compares them). Codes are stored with each child's badges: never rename one.
  */
@@ -38,6 +38,8 @@ export const BADGE_METRICS = [
   'islands_completed',
   /** Bosses beaten without a single error. */
   'perfect_bosses',
+  /** Weekly challenges completed. */
+  'challenges_completed',
 ] as const;
 export type BadgeMetric = (typeof BADGE_METRICS)[number];
 
@@ -90,6 +92,8 @@ export const BADGES = [
   { code: 'island-2', category: 'progression', metric: 'islands_completed', threshold: 2 },
   { code: 'island-4', category: 'progression', metric: 'islands_completed', threshold: 4 },
   { code: 'boss-perfect', category: 'discovery', metric: 'perfect_bosses', threshold: 1 },
+  { code: 'challenge-1', category: 'discovery', metric: 'challenges_completed', threshold: 1 },
+  { code: 'challenge-5', category: 'regularity', metric: 'challenges_completed', threshold: 5 },
 ] as const satisfies readonly BadgeDefinition[];
 
 export type Badge = (typeof BADGES)[number];
