@@ -234,6 +234,52 @@ export type Database = {
           },
         ];
       };
+      child_items: {
+        Row: {
+          bought_at: string;
+          child_id: string;
+          created_at: string;
+          equipped: boolean;
+          id: string;
+          item_code: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          bought_at: string;
+          child_id: string;
+          created_at?: string;
+          equipped?: boolean;
+          id?: string;
+          item_code: string;
+          updated_at?: string;
+        };
+        Update: {
+          bought_at?: string;
+          child_id?: string;
+          created_at?: string;
+          equipped?: boolean;
+          id?: string;
+          item_code?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_items_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_items_item_code_fkey';
+            columns: ['item_code'];
+            isOneToOne: false;
+            referencedRelation: 'shop_items';
+            referencedColumns: ['code'];
+          },
+        ];
+      };
       child_skill_mastery: {
         Row: {
           attempts_count: number;
@@ -977,6 +1023,37 @@ export type Database = {
           },
         ];
       };
+      shop_items: {
+        Row: {
+          code: string;
+          created_at: string;
+          id: string;
+          kind: Database['public']['Enums']['shop_item_kind'];
+          position: number;
+          price_gems: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          created_at?: string;
+          id?: string;
+          kind: Database['public']['Enums']['shop_item_kind'];
+          position: number;
+          price_gems: number;
+          updated_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          id?: string;
+          kind?: Database['public']['Enums']['shop_item_kind'];
+          position?: number;
+          price_gems?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       skills: {
         Row: {
           automatism: boolean;
@@ -1087,6 +1164,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      buy_item: { Args: { p_child_id: string; p_item_code: string }; Returns: Json };
       child_badge_metrics: { Args: { p_child_id: string }; Returns: Json };
       create_pairing_code: {
         Args: { p_child_id: string };
@@ -1094,6 +1172,10 @@ export type Database = {
           code: string;
           expires_at: string;
         }[];
+      };
+      equip_item: {
+        Args: { p_child_id: string; p_equipped: boolean; p_item_code: string };
+        Returns: undefined;
       };
       open_chest: { Args: { p_chest_id: string }; Returns: Json };
       redeem_pairing_code: {
@@ -1168,6 +1250,7 @@ export type Database = {
       session_goal_type: 'duration' | 'count';
       session_kind: 'daily' | 'bonus' | 'placement' | 'boss';
       session_slot: 'current' | 'review' | 'automatism' | 'challenge';
+      shop_item_kind: 'companion' | 'accessory' | 'effect';
       skill_domain: 'numbers' | 'measures' | 'geometry' | 'data';
     };
     CompositeTypes: {
@@ -1302,6 +1385,7 @@ export const Constants = {
       session_goal_type: ['duration', 'count'],
       session_kind: ['daily', 'bonus', 'placement', 'boss'],
       session_slot: ['current', 'review', 'automatism', 'challenge'],
+      shop_item_kind: ['companion', 'accessory', 'effect'],
       skill_domain: ['numbers', 'measures', 'geometry', 'data'],
     },
   },

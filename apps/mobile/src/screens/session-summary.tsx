@@ -1,4 +1,6 @@
+import type { ShopItemCode } from '@math-genius/shared';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
+import Animated, { Easing, ZoomIn } from 'react-native-reanimated';
 
 import type { SessionSummary as Summary } from '@/data/practice/summary';
 import type { AwardState } from '@/data/rewards-model';
@@ -16,6 +18,8 @@ type SessionSummaryProps = {
   award: AwardState;
   onOpenChest: (chestId: string) => void;
   onOpenBadges: () => void;
+  /** The victory effect the child wears (shop). */
+  effect?: ShopItemCode;
   onBonus: () => void;
   onHome: () => void;
 };
@@ -26,11 +30,13 @@ export function SessionSummary({
   award,
   onOpenChest,
   onOpenBadges,
+  effect,
   onBonus,
   onHome,
 }: SessionSummaryProps) {
   return (
     <Screen centered>
+      {effect ? <VictoryEffect icon={strings.shop.items[effect].icon} /> : null}
       <View className="gap-2">
         <ThemedText variant="display" className="text-center" accessibilityRole="header">
           {summary.kind === 'boss' ? t.bossOver : summary.goalMet ? t.goalMet : t.finished}
@@ -60,5 +66,22 @@ export function SessionSummary({
         <Button variant="ghost" title={t.home} onPress={onHome} />
       </View>
     </Screen>
+  );
+}
+
+// Rare moment (end of a session), worth a short celebration; Reanimated skips it with reduced
+// motion (ReduceMotion.System by default).
+const POP = ZoomIn.duration(300).easing(Easing.bezier(0.23, 1, 0.32, 1));
+
+/** The victory effect bought in the shop, three times, as a decoration. */
+function VictoryEffect({ icon }: { icon: string }) {
+  return (
+    <Animated.View entering={POP} importantForAccessibility="no-hide-descendants">
+      <ThemedText
+        variant="display"
+        className="text-center"
+        accessibilityElementsHidden
+      >{`${icon} ${icon} ${icon}`}</ThemedText>
+    </Animated.View>
   );
 }

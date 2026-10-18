@@ -4,7 +4,7 @@ import { Avatar, Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import type { Child } from '@/data/children';
 import type { PracticeStatus } from '@/data/practice/summary';
-import type { Rewards } from '@/data/rewards-model';
+import { wornItems, type Rewards } from '@/data/rewards-model';
 import { strings } from '@/i18n';
 import { goalText } from '@/utils/routine-text';
 
@@ -26,6 +26,7 @@ type ChildHomeProps = {
   onOpenChest?: (chestId: string) => void;
   onOpenBadges?: () => void;
   onOpenMap?: () => void;
+  onOpenShop?: () => void;
   sync: SyncState;
   onStart: () => void;
   /** Shown when the device holds several profiles or a parent is signed in. */
@@ -58,16 +59,41 @@ export function ChildHome({
   onOpenChest,
   onOpenBadges,
   onOpenMap,
+  onOpenShop,
   sync,
   onStart,
   onSwitchProfile,
 }: ChildHomeProps) {
   const [chest] = rewards?.chests ?? [];
+  const worn = wornItems(rewards?.items ?? []);
+  const companion = worn.companion ? strings.shop.items[worn.companion] : null;
+  const accessory = worn.accessory ? strings.shop.items[worn.accessory] : null;
   return (
     <Screen centered>
       {rewards ? <ProgressStrip progress={rewards.progress} /> : null}
       <View className="items-center gap-4">
-        <Avatar name={child.display_name} size="lg" />
+        <View className="flex-row items-end gap-2">
+          <View>
+            <Avatar name={child.display_name} size="lg" />
+            {accessory ? (
+              <ThemedText
+                variant="title"
+                className="absolute -right-2 -top-2"
+                accessibilityLabel={strings.shop.accessoryLabel(accessory.name)}
+              >
+                {accessory.icon}
+              </ThemedText>
+            ) : null}
+          </View>
+          {companion ? (
+            <ThemedText
+              variant="display"
+              accessibilityLabel={strings.shop.companionLabel(companion.name)}
+            >
+              {companion.icon}
+            </ThemedText>
+          ) : null}
+        </View>
         <ThemedText variant="display" className="text-center">
           {t.greeting(child.display_name)}
         </ThemedText>
@@ -94,6 +120,9 @@ export function ChildHome({
         />
       )}
       {onOpenMap ? <Button variant="ghost" title={strings.map.open} onPress={onOpenMap} /> : null}
+      {onOpenShop ? (
+        <Button variant="ghost" title={strings.shop.open} onPress={onOpenShop} />
+      ) : null}
       {onOpenBadges ? (
         <Button
           variant="ghost"

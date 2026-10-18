@@ -1,5 +1,5 @@
 import { islandKey } from '@math-genius/exercise-engine';
-import type { Award } from '@math-genius/shared';
+import type { Award, ShopItemCode } from '@math-genius/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
@@ -36,7 +36,7 @@ export function useRewards(childId: string | undefined) {
     queryKey: ['rewards', childId],
     enabled: childId !== undefined,
     queryFn: async (): Promise<Rewards> => {
-      const [progress, chests, badges] = await Promise.all([
+      const [progress, chests, badges, items] = await Promise.all([
         supabase
           .from('progress')
           .select('xp, gems, streak_current, streak_best, freezes')
@@ -52,14 +52,21 @@ export function useRewards(childId: string | undefined) {
           .from('child_badges')
           .select('id', { count: 'exact', head: true })
           .eq('child_id', childId ?? ''),
+        supabase
+          .from('child_items')
+          .select('item_code, equipped')
+          .eq('child_id', childId ?? '')
+          .order('bought_at'),
       ]);
       if (progress.error) throw progress.error;
       if (chests.error) throw chests.error;
       if (badges.error) throw badges.error;
+      if (items.error) throw items.error;
       return {
         progress: progressView(progress.data),
         chests: chests.data,
         badges: badges.count ?? 0,
+        items: items.data,
       };
     },
   });
@@ -130,6 +137,46 @@ export function useOpenChest(childId: string) {
       const opened = parseOpenedChest(data);
       if (!opened) throw new Error('Unexpected open_chest answer');
       return opened;
+    },
+    onSuccess: () => client.invalidateQueries({ queryKey: ['rewards', childId] }),
+  });
+}
+
+/** Buys an item of the shop with gems (the child then wears it). */
+export function useBuyItem(childId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (code: ShopItemCode) => {
+      const { error } = await supabase.rpc('buy_item', { p_child_id: childId, p_item_code: code });
+      if (error) throw error;
+    },
+    onSuccess: () => client.invalidateQueries({ queryKey: ['rewards', childId] }),
+  });
+}
+
+/** Wears an item bought earlier (instead of the other one of its kind), or takes it off. */
+export function useWearItem(childId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ code, wear }: { code: ShopItemCode; wear: boolean }) => {
+      const { error } = await supabase.rpc('equip_item', {
+        p_child_id: childId,
+        p_item_code: code,
+        p_equipped: wear,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => client.invalidateQueries({ queryKey: ['rewards', childId] }),
+  });
+}
+
+/** Buys a streak freeze (FREEZE_PRICE gems, MAX_FREEZES at most). */
+export function useBuyFreeze(childId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc('buy_freeze', { p_child_id: childId });
+      if (error) throw error;
     },
     onSuccess: () => client.invalidateQueries({ queryKey: ['rewards', childId] }),
   });

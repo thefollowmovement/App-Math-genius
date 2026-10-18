@@ -1,4 +1,4 @@
-import type { BadgeCode } from '@math-genius/shared';
+import type { BadgeCode, ShopItemCode } from '@math-genius/shared';
 
 export const fr = {
   common: {
@@ -386,6 +386,60 @@ export const fr = {
     done: 'Super\u00a0!',
     gone: 'Ce coffre est déjà ouvert.',
   },
+  shop: {
+    title: 'Boutique',
+    open: 'Boutique',
+    balance: (gems: number) => `Tu as ${gems}\u00a0gemme${gems > 1 ? 's' : ''}`,
+    intro: 'Tout s’achète avec les gemmes gagnées en t’entraînant.',
+    kinds: {
+      companion: 'Compagnons',
+      accessory: 'Accessoires',
+      effect: 'Effets de victoire',
+    },
+    kindHints: {
+      companion: 'Il t’accompagne sur ton accueil.',
+      accessory: 'Il décore ton avatar.',
+      effect: 'Il fête la fin de tes séances.',
+    },
+    freezes: {
+      title: 'Gels de série',
+      icon: '🧊',
+      hint: 'Un gel protège ta série si tu manques un jour. Un gel est offert chaque lundi.',
+      count: (count: number, max: number) => `${count} sur ${max}`,
+      buy: (price: number) => `Acheter un gel (${price}\u00a0💎)`,
+      full: 'Tu as déjà le maximum de gels.',
+    },
+    price: (gems: number) => `${gems}\u00a0💎`,
+    missing: (gems: number) => `Encore ${gems}\u00a0gemme${gems > 1 ? 's' : ''}`,
+    buy: 'Acheter',
+    buyLabel: (name: string, price: number) => `Acheter ${name} pour ${price}\u00a0gemmes`,
+    wear: 'Porter',
+    takeOff: 'Retirer',
+    worn: 'Porté',
+    wearLabel: (name: string) => `Porter ${name}`,
+    companionLabel: (name: string) => `Ton compagnon\u00a0: ${name}`,
+    accessoryLabel: (name: string) => `Ton accessoire\u00a0: ${name}`,
+    takeOffLabel: (name: string) => `Retirer ${name}`,
+    /** One per code of packages/shared/src/shop.ts. */
+    items: {
+      kitten: { icon: '🐱', name: 'Chaton' },
+      puppy: { icon: '🐶', name: 'Chiot' },
+      fox: { icon: '🦊', name: 'Renard' },
+      panda: { icon: '🐼', name: 'Panda' },
+      octopus: { icon: '🐙', name: 'Pieuvre' },
+      unicorn: { icon: '🦄', name: 'Licorne' },
+      dragon: { icon: '🐲', name: 'Dragon' },
+      bow: { icon: '🎀', name: 'Nœud' },
+      cap: { icon: '🧢', name: 'Casquette' },
+      sunglasses: { icon: '🕶️', name: 'Lunettes de soleil' },
+      'top-hat': { icon: '🎩', name: 'Chapeau haut-de-forme' },
+      crown: { icon: '👑', name: 'Couronne' },
+      confetti: { icon: '🎉', name: 'Confettis' },
+      sparkles: { icon: '✨', name: 'Étincelles' },
+      rainbow: { icon: '🌈', name: 'Arc-en-ciel' },
+      fireworks: { icon: '🎆', name: 'Feu d’artifice' },
+    } satisfies Record<ShopItemCode, { icon: string; name: string }>,
+  },
   map: {
     title: 'Carte du monde',
     open: 'Carte du monde',
@@ -615,6 +669,9 @@ export const fr = {
     deviceInOtherFamily: 'Cet appareil est déjà relié à une autre famille.',
     tooManyMessages:
       'Vous venez d’envoyer un message\u00a0: attendez 2\u00a0minutes avant le suivant.',
+    notEnoughGems: 'Il manque des gemmes pour cet achat.',
+    alreadyOwned: 'Cet objet est déjà acheté.',
+    tooManyFreezes: 'Le stock de gels est déjà plein.',
     network: 'Pas de connexion. Vérifiez le réseau et réessayez.',
     unknown: 'Une erreur est survenue. Réessayez.',
   },

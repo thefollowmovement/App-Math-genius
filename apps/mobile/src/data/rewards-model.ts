@@ -1,4 +1,15 @@
-import { awardSchema, levelProgress, type Award, type Tables } from '@math-genius/shared';
+import {
+  SHOP_ITEMS,
+  SHOP_KINDS,
+  awardSchema,
+  isShopItemCode,
+  levelProgress,
+  type Award,
+  type ShopItem,
+  type ShopItemCode,
+  type ShopKind,
+  type Tables,
+} from '@math-genius/shared';
 
 /** Rewards as stored by the server and as the app shows them, without Supabase (testable). */
 
@@ -36,8 +47,44 @@ export function progressView(row: ProgressRow | null): ProgressView {
   };
 }
 
-/** Progress, chests to open and how many badges the child has earned. */
-export type Rewards = { progress: ProgressView; chests: ChestRow[]; badges: number };
+/** An item bought in the shop. */
+export type ItemRow = Pick<Tables<'child_items'>, 'item_code' | 'equipped'>;
+
+/** Progress, chests to open, how many badges the child has earned and the items bought. */
+export type Rewards = {
+  progress: ProgressView;
+  chests: ChestRow[];
+  badges: number;
+  items: ItemRow[];
+};
+
+export type ShopItemView = ShopItem & { owned: boolean; worn: boolean };
+export type ShopGroup = { kind: ShopKind; items: ShopItemView[] };
+
+/** The shop's catalog by kind, with what the child owns and wears. */
+export function shopGroups(items: readonly ItemRow[]): ShopGroup[] {
+  const owned = new Map(items.map((item) => [item.item_code, item.equipped]));
+  return SHOP_KINDS.map((kind) => ({
+    kind,
+    items: SHOP_ITEMS.filter((item) => item.kind === kind).map((item) => ({
+      ...item,
+      owned: owned.has(item.code),
+      worn: owned.get(item.code) === true,
+    })),
+  }));
+}
+
+/** The item worn of each kind (items this version of the app does not know are left out). */
+export function wornItems(items: readonly ItemRow[]): Partial<Record<ShopKind, ShopItemCode>> {
+  const worn: Partial<Record<ShopKind, ShopItemCode>> = {};
+  for (const { item_code: code, equipped } of items) {
+    const item = isShopItemCode(code)
+      ? SHOP_ITEMS.find((candidate) => candidate.code === code)
+      : null;
+    if (equipped && item) worn[item.kind] = item.code;
+  }
+  return worn;
+}
 
 export const parseAward = (value: unknown): Award | null => {
   const parsed = awardSchema.safeParse(value);

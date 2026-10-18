@@ -5,6 +5,7 @@ import { registerCSS } from 'react-native-css/jest';
 
 import { badgeGroups } from '@/data/badges-model';
 import type { Child } from '@/data/children';
+import { shopGroups } from '@/data/rewards-model';
 import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
@@ -35,6 +36,7 @@ import { RoutineSettings } from './routine-settings';
 import { SignIn } from './sign-in';
 import { SessionDetail } from './session-detail';
 import { SessionSummary } from './session-summary';
+import { Shop } from './shop';
 import { SignUp } from './sign-up';
 import { WorldMap } from './world-map';
 
@@ -190,6 +192,21 @@ const screens: { name: string; render: () => ReactElement }[] = [
     ),
   },
   {
+    name: 'Shop',
+    render: () => (
+      <Shop
+        gems={70}
+        freezes={1}
+        groups={shopGroups([{ item_code: 'kitten', equipped: true }])}
+        pending={null}
+        error="notEnoughGems"
+        onBuyFreeze={jest.fn()}
+        onBuy={jest.fn()}
+        onWear={jest.fn()}
+      />
+    ),
+  },
+  {
     name: 'WorldMap',
     render: () => (
       <WorldMap
@@ -260,6 +277,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
         award={{ status: 'ready', award: award({ chest: { id: 'chest-1', kind: 'rare' } }) }}
         onOpenChest={jest.fn()}
         onOpenBadges={jest.fn()}
+        effect="confetti"
         onBonus={jest.fn()}
         onHome={jest.fn()}
       />

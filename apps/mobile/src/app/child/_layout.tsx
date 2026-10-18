@@ -30,6 +30,7 @@ export default function ChildLayout() {
       {/* These screens show their own title. */}
       <Stack.Screen name="badges" />
       <Stack.Screen name="map" />
+      <Stack.Screen name="shop" />
     </Stack>
   );
 }

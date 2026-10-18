@@ -270,5 +270,10 @@ describe('ChildHome rewards', () => {
     expect(onOpenChest).toHaveBeenCalledWith('chest-1');
     await user.press(screen.getByRole('button', { name: strings.badges.open(3) }));
     expect(onOpenBadges).toHaveBeenCalled();
+    // The kitten bought in the shop is worn; the bow is not.
+    expect(
+      screen.getByLabelText(strings.shop.companionLabel(strings.shop.items.kitten.name)),
+    ).toBeOnTheScreen();
+    expect(screen.queryByLabelText(/Ton accessoire/)).toBeNull();
   });
 });

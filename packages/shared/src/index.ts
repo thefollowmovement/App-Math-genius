@@ -69,3 +69,11 @@ export {
   type BadgeCode,
   type BadgeMetric,
 } from './badges';
+export {
+  SHOP_ITEMS,
+  SHOP_KINDS,
+  isShopItemCode,
+  type ShopItem,
+  type ShopItemCode,
+  type ShopKind,
+} from './shop';

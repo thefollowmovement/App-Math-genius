@@ -26,4 +26,8 @@ export const rewards = (chests: Rewards['chests'] = []): Rewards => ({
   progress: progressView({ xp: 1040, gems: 45, streak_current: 4, streak_best: 6, freezes: 1 }),
   chests,
   badges: 3,
+  items: [
+    { item_code: 'kitten', equipped: true },
+    { item_code: 'bow', equipped: false },
+  ],
 });

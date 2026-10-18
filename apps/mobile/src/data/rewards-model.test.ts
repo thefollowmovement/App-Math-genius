@@ -1,6 +1,13 @@
 import { award } from '@/test-utils/rewards';
 
-import { awardState, awardsFromResponse, parseOpenedChest, progressView } from './rewards-model';
+import {
+  awardState,
+  awardsFromResponse,
+  parseOpenedChest,
+  progressView,
+  shopGroups,
+  wornItems,
+} from './rewards-model';
 
 describe('rewards from the server', () => {
   it('start at level 1 with the week’s free freeze', () => {
@@ -41,5 +48,28 @@ describe('rewards from the server', () => {
     expect(awardState(false, undefined)).toEqual({ status: 'waiting' });
     expect(awardState(true, null)).toEqual({ status: 'computing' });
     expect(awardState(true, award())).toEqual({ status: 'ready', award: award() });
+  });
+});
+
+describe('shop', () => {
+  const items = [
+    { item_code: 'kitten', equipped: true },
+    { item_code: 'bow', equipped: false },
+    { item_code: 'crown', equipped: true },
+    { item_code: 'from-the-future', equipped: true },
+  ];
+
+  it('lists the catalog by kind with what the child owns and wears', () => {
+    const groups = shopGroups(items);
+    expect(groups.map((group) => group.kind)).toEqual(['companion', 'accessory', 'effect']);
+    const all = groups.flatMap((group) => group.items);
+    expect(all.find((item) => item.code === 'kitten')).toMatchObject({ owned: true, worn: true });
+    expect(all.find((item) => item.code === 'bow')).toMatchObject({ owned: true, worn: false });
+    expect(all.find((item) => item.code === 'fox')).toMatchObject({ owned: false, worn: false });
+  });
+
+  it('knows the item worn of each kind', () => {
+    expect(wornItems(items)).toEqual({ companion: 'kitten', accessory: 'crown' });
+    expect(wornItems([])).toEqual({});
   });
 });
