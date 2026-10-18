@@ -6,7 +6,7 @@ import type { Child } from '@/data/children';
 import type { PairedDevice } from '@/data/devices';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
-import { rewards } from '@/test-utils/rewards';
+import { parentReward, parentRewards, rewards } from '@/test-utils/rewards';
 
 import { ChildDetail } from '.';
 
@@ -35,6 +35,7 @@ function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
       routine={null}
       vacations={[]}
       onEditRoutine={jest.fn()}
+      rewards={parentRewards()}
       nudge={{ onSend: jest.fn(), sending: false, result: null, error: null }}
       pairing={{ status: 'idle' }}
       creatingCode={false}
@@ -158,5 +159,52 @@ describe('ChildDetail', () => {
     expect(onCreateCode).toHaveBeenCalled();
     expect(onRevokeDevice).toHaveBeenCalledWith('phone');
     expect(screen.getByText(t.pairedOn('13 octobre 2026'))).toBeOnTheScreen();
+  });
+});
+
+describe('ChildDetail rewards', () => {
+  const r = strings.parentRewards;
+
+  it("shows each reward, its goal and the child's progress", async () => {
+    await renderDetail();
+    expect(screen.getByText('Une sortie au cinéma')).toBeOnTheScreen();
+    // In the reward, and among the targets of the form.
+    expect(screen.getAllByText(r.goalText.streak(7))).toHaveLength(2);
+    expect(screen.getByText(r.progress(4, 7))).toBeOnTheScreen();
+    expect(screen.getByText(r.status.given)).toBeOnTheScreen();
+  });
+
+  it('sets a new reward with its goal', async () => {
+    const onCreate = jest.fn();
+    const user = userEvent.setup();
+    await renderDetail({ rewards: parentRewards({ onCreate }) });
+    await user.press(screen.getByRole('button', { name: r.form.add }));
+    expect(screen.getByText(r.errors.title)).toBeOnTheScreen();
+    expect(onCreate).not.toHaveBeenCalled();
+
+    await user.type(screen.getByLabelText(r.form.title), '  Une crêpe ');
+    await user.press(screen.getByRole('radio', { name: r.goals.xp }));
+    await user.press(screen.getByRole('radio', { name: r.goalText.xp(2000) }));
+    await user.press(screen.getByRole('button', { name: r.form.add }));
+    expect(onCreate).toHaveBeenCalledWith({ title: 'Une crêpe', goal: 'xp', target: 2000 });
+  });
+
+  it('marks an unlocked reward given, and removes one', async () => {
+    const onGive = jest.fn();
+    const onRemove = jest.fn();
+    const user = userEvent.setup();
+    const unlocked = parentReward({
+      id: 'ice',
+      title: 'Une glace',
+      status: 'unlocked',
+      value: 1,
+      unlocked_at: '2026-10-18T18:00:00Z',
+    });
+    await renderDetail({ rewards: parentRewards({ rewards: [unlocked], onGive, onRemove }) });
+    expect(screen.getByText(r.status.unlocked)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: r.giveLabel('Une glace') }));
+    expect(onGive).toHaveBeenCalledWith('ice');
+    await user.press(screen.getByRole('button', { name: r.removeLabel('Une glace') }));
+    expect(onRemove).toHaveBeenCalledWith('ice');
   });
 });

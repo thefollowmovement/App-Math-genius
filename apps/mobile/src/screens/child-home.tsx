@@ -3,12 +3,14 @@ import type { DayPlan } from '@math-genius/shared';
 import { Avatar, Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import type { Child } from '@/data/children';
+import type { ParentRewardView } from '@/data/parent-rewards-model';
 import type { PracticeStatus } from '@/data/practice/summary';
 import { wornItems, type Rewards, type WeeklyChallenge } from '@/data/rewards-model';
 import { strings } from '@/i18n';
 import { goalText } from '@/utils/routine-text';
 
 import { ChallengeCard } from './rewards/challenge-card';
+import { NextRewardCard } from './rewards/next-reward-card';
 import { ProgressStrip } from './rewards/progress-strip';
 
 const t = strings.childHome;
@@ -26,6 +28,8 @@ type ChildHomeProps = {
   rewards?: Rewards;
   /** This week's challenge, once known. */
   challenge?: WeeklyChallenge | null;
+  /** The parent's reward to ask for, or the closest one to unlock. */
+  nextReward?: ParentRewardView | null;
   onOpenChest?: (chestId: string) => void;
   onOpenBadges?: () => void;
   onOpenMap?: () => void;
@@ -60,6 +64,7 @@ export function ChildHome({
   goal,
   rewards,
   challenge,
+  nextReward,
   onOpenChest,
   onOpenBadges,
   onOpenMap,
@@ -123,6 +128,7 @@ export function ChildHome({
           onPress={onStart}
         />
       )}
+      {nextReward ? <NextRewardCard reward={nextReward} /> : null}
       {challenge ? <ChallengeCard challenge={challenge} /> : null}
       {onOpenMap ? <Button variant="ghost" title={strings.map.open} onPress={onOpenMap} /> : null}
       {onOpenShop ? (

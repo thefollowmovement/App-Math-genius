@@ -21,7 +21,7 @@ import { attemptViews } from '@/data/session-report';
 import { EXERCISE_TYPES, exerciseOfType } from '@/test-utils/exercises';
 import { attemptRow, sessionRow } from '@/test-utils/family';
 import { rightResponse, wrongResponse } from '@/test-utils/responses';
-import { award, rewards } from '@/test-utils/rewards';
+import { award, parentReward, parentRewards, rewards } from '@/test-utils/rewards';
 
 import { Badges } from './badges';
 import { ChestOpening } from './chest-opening';
@@ -109,6 +109,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
         routine={{ ...DEFAULT_ROUTINE, weekendStartTime: '10:30' }}
         vacations={[vacation]}
         onEditRoutine={jest.fn()}
+        rewards={parentRewards({ error: 'network' })}
         nudge={{ onSend: jest.fn(), sending: false, result: 'no_device', error: 'tooManyMessages' }}
         pairing={{
           status: 'showing',
@@ -173,6 +174,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
         goal={{ type: 'duration', minutes: 15 }}
         rewards={rewards([{ id: 'chest-1', kind: 'common' }])}
         challenge={{ code: 'combo-10', threshold: 10, progress: 4, gems: 15, completed: false }}
+        nextReward={parentReward({ status: 'unlocked', value: 1, unlocked_at: '2026-10-18' })}
         onOpenChest={jest.fn()}
         onOpenBadges={jest.fn()}
         sync="offline"

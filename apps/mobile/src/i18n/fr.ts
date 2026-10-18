@@ -367,6 +367,8 @@ export const fr = {
     openChest: 'Ouvrir mon coffre',
     newBadges: (count: number) => (count > 1 ? 'Nouveaux badges\u00a0!' : 'Nouveau badge\u00a0!'),
     seeBadges: 'Voir mes badges',
+    parentReward: (title: string) =>
+      `🎁 Récompense débloquée\u00a0: ${title}\u00a0! Demande-la à ton parent.`,
     challengeDone: (gems: number) => `🏅 Défi de la semaine réussi\u00a0! +${gems}\u00a0gemmes`,
     bossWon: 'Boss vaincu\u00a0!',
     islandDone: (island: string) => `Tu as terminé ${island}\u00a0!`,
@@ -386,6 +388,44 @@ export const fr = {
     total: (total: number) => `Tu as maintenant ${total}\u00a0gemme${total > 1 ? 's' : ''}.`,
     done: 'Super\u00a0!',
     gone: 'Ce coffre est déjà ouvert.',
+  },
+  parentRewards: {
+    title: 'Récompenses',
+    intro:
+      'Fixez une vraie récompense et l’objectif qui la débloque\u00a0: votre enfant voit sa progression.',
+    empty: 'Aucune récompense pour l’instant.',
+    goals: { streak: 'Jours de série', xp: 'Points d’expérience (XP)', islands: 'Îles terminées' },
+    goalText: {
+      streak: (target: number) => `${target}\u00a0jour${target > 1 ? 's' : ''} de série`,
+      xp: (target: number) => `${target.toLocaleString('fr-FR')}\u00a0XP`,
+      islands: (target: number) =>
+        `${target}\u00a0île${target > 1 ? 's' : ''} terminée${target > 1 ? 's' : ''}`,
+    },
+    form: {
+      title: 'Récompense',
+      titleHint: 'Par exemple\u00a0: une sortie au cinéma.',
+      goal: 'Objectif',
+      target: 'À atteindre',
+      add: 'Ajouter la récompense',
+    },
+    errors: { title: 'Indiquez la récompense (60 caractères maximum).' },
+    status: {
+      locked: 'À débloquer',
+      unlocked: 'Débloquée\u00a0: à remettre',
+      given: 'Remise',
+    },
+    progress: (value: number, target: number) =>
+      `${value.toLocaleString('fr-FR')} / ${target.toLocaleString('fr-FR')}`,
+    give: 'Je l’ai remise',
+    giveLabel: (title: string) => `Marquer « ${title} » comme remise`,
+    remove: 'Supprimer',
+    removeLabel: (title: string) => `Supprimer la récompense « ${title} »`,
+    child: {
+      title: 'Ta prochaine récompense',
+      icon: '🎁',
+      unlocked: 'Débloquée\u00a0! Demande-la à ton parent.',
+      progressLabel: (value: number, target: number) => `Récompense\u00a0: ${value} sur ${target}`,
+    },
   },
   challenge: {
     title: 'Défi de la semaine',

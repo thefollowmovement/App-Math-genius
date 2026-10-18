@@ -58,6 +58,11 @@ export function AwardPanel({ state, onOpenChest, onOpenBadges }: AwardPanelProps
         ) : null}
         {streakUp ? <ThemedText>{t.streakUp}</ThemedText> : null}
         {award.gems > 0 ? <ThemedText>{t.gems(award.gems)}</ThemedText> : null}
+        {award.parent_rewards.map((reward) => (
+          <ThemedText key={reward.id} variant="headline" className="text-center">
+            {t.parentReward(reward.title)}
+          </ThemedText>
+        ))}
         {award.challenge ? (
           <ThemedText variant="headline" className="text-center">
             {t.challengeDone(award.challenge.gems)}

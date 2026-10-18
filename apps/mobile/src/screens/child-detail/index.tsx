@@ -12,9 +12,10 @@ import { strings } from '@/i18n';
 import { TodaySessions } from '../today-sessions';
 import { NudgePanel, type NudgeResult } from './nudge-panel';
 import { PairingPanel, type PairingState } from './pairing-panel';
+import { RewardsPanel, type ParentRewardsState } from './rewards-panel';
 import { RoutinePanel } from './routine-panel';
 
-export type { NudgeResult, PairingState };
+export type { NudgeResult, PairingState, ParentRewardsState };
 
 export type NudgeState = {
   onSend: (message: string) => void;
@@ -39,6 +40,8 @@ type ChildDetailProps = {
   /** Current and coming holidays. */
   vacations: readonly VacationRow[];
   onEditRoutine: () => void;
+  /** Real-life rewards set by the parent. */
+  rewards: ParentRewardsState;
   /** Messages to the child, once a device is paired. */
   nudge: NudgeState;
   pairing: PairingState;
@@ -59,6 +62,7 @@ export function ChildDetail({
   routine,
   vacations,
   onEditRoutine,
+  rewards,
   nudge,
   pairing,
   creatingCode,
@@ -86,6 +90,7 @@ export function ChildDetail({
       </View>
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
       <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
+      <RewardsPanel {...rewards} />
       {devices.length > 0 ? (
         <NudgePanel
           childName={child.display_name}

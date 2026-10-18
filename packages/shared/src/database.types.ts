@@ -853,6 +853,51 @@ export type Database = {
           },
         ];
       };
+      parent_rewards: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          given_at: string | null;
+          goal: Database['public']['Enums']['parent_reward_goal'];
+          id: string;
+          target: number;
+          title: string;
+          unlocked_at: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          given_at?: string | null;
+          goal: Database['public']['Enums']['parent_reward_goal'];
+          id?: string;
+          target: number;
+          title: string;
+          unlocked_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          given_at?: string | null;
+          goal?: Database['public']['Enums']['parent_reward_goal'];
+          id?: string;
+          target?: number;
+          title?: string;
+          unlocked_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'parent_rewards_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       parents: {
         Row: {
           created_at: string;
@@ -1267,6 +1312,7 @@ export type Database = {
         Args: { p_child_id: string; p_equipped: boolean; p_item_code: string };
         Returns: undefined;
       };
+      give_parent_reward: { Args: { p_reward_id: string }; Returns: undefined };
       open_chest: { Args: { p_chest_id: string }; Returns: Json };
       redeem_pairing_code: {
         Args: { p_code: string; p_platform: Database['public']['Enums']['device_platform'] };
@@ -1336,6 +1382,7 @@ export type Database = {
         | 'missed'
         | 'session_done'
         | 'parent_message';
+      parent_reward_goal: 'streak' | 'xp' | 'islands';
       parent_role: 'owner' | 'co_parent';
       push_status: 'enabled' | 'denied' | 'unsupported';
       session_goal_type: 'duration' | 'count';
@@ -1471,6 +1518,7 @@ export const Constants = {
         'session_done',
         'parent_message',
       ],
+      parent_reward_goal: ['streak', 'xp', 'islands'],
       parent_role: ['owner', 'co_parent'],
       push_status: ['enabled', 'denied', 'unsupported'],
       session_goal_type: ['duration', 'count'],

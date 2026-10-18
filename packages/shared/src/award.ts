@@ -24,5 +24,7 @@ export const awardSchema = z.object({
     .default(null),
   /** The weekly challenge this session completed, and its gems (*_challenges.sql). */
   challenge: z.object({ code: z.string(), gems: z.int() }).nullable().default(null),
+  /** The parent's rewards this session unlocked (*_parent_rewards.sql). */
+  parent_rewards: z.array(z.object({ id: z.string(), title: z.string() })).default([]),
 });
 export type Award = z.infer<typeof awardSchema>;

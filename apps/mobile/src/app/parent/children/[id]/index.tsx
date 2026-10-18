@@ -10,6 +10,7 @@ import { useRewards } from '@/data/rewards';
 import { routineOf, vacationsOf } from '@/data/routine-plan';
 import { useRoutines } from '@/data/routines';
 import { usePairingPanel } from '@/hooks/use-pairing-panel';
+import { useParentRewardsPanel } from '@/hooks/use-parent-rewards-panel';
 import { ChildDetail } from '@/screens/child-detail';
 
 export default function ChildDetailRoute() {
@@ -22,6 +23,7 @@ export default function ChildDetailRoute() {
   const routines = useRoutines();
   const rewards = useRewards(id);
   const message = useSendChildMessage(id);
+  const parentRewards = useParentRewardsPanel(id);
 
   if (!child.data) return <LoadingScreen />;
 
@@ -41,6 +43,7 @@ export default function ChildDetailRoute() {
         onEditRoutine={() =>
           router.push({ pathname: '/parent/children/[id]/routine', params: { id } })
         }
+        rewards={parentRewards}
         nudge={{
           onSend: (text) => message.mutate(text),
           sending: message.isPending,

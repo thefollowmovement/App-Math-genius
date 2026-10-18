@@ -3,7 +3,7 @@ import { screen, userEvent } from '@testing-library/react-native';
 import type { Child } from '@/data/children';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
-import { award, rewards } from '@/test-utils/rewards';
+import { award, parentReward, rewards } from '@/test-utils/rewards';
 
 import { ChildHome } from './child-home';
 import { SessionSummary } from './session-summary';
@@ -155,6 +155,7 @@ describe('SessionSummary', () => {
           award: award({
             badges: ['perfect-1', 'from-the-future'],
             challenge: { code: 'perfect-1', gems: 20 },
+            parent_rewards: [{ id: 'cinema', title: 'Une sortie au cinéma' }],
           }),
         }}
         onOpenChest={onOpenChest}
@@ -169,6 +170,7 @@ describe('SessionSummary', () => {
     expect(screen.getByText(strings.award.streakUp)).toBeOnTheScreen();
     expect(screen.getByText(strings.award.gems(5))).toBeOnTheScreen();
     expect(screen.getByText(strings.award.challengeDone(20))).toBeOnTheScreen();
+    expect(screen.getByText(strings.award.parentReward('Une sortie au cinéma'))).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: strings.award.openChest }));
     expect(onOpenChest).toHaveBeenCalledWith('chest-1');
     expect(screen.getByText(strings.award.newBadges(1))).toBeOnTheScreen();
@@ -263,6 +265,12 @@ describe('ChildHome rewards', () => {
           { id: 'chest-2', kind: 'rare' },
         ])}
         challenge={{ code: 'daily-5', threshold: 5, progress: 3, gems: 20, completed: false }}
+        nextReward={parentReward({
+          title: 'Une sortie au cinéma',
+          goal: 'streak',
+          target: 7,
+          value: 4,
+        })}
         onOpenChest={onOpenChest}
         onOpenBadges={onOpenBadges}
         sync="idle"
@@ -289,5 +297,10 @@ describe('ChildHome rewards', () => {
     expect(screen.getByText(strings.challenge.items['daily-5'])).toBeOnTheScreen();
     expect(screen.getByLabelText(strings.challenge.progressLabel(3, 5))).toBeOnTheScreen();
     expect(screen.getByText(strings.challenge.reward(20))).toBeOnTheScreen();
+    // The parent's reward closest to unlock.
+    expect(screen.getByText('Une sortie au cinéma')).toBeOnTheScreen();
+    expect(
+      screen.getByLabelText(strings.parentRewards.child.progressLabel(4, 7)),
+    ).toBeOnTheScreen();
   });
 });

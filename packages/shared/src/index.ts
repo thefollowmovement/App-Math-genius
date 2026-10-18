@@ -87,3 +87,11 @@ export {
   type ChallengeCode,
   type ChallengeMetric,
 } from './challenges';
+export {
+  PARENT_REWARD_GOALS,
+  PARENT_REWARD_TARGETS,
+  PARENT_REWARD_TITLE_MAX,
+  parentRewardSchema,
+  type ParentRewardGoal,
+  type ParentRewardInput,
+} from './parent-rewards';

@@ -1,6 +1,8 @@
 import type { Award } from '@math-genius/shared';
 
+import type { ParentRewardView } from '@/data/parent-rewards-model';
 import { progressView, type Rewards } from '@/data/rewards-model';
+import type { ParentRewardsState } from '@/screens/child-detail';
 
 /** The award of a validated daily session that took the streak from 3 to 4 days. */
 export const award = (overrides: Partial<Award> = {}): Award => ({
@@ -20,6 +22,7 @@ export const award = (overrides: Partial<Award> = {}): Award => ({
   badges: [],
   boss: null,
   challenge: null,
+  parent_rewards: [],
   ...overrides,
 });
 
@@ -31,4 +34,46 @@ export const rewards = (chests: Rewards['chests'] = []): Rewards => ({
     { item_code: 'kitten', equipped: true },
     { item_code: 'bow', equipped: false },
   ],
+});
+
+/** A cinema trip unlocked by 7 days of streak (4 so far), and a book already given. */
+export const parentRewards = (overrides: Partial<ParentRewardsState> = {}): ParentRewardsState => ({
+  rewards: [
+    parentReward({
+      id: 'cinema',
+      title: 'Une sortie au cinéma',
+      goal: 'streak',
+      target: 7,
+      value: 4,
+    }),
+    parentReward({
+      id: 'book',
+      title: 'Un livre',
+      goal: 'xp',
+      target: 1000,
+      value: 1000,
+      status: 'given',
+      unlocked_at: '2026-10-10T18:00:00Z',
+      given_at: '2026-10-11T10:00:00Z',
+    }),
+  ],
+  creating: false,
+  busyId: null,
+  error: null,
+  onCreate: jest.fn(),
+  onGive: jest.fn(),
+  onRemove: jest.fn(),
+  ...overrides,
+});
+
+export const parentReward = (overrides: Partial<ParentRewardView> = {}): ParentRewardView => ({
+  id: 'reward-1',
+  title: 'Une glace',
+  goal: 'islands',
+  target: 1,
+  value: 0,
+  status: 'locked',
+  unlocked_at: null,
+  given_at: null,
+  ...overrides,
 });
