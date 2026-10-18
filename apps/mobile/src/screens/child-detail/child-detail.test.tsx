@@ -6,6 +6,7 @@ import type { Child } from '@/data/children';
 import type { PairedDevice } from '@/data/devices';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
+import { rewards } from '@/test-utils/rewards';
 
 import { ChildDetail } from '.';
 
@@ -48,6 +49,11 @@ function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
 }
 
 describe('ChildDetail', () => {
+  it('sums up the child’s streak, level and gems', async () => {
+    await renderDetail({ progress: rewards().progress });
+    expect(screen.getByText(strings.rewards.parentLine(4, 6, 5, 45))).toBeOnTheScreen();
+  });
+
   it('offers to set a routine', async () => {
     const onEditRoutine = jest.fn();
     const user = userEvent.setup();

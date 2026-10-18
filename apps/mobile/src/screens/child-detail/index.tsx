@@ -5,6 +5,7 @@ import type { Child } from '@/data/children';
 import type { PairedDevice } from '@/data/devices';
 import type { SessionRow } from '@/data/family-sessions';
 import type { ErrorKind } from '@/data/errors';
+import type { ProgressView } from '@/data/rewards-model';
 import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
 
@@ -27,6 +28,8 @@ const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' });
 
 type ChildDetailProps = {
   child: Child;
+  /** Streak, level and gems; missing while loading. */
+  progress?: ProgressView;
   /** The child's sessions today. */
   sessions: readonly SessionRow[];
   onOpenSession: (sessionId: string) => void;
@@ -47,6 +50,7 @@ type ChildDetailProps = {
 
 export function ChildDetail({
   child,
+  progress,
   sessions,
   onOpenSession,
   routine,
@@ -63,7 +67,19 @@ export function ChildDetail({
 }: ChildDetailProps) {
   return (
     <Screen>
-      <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>
+      <View className="gap-1">
+        <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>
+        {progress ? (
+          <ThemedText>
+            {strings.rewards.parentLine(
+              progress.streak,
+              progress.bestStreak,
+              progress.level,
+              progress.gems,
+            )}
+          </ThemedText>
+        ) : null}
+      </View>
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
       <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
       {devices.length > 0 ? (

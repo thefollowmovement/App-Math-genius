@@ -3,6 +3,7 @@ import { screen, userEvent } from '@testing-library/react-native';
 import type { Child } from '@/data/children';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
+import { award, rewards } from '@/test-utils/rewards';
 
 import { ChildHome } from './child-home';
 import { SessionSummary } from './session-summary';
@@ -108,11 +109,85 @@ describe('SessionSummary', () => {
   it('celebrates, and says whether the session is saved or waiting', async () => {
     const summary = { goalMet: false, answered: 30, correct: 15, minutes: 22, progressed: [] };
     await renderWithTheme(
-      <SessionSummary summary={summary} saved={false} onBonus={jest.fn()} onHome={jest.fn()} />,
+      <SessionSummary
+        summary={summary}
+        saved={false}
+        award={{ status: 'waiting' }}
+        onOpenChest={jest.fn()}
+        onBonus={jest.fn()}
+        onHome={jest.fn()}
+      />,
     );
     expect(screen.getByText(strings.summary.finished)).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.notValidated)).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.score(15, 30))).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.savedOffline)).toBeOnTheScreen();
+    expect(screen.getByText(strings.award.waiting)).toBeOnTheScreen();
+  });
+
+  it('shows what the server awarded, and opens the chest', async () => {
+    const onOpenChest = jest.fn();
+    const user = userEvent.setup();
+    const summary = { goalMet: true, answered: 40, correct: 32, minutes: 15, progressed: [] };
+    await renderWithTheme(
+      <SessionSummary
+        summary={summary}
+        saved
+        award={{ status: 'ready', award: award() }}
+        onOpenChest={onOpenChest}
+        onBonus={jest.fn()}
+        onHome={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(strings.award.xp(340))).toBeOnTheScreen();
+    expect(screen.getByText(strings.award.levelUp(5))).toBeOnTheScreen();
+    expect(screen.getByText(strings.award.streak(4))).toBeOnTheScreen();
+    expect(screen.getByText(strings.award.streakUp)).toBeOnTheScreen();
+    expect(screen.getByText(strings.award.gems(5))).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: strings.award.openChest }));
+    expect(onOpenChest).toHaveBeenCalledWith('chest-1');
+  });
+
+  it('waits for the server while the rewards are computed', async () => {
+    const summary = { goalMet: false, answered: 20, correct: 9, minutes: 22, progressed: [] };
+    await renderWithTheme(
+      <SessionSummary
+        summary={summary}
+        saved
+        award={{ status: 'computing' }}
+        onOpenChest={jest.fn()}
+        onBonus={jest.fn()}
+        onHome={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(strings.award.computing)).toBeOnTheScreen();
+  });
+});
+
+describe('ChildHome rewards', () => {
+  it('shows streak, gems and level, and the chests to open', async () => {
+    const onOpenChest = jest.fn();
+    const user = userEvent.setup();
+    await renderWithTheme(
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'ready' }}
+        rewards={rewards([
+          { id: 'chest-1', kind: 'common' },
+          { id: 'chest-2', kind: 'rare' },
+        ])}
+        onOpenChest={onOpenChest}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.getByLabelText(strings.rewards.streakLabel(4))).toBeOnTheScreen();
+    expect(screen.getByLabelText(strings.rewards.gemsLabel(45))).toBeOnTheScreen();
+    expect(screen.getByText(strings.rewards.level(5))).toBeOnTheScreen();
+    expect(screen.getByRole('progressbar')).toHaveAccessibilityValue({ min: 0, max: 500, now: 40 });
+    expect(screen.getByText(strings.rewards.chestsWaiting(2))).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: strings.rewards.openChest }));
+    expect(onOpenChest).toHaveBeenCalledWith('chest-1');
   });
 });

@@ -1,6 +1,7 @@
 import { onlineManager, useQuery } from '@tanstack/react-query';
 import { AppState } from 'react-native';
 
+import { requestAwards } from '@/data/rewards';
 import { supabase } from '@/lib/supabase';
 
 import { mergeMastery, setItemRatings } from './practice-store';
@@ -25,7 +26,13 @@ const isPermanent = (error: unknown) =>
 let running: Promise<void> | null = null;
 let again = false;
 
-/** Sends what is waiting, once at a time; a call during a run triggers one more run. */
+/** Rewards are computed by the server; offline or failing, the next sync asks again. */
+const award = (childId: string) => requestAwards(childId).catch(() => []);
+
+/**
+ * Sends what is waiting, once at a time; a call during a run triggers one more run. Finished
+ * sessions that reach the server are then awarded.
+ */
 export function syncNow(): Promise<void> {
   if (!onlineManager.isOnline()) return Promise.resolve();
   if (running) {
@@ -35,7 +42,8 @@ export function syncNow(): Promise<void> {
   running = (async () => {
     do {
       again = false;
-      await sendPendingSessions(send, isPermanent);
+      const { finished } = await sendPendingSessions(send, isPermanent);
+      for (const childId of finished) void award(childId);
     } while (again);
   })().finally(() => {
     running = null;
@@ -59,6 +67,8 @@ export function startSyncTriggers() {
 
 async function pull(childId: string) {
   await syncNow();
+  // Catches up on sessions finished elsewhere or whose award failed.
+  await award(childId);
   const [mastery, ratings] = await Promise.all([
     supabase
       .from('child_skill_mastery')

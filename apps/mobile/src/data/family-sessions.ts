@@ -55,19 +55,24 @@ export function useTodaySessions() {
 
 /**
  * Keeps the sessions up to date while children play: a device syncs after every answer, and
- * Realtime forwards the change (only for the parent's children, RLS applies).
+ * Realtime forwards the change (only for the parent's children, RLS applies). Streaks, levels and
+ * gems follow the same way (table progress: awards, chests, freezes).
  */
 export function useLiveSessions(enabled: boolean) {
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!enabled) return;
-    const refresh = () => void queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    const refreshSessions = () => void queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    const refreshRewards = () => void queryClient.invalidateQueries({ queryKey: ['rewards'] });
     const channel = supabase
       .channel('family-sessions')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, refreshSessions)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'progress' }, refreshRewards)
       // A change made before the subscription was ready would otherwise be missed.
       .subscribe((status) => {
-        if (status === 'SUBSCRIBED') refresh();
+        if (status !== 'SUBSCRIBED') return;
+        refreshSessions();
+        refreshRewards();
       });
     return () => {
       void supabase.removeChannel(channel);

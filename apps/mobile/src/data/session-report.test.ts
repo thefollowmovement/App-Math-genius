@@ -1,11 +1,11 @@
-import { formatAnswer, rational } from '@math-genius/exercise-engine';
+import { formatAnswer } from '@math-genius/exercise-engine';
 import type { DayPlan } from '@math-genius/shared';
 
 import { exerciseOfType } from '@/test-utils/exercises';
 import { attemptRow, sessionRow } from '@/test-utils/family';
 import { rightResponse, wrongResponse } from '@/test-utils/responses';
 
-import { attemptViews, childDay, familyDay, parseResponse, sessionState } from './session-report';
+import { attemptViews, childDay, familyDay, sessionState } from './session-report';
 
 const PLANNED: DayPlan = { kind: 'planned', start: 17 * 60, deadline: 20 * 60 + 30 };
 const AT = (hours: number, minutes = 0) => hours * 60 + minutes;
@@ -66,50 +66,6 @@ describe('a child’s day', () => {
     expect(sessionState(sessionRow({ completed_at: null }))).toBe('in_progress');
     expect(sessionState(sessionRow({ goal_met: true }))).toBe('validated');
     expect(sessionState(sessionRow({ goal_met: false }))).toBe('not_validated');
-  });
-});
-
-describe('answers read back from the server', () => {
-  it('accepts every response shape the app stores', () => {
-    expect(parseResponse({ type: 'numeric', text: '3,5' })).toEqual({
-      type: 'numeric',
-      text: '3,5',
-    });
-    expect(parseResponse({ type: 'choice', index: 2 })).toEqual({ type: 'choice', index: 2 });
-    expect(parseResponse({ type: 'true-false', value: false })).toEqual({
-      type: 'true-false',
-      value: false,
-    });
-    expect(parseResponse({ type: 'number-line', value: { num: 6, den: 8 } })).toEqual({
-      type: 'number-line',
-      value: rational(3, 4),
-    });
-    expect(parseResponse({ type: 'order', order: [2, 0, 1] })).toEqual({
-      type: 'order',
-      order: [2, 0, 1],
-    });
-    expect(parseResponse({ type: 'match', pairs: [1, 0] })).toEqual({
-      type: 'match',
-      pairs: [1, 0],
-    });
-    expect(parseResponse({ type: 'fraction-shade', shaded: 3 })).toEqual({
-      type: 'fraction-shade',
-      shaded: 3,
-    });
-  });
-
-  it('rejects anything else', () => {
-    for (const value of [
-      null,
-      3,
-      'text',
-      [],
-      { type: 'numeric' },
-      { type: 'order', order: ['a'] },
-    ]) {
-      expect(parseResponse(value)).toBeNull();
-    }
-    expect(parseResponse({ type: 'number-line', value: { num: 1, den: 0 } })).toBeNull();
   });
 });
 

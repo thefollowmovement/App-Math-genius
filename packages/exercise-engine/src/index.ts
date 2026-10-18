@@ -68,6 +68,13 @@ export { gradeResponse, type ExerciseResponse, type Verdict } from './grade';
 export { parseTypedNumber, type NumberForm, type TypedNumber } from './parse';
 export { createRng, deriveSeed, type Rng } from './random';
 export {
+  parseStoredResponse,
+  rebuildExercise,
+  regrade,
+  type ServerVerdict,
+  type StoredAnswer,
+} from './regrade';
+export {
   add,
   compare,
   decimal,

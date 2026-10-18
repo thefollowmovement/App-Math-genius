@@ -24,6 +24,7 @@ export type Database = {
           time_ms: number;
           twin_of: number | null;
           updated_at: string;
+          verified: boolean | null;
         };
         ComputedFields: never;
         Insert: {
@@ -46,6 +47,7 @@ export type Database = {
           time_ms: number;
           twin_of?: number | null;
           updated_at?: string;
+          verified?: boolean | null;
         };
         Update: {
           answer?: NonNullable<Json>;
@@ -67,6 +69,7 @@ export type Database = {
           time_ms?: number;
           twin_of?: number | null;
           updated_at?: string;
+          verified?: boolean | null;
         };
         Relationships: [
           {
@@ -89,6 +92,58 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'skills';
             referencedColumns: ['code'];
+          },
+        ];
+      };
+      chests: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          gems: number;
+          id: string;
+          kind: Database['public']['Enums']['chest_kind'];
+          local_date: string;
+          opened_at: string | null;
+          session_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          gems: number;
+          id?: string;
+          kind: Database['public']['Enums']['chest_kind'];
+          local_date: string;
+          opened_at?: string | null;
+          session_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          gems?: number;
+          id?: string;
+          kind?: Database['public']['Enums']['chest_kind'];
+          local_date?: string;
+          opened_at?: string | null;
+          session_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'chests_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'chests_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: true;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -311,6 +366,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      gem_transactions: {
+        Row: {
+          amount: number;
+          child_id: string;
+          created_at: string;
+          id: string;
+          local_date: string;
+          reason: Database['public']['Enums']['gem_reason'];
+          ref_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          child_id: string;
+          created_at?: string;
+          id?: string;
+          local_date: string;
+          reason: Database['public']['Enums']['gem_reason'];
+          ref_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          amount?: number;
+          child_id?: string;
+          created_at?: string;
+          id?: string;
+          local_date?: string;
+          reason?: Database['public']['Enums']['gem_reason'];
+          ref_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'gem_transactions_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       item_ratings: {
         Row: {
           answers_count: number;
@@ -529,6 +626,57 @@ export type Database = {
           },
         ];
       };
+      progress: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          freezes: number;
+          gems: number;
+          id: string;
+          level: number;
+          streak_best: number;
+          streak_current: number;
+          streak_last_date: string | null;
+          updated_at: string;
+          xp: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          freezes?: number;
+          gems?: number;
+          id?: string;
+          level?: number;
+          streak_best?: number;
+          streak_current?: number;
+          streak_last_date?: string | null;
+          updated_at?: string;
+          xp?: number;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          freezes?: number;
+          gems?: number;
+          id?: string;
+          level?: number;
+          streak_best?: number;
+          streak_current?: number;
+          streak_last_date?: string | null;
+          updated_at?: string;
+          xp?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'progress_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: true;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       push_tokens: {
         Row: {
           created_at: string;
@@ -611,6 +759,8 @@ export type Database = {
       sessions: {
         Row: {
           answered: number;
+          award: Json | null;
+          awarded_at: string | null;
           child_id: string;
           completed_at: string | null;
           created_at: string;
@@ -626,10 +776,14 @@ export type Database = {
           score: number;
           started_at: string;
           updated_at: string;
+          verified_correct: number | null;
+          xp_awarded: number | null;
         };
         ComputedFields: never;
         Insert: {
           answered?: number;
+          award?: Json | null;
+          awarded_at?: string | null;
           child_id: string;
           completed_at?: string | null;
           created_at?: string;
@@ -645,9 +799,13 @@ export type Database = {
           score?: number;
           started_at: string;
           updated_at?: string;
+          verified_correct?: number | null;
+          xp_awarded?: number | null;
         };
         Update: {
           answered?: number;
+          award?: Json | null;
+          awarded_at?: string | null;
           child_id?: string;
           completed_at?: string | null;
           created_at?: string;
@@ -663,6 +821,8 @@ export type Database = {
           score?: number;
           started_at?: string;
           updated_at?: string;
+          verified_correct?: number | null;
+          xp_awarded?: number | null;
         };
         Relationships: [
           {
@@ -765,6 +925,32 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      award_session: {
+        Args: { p_now?: string; p_session_id: string; p_verdicts: Json };
+        Returns: Json;
+      };
+      buy_freeze: {
+        Args: { p_child_id: string };
+        Returns: {
+          child_id: string;
+          created_at: string;
+          freezes: number;
+          gems: number;
+          id: string;
+          level: number;
+          streak_best: number;
+          streak_current: number;
+          streak_last_date: string | null;
+          updated_at: string;
+          xp: number;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'progress';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
       create_pairing_code: {
         Args: { p_child_id: string };
         Returns: {
@@ -772,6 +958,7 @@ export type Database = {
           expires_at: string;
         }[];
       };
+      open_chest: { Args: { p_chest_id: string }; Returns: Json };
       redeem_pairing_code: {
         Args: { p_code: string; p_platform: Database['public']['Enums']['device_platform'] };
         Returns: {
@@ -793,6 +980,8 @@ export type Database = {
         Args: { p_session: Json };
         Returns: {
           answered: number;
+          award: Json | null;
+          awarded_at: string | null;
           child_id: string;
           completed_at: string | null;
           created_at: string;
@@ -808,6 +997,8 @@ export type Database = {
           score: number;
           started_at: string;
           updated_at: string;
+          verified_correct: number | null;
+          xp_awarded: number | null;
         }[];
         SetofOptions: {
           from: '*';
@@ -819,8 +1010,10 @@ export type Database = {
       unregister_push_token: { Args: { p_token: string }; Returns: undefined };
     };
     Enums: {
+      chest_kind: 'common' | 'rare';
       child_gender: 'girl' | 'boy';
       device_platform: 'ios' | 'android' | 'web';
+      gem_reason: 'session' | 'chest' | 'freeze' | 'shop' | 'challenge';
       grade: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
       mastery_status: 'to_discover' | 'in_progress' | 'mastered' | 'to_review';
       notification_audience: 'child' | 'parent';
@@ -949,8 +1142,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      chest_kind: ['common', 'rare'],
       child_gender: ['girl', 'boy'],
       device_platform: ['ios', 'android', 'web'],
+      gem_reason: ['session', 'chest', 'freeze', 'shop', 'challenge'],
       grade: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
       mastery_status: ['to_discover', 'in_progress', 'mastered', 'to_review'],
       notification_audience: ['child', 'parent'],

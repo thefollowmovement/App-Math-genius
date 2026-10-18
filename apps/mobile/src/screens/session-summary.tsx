@@ -1,7 +1,10 @@
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import type { SessionSummary as Summary } from '@/data/practice/summary';
+import type { AwardState } from '@/data/rewards-model';
 import { strings } from '@/i18n';
+
+import { AwardPanel } from './rewards/award-panel';
 
 const t = strings.summary;
 
@@ -9,11 +12,21 @@ type SessionSummaryProps = {
   summary: Summary;
   /** The session reached the server; otherwise it waits on the device. */
   saved: boolean;
+  /** XP, streak and chest, computed by the server once the session is sent. */
+  award: AwardState;
+  onOpenChest: (chestId: string) => void;
   onBonus: () => void;
   onHome: () => void;
 };
 
-export function SessionSummary({ summary, saved, onBonus, onHome }: SessionSummaryProps) {
+export function SessionSummary({
+  summary,
+  saved,
+  award,
+  onOpenChest,
+  onBonus,
+  onHome,
+}: SessionSummaryProps) {
   return (
     <Screen centered>
       <View className="gap-2">
@@ -26,6 +39,7 @@ export function SessionSummary({ summary, saved, onBonus, onHome }: SessionSumma
         <ThemedText className="text-center">{t.duration(summary.minutes)}</ThemedText>
         {summary.goalMet ? null : <ThemedText className="text-center">{t.notValidated}</ThemedText>}
       </View>
+      <AwardPanel state={award} onOpenChest={onOpenChest} />
       {summary.progressed.length > 0 ? (
         <View className="gap-2 rounded-lg border border-border bg-surface p-4">
           <ThemedText variant="headline">{t.progressed}</ThemedText>

@@ -6,6 +6,7 @@ import { useChild } from '@/data/children';
 import { errorKind } from '@/data/errors';
 import { useRevokeDevice } from '@/data/devices';
 import { useTodaySessions } from '@/data/family-sessions';
+import { useRewards } from '@/data/rewards';
 import { routineOf, vacationsOf } from '@/data/routine-plan';
 import { useRoutines } from '@/data/routines';
 import { usePairingPanel } from '@/hooks/use-pairing-panel';
@@ -19,6 +20,7 @@ export default function ChildDetailRoute() {
   const revokeDevice = useRevokeDevice();
   const sessions = useTodaySessions();
   const routines = useRoutines();
+  const rewards = useRewards(id);
   const message = useSendChildMessage(id);
 
   if (!child.data) return <LoadingScreen />;
@@ -28,6 +30,7 @@ export default function ChildDetailRoute() {
       <Stack.Title>{child.data.display_name}</Stack.Title>
       <ChildDetail
         child={child.data}
+        progress={rewards.data?.progress}
         sessions={(sessions.data ?? []).filter((session) => session.child_id === id)}
         onOpenSession={(sessionId) =>
           router.push({ pathname: '/parent/sessions/[id]', params: { id: sessionId } })

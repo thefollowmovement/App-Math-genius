@@ -4,8 +4,11 @@ import { Avatar, Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import type { Child } from '@/data/children';
 import type { PracticeStatus } from '@/data/practice/summary';
+import type { Rewards } from '@/data/rewards-model';
 import { strings } from '@/i18n';
 import { goalText } from '@/utils/routine-text';
+
+import { ProgressStrip } from './rewards/progress-strip';
 
 const t = strings.childHome;
 
@@ -18,6 +21,9 @@ type ChildHomeProps = {
   plan: DayPlan['kind'];
   /** Goal of a new session. */
   goal: SessionGoal;
+  /** Missing until the first award, or while loading. */
+  rewards?: Rewards;
+  onOpenChest?: (chestId: string) => void;
   sync: SyncState;
   onStart: () => void;
   /** Shown when the device holds several profiles or a parent is signed in. */
@@ -46,12 +52,16 @@ export function ChildHome({
   practice,
   plan,
   goal,
+  rewards,
+  onOpenChest,
   sync,
   onStart,
   onSwitchProfile,
 }: ChildHomeProps) {
+  const [chest] = rewards?.chests ?? [];
   return (
     <Screen centered>
+      {rewards ? <ProgressStrip progress={rewards.progress} /> : null}
       <View className="items-center gap-4">
         <Avatar name={child.display_name} size="lg" />
         <ThemedText variant="display" className="text-center">
@@ -59,6 +69,18 @@ export function ChildHome({
         </ThemedText>
         <ThemedText className="text-center">{message(practice, plan, goal)}</ThemedText>
       </View>
+      {chest && onOpenChest ? (
+        <View className="gap-3 rounded-lg border border-primary bg-surface p-4">
+          <ThemedText variant="headline" className="text-center">
+            {strings.rewards.chestsWaiting(rewards?.chests.length ?? 1)}
+          </ThemedText>
+          <Button
+            variant="secondary"
+            title={strings.rewards.openChest}
+            onPress={() => onOpenChest(chest.id)}
+          />
+        </View>
+      ) : null}
       {practice.status === 'unavailable' ? null : (
         <Button
           size="lg"

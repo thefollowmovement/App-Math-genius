@@ -59,6 +59,7 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 - Les écritures sensibles passent par des fonctions SQL `security definer` qui vérifient l'appelant ; les tables concernées n'ont pas de politique d'écriture.
 - Erreurs métier des fonctions SQL : `raise exception '<code>' using errcode = 'PTxyz'` (PostgREST renvoie le statut HTTP xyz). L'app les traduit dans `apps/mobile/src/data/errors.ts` et `strings.errors`.
 - Après une migration : `pnpm supabase:reset`, `pnpm supabase:test`, puis `pnpm supabase:types` (la CI vérifie que les types sont à jour).
+- Après une écriture qui change le résultat d'une requête peut-être déjà partie (appairage : la requête des profils démarre dès la connexion anonyme), utiliser `refetchAfterWrite` (`data/query-client.ts`) plutôt que `invalidateQueries` seul : une invalidation réutilise une requête en cours qui n'a pas encore de données, même si elle a lu la base avant l'écriture.
 
 ## Référentiel et moteur d'exercices
 
@@ -93,6 +94,16 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 - Chaque appareil enfant signale s'il peut afficher les notifications (`report_push_status` : `enabled`, `denied` ou `unsupported`, colonne `devices.push_status`). La fiche de l'enfant l'affiche pour chaque appareil, et le panneau de message avertit le parent quand aucun appareil ne peut les recevoir.
 - Message du parent : `send_child_message` (120 caractères, un toutes les 2 minutes par enfant, envoyé tout de suite) renvoie le nombre d'appareils joints ; 0 veut dire qu'aucun appareil de l'enfant n'a autorisé les notifications.
 
+## Récompenses (phase 5)
+
+- Recorrection serveur : l'XP et les gemmes ne viennent jamais de ce que l'appareil a jugé. Après chaque envoi d'une séance terminée (`sync.ts`), l'app appelle l'Edge Function `award-session` (`supabase/functions/award-session/index.ts`). Elle lit les séances à récompenser avec le jeton de l'appelant (RLS), reconstruit chaque exercice avec le moteur (`regrade` de `packages/exercise-engine/src/regrade.ts`), note à nouveau chaque réponse stockée et passe ses verdicts à `award_session`, réservée à `service_role`. `award_session` est idempotente : un nouvel appel renvoie la récompense déjà donnée (`sessions.award`).
+- Le moteur est embarqué dans la fonction sous forme d'un bundle généré, `supabase/functions/award-session/engine.js` (esbuild, sans import). Après un changement du moteur ou de `packages/shared`, lancer `pnpm functions:bundle` (un test échoue sinon), puis redéployer la fonction sur le projet en ligne. `packages/shared` est déclaré `sideEffects: false` et `grade.ts` n'importe pas Zod (`grade-schema.ts` à part) : sans cela, Zod entrerait dans le bundle.
+- La fonction ne s'appuie pas sur la vérification JWT de la passerelle (`verify_jwt = false` dans `config.toml`) : PostgREST et la RLS vérifient le jeton et la clé de l'appelant, qu'elle transmet tels quels. Sans jeton, elle répond 401.
+- Règles dans `packages/shared/src/rewards.ts` et dans la migration `*_rewards.sql` : changer l'une, c'est changer l'autre (`rewards.test.ts` et `rewards.test.sql` partagent le même cas). 10 XP par bonne réponse vérifiée, sauf en moins de 1,2 s ; +10 XP par série de 5 bonnes réponses d'affilée ; le niveau L demande 50 × L × (L − 1) XP. La séance du jour validée (objectif atteint et 60 % de bonnes réponses vérifiées) rapporte 5 gemmes et un coffre (5 à 15 gemmes, rare tous les 7 jours de série : 25 à 50), tirés d'un hachage de la séance.
+- Série : rejouée sur tout l'historique (`private.streak_state`), donc une séance envoyée en retard compte pour son jour. Les jours de repos et de vacances sont ignorés, aujourd'hui n'est jamais manqué, et un jour manqué consomme un gel s'il en reste. Un gel gratuit chaque lundi ; un gel acheté coûte 30 gemmes (`buy_freeze`), 3 au plus. pg_cron recalcule la progression chaque heure (`refresh-progress`) ; une ligne de `progress` inchangée n'est pas réécrite.
+- Tables `progress`, `gem_transactions` (le solde de gemmes est leur somme) et `chests` : lecture seule pour la famille (RLS), écritures par `award_session`, `open_chest` et `buy_freeze`. `progress` est publiée dans Realtime : la fiche de l'enfant côté parent suit série, niveau et gemmes en direct (même abonnement que les séances).
+- App : `data/rewards.ts` (appel de la fonction, `useRewards`, `useSessionAward`, qui interroge toutes les 3 s jusqu'à la récompense, et `useOpenChest`) et `data/rewards-model.ts` (lecture des réponses, fonctions pures). Écrans : `screens/rewards/` (bandeau de progression, panneau de fin de séance), `screens/chest-opening.tsx` et la route modale `child/chest`. Les animations (Reanimated CSS, `FadeInDown`) respectent la réduction des animations.
+
 ## Façon de travailler
 
 - Une phase = une branche. Ne code rien au-delà de la phase demandée.
@@ -108,7 +119,7 @@ Sur un téléphone (Expo Go), `127.0.0.1` désigne le téléphone lui-même. En 
 **Supabase en ligne** (tests sur de vrais téléphones sans Mac allumé, ou hors du Wi-Fi local). Créer un projet sur supabase.com (région Europe), puis depuis la racine du dépôt :
 
 1. `pnpm exec supabase login`, puis `pnpm exec supabase link --project-ref <ref>` (le `ref` est dans l'URL du projet ; le mot de passe demandé est celui de la base).
-2. `pnpm exec supabase db push` : applique toutes les migrations de `supabase/migrations`, y compris les `*_skills.sql` générées depuis le référentiel. À relancer après chaque nouvelle migration. `seed.sql` n'est pas envoyé.
+2. `pnpm exec supabase db push` : applique toutes les migrations de `supabase/migrations`, y compris les `*_skills.sql` générées depuis le référentiel. À relancer après chaque nouvelle migration. `seed.sql` n'est pas envoyé. Puis `pnpm exec supabase functions deploy award-session` : déploie la recorrection serveur qui donne XP, gemmes et coffres (à relancer après chaque `pnpm functions:bundle`). Elle utilise les variables `SUPABASE_URL`, `SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY`, fournies d'office aux Edge Functions tant que les clés API héritées (« legacy ») du projet restent actives.
 3. `pnpm exec supabase config push` : envoie la configuration Auth de `supabase/config.toml` (connexions anonymes activées, mot de passe de 8 caractères minimum). Attention, elle envoie aussi les réglages de développement : `site_url` en `localhost` et emails non confirmés. Très bien pour un projet de test, à revoir avant la production.
 4. Dans le tableau de bord, Authentication → Sign In / Providers : vérifier que « Allow anonymous sign-ins » est activé. Sans cette option, un téléphone enfant ne peut pas être appairé.
 5. Dans `apps/mobile/.env.local` : `EXPO_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co` et `EXPO_PUBLIC_SUPABASE_KEY=` la clé publishable (Project Settings → API Keys, `sb_publishable_…`). Jamais la clé secrète ni `service_role`. Relancer `pnpm mobile`, car les variables `EXPO_PUBLIC_` sont figées au démarrage de Metro. Une URL en ligne n'est jamais réécrite par `dev-host.ts`.
@@ -128,15 +139,18 @@ Les types TypeScript restent générés depuis la base locale (`pnpm supabase:ty
 | Tests d'un seul paquet | `pnpm --filter @math-genius/ui test` |
 | Catalogue d'exemples d'exercices à faire relire (Markdown) | `pnpm --filter @math-genius/exercise-engine catalog > catalogue.md` |
 | Bundle iOS + Android + web (comme la CI) | `pnpm --filter @math-genius/mobile export` |
-| Démarrer / arrêter Supabase local | `pnpm supabase:start` / `pnpm supabase:stop` |
+| Démarrer / arrêter Supabase local (sert aussi les Edge Functions de `supabase/functions`) | `pnpm supabase:start` / `pnpm supabase:stop` |
 | URL et clés locales (API `http://127.0.0.1:54321`, Studio `http://127.0.0.1:54323`) | `pnpm supabase:status` |
 | Réappliquer migrations et seed | `pnpm supabase:reset` |
 | Tests RLS et fonctions SQL (Supabase démarré) | `pnpm supabase:test` |
 | Régénérer les types TypeScript de la base | `pnpm supabase:types` |
 | Charger le référentiel modifié dans la base (nouvelle migration `*_skills.sql`) | `pnpm curriculum:sql` |
 | Créer une migration | `pnpm exec supabase migration new <nom>` |
+| Régénérer le moteur embarqué dans l'Edge Function `award-session` (après un changement du moteur) | `pnpm functions:bundle` |
+| Suivre les journaux de l'Edge Function en local | `pnpm exec supabase functions serve award-session` |
 | Relier le dépôt au projet Supabase en ligne | `pnpm exec supabase login`, puis `pnpm exec supabase link --project-ref <ref>` |
 | Envoyer migrations et configuration Auth au projet en ligne | `pnpm exec supabase db push`, puis `pnpm exec supabase config push` |
+| Déployer la recorrection serveur sur le projet en ligne | `pnpm exec supabase functions deploy award-session` |
 | Créer le projet EAS (identifiant requis pour les notifications push) | `cd apps/mobile && npx eas-cli init` |
 
 La CI (`.github/workflows/ci.yml`) lance format, lint, typecheck, tests et le bundle des trois plateformes sur chaque pull request, et un job base de données : tests RLS, lint SQL et types générés à jour.

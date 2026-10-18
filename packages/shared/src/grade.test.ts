@@ -1,4 +1,5 @@
-import { GRADES, gradeSchema } from './grade';
+import { GRADES } from './grade';
+import { gradeSchema } from './grade-schema';
 
 describe('gradeSchema', () => {
   it('accepts every grade from CP to 3e', () => {

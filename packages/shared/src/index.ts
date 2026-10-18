@@ -11,7 +11,8 @@ export {
   type ParentSignUp,
 } from './accounts';
 export type { Database, Enums, Json, Tables } from './database.types';
-export { GRADES, gradeRank, gradeSchema, type Grade } from './grade';
+export { GRADES, gradeRank, type Grade } from './grade';
+export { gradeSchema } from './grade-schema';
 export {
   PAIRING_CODE_ALPHABET,
   PAIRING_CODE_LENGTH,
@@ -41,3 +42,16 @@ export {
   type Weekday,
 } from './routine';
 export { CHILD_MESSAGE_MAX_LENGTH, childMessageSchema } from './notifications';
+export {
+  COMBO_LENGTH,
+  COMBO_XP,
+  FREEZE_PRICE,
+  MAX_FREEZES,
+  RARE_CHEST_EVERY,
+  SESSION_GEMS,
+  XP_PER_CORRECT,
+  levelForXp,
+  levelProgress,
+  xpForLevel,
+} from './rewards';
+export { awardSchema, type Award } from './award';

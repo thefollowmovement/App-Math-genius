@@ -18,7 +18,9 @@ import { attemptViews } from '@/data/session-report';
 import { EXERCISE_TYPES, exerciseOfType } from '@/test-utils/exercises';
 import { attemptRow, sessionRow } from '@/test-utils/family';
 import { rightResponse, wrongResponse } from '@/test-utils/responses';
+import { award, rewards } from '@/test-utils/rewards';
 
+import { ChestOpening } from './chest-opening';
 import { ChildDetail } from './child-detail';
 import { ChildForm } from './child-form';
 import { ChildHome } from './child-home';
@@ -163,9 +165,37 @@ const screens: { name: string; render: () => ReactElement }[] = [
         practice={{ status: 'in-progress', percent: 40 }}
         plan="planned"
         goal={{ type: 'duration', minutes: 15 }}
+        rewards={rewards([{ id: 'chest-1', kind: 'common' }])}
+        onOpenChest={jest.fn()}
         sync="offline"
         onStart={jest.fn()}
         onSwitchProfile={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'ChestOpening (closed)',
+    render: () => (
+      <ChestOpening
+        kind="rare"
+        opened={null}
+        opening={false}
+        error="network"
+        onOpen={jest.fn()}
+        onDone={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'ChestOpening (opened)',
+    render: () => (
+      <ChestOpening
+        kind="common"
+        opened={{ kind: 'common', gems: 12, total: 57 }}
+        opening={false}
+        error={null}
+        onOpen={jest.fn()}
+        onDone={jest.fn()}
       />
     ),
   },
@@ -199,7 +229,9 @@ const screens: { name: string; render: () => ReactElement }[] = [
           minutes: 15,
           progressed: [{ title: 'Connaître les tables de multiplication de 2 à 10', mastery: 72 }],
         }}
-        saved={false}
+        saved
+        award={{ status: 'ready', award: award({ chest: { id: 'chest-1', kind: 'rare' } }) }}
+        onOpenChest={jest.fn()}
         onBonus={jest.fn()}
         onHome={jest.fn()}
       />

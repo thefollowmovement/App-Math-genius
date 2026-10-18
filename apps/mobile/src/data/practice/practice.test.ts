@@ -47,12 +47,18 @@ describe('a session without network', () => {
     expect(Object.keys(child.mastery).length).toBeGreaterThan(2);
 
     // No network: nothing is lost.
-    await expect(sendPendingSessions(offline, never)).resolves.toEqual({ sent: 0, failed: 1 });
+    await expect(sendPendingSessions(offline, never)).resolves.toEqual({
+      sent: 0,
+      failed: 1,
+      finished: [],
+    });
     expect(pendingSessions()).toHaveLength(1);
 
     // Back online: the whole session goes in one call, then leaves the outbox.
     const received: SyncPayload[] = [];
-    await sendPendingSessions(async (payload) => void received.push(payload), never);
+    await expect(
+      sendPendingSessions(async (payload) => void received.push(payload), never),
+    ).resolves.toMatchObject({ sent: 1, finished: [CHILD] });
     expect(pendingSessions()).toHaveLength(0);
     expect(childPractice(CHILD).outbox).toHaveLength(0);
 
@@ -136,7 +142,7 @@ describe('a session without network', () => {
       () => Promise.reject(new Error('child_not_found')),
       () => true,
     );
-    expect(result).toEqual({ sent: 0, failed: 0 });
+    expect(result).toEqual({ sent: 0, failed: 0, finished: [] });
     expect(pendingSessions()).toHaveLength(0);
   });
 
