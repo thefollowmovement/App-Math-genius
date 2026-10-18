@@ -2,6 +2,7 @@ import { DEFAULT_ROUTINE } from '@math-genius/shared';
 import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
+import { badgeGroups } from '@/data/badges-model';
 import type { Child } from '@/data/children';
 import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
@@ -20,6 +21,7 @@ import { attemptRow, sessionRow } from '@/test-utils/family';
 import { rightResponse, wrongResponse } from '@/test-utils/responses';
 import { award, rewards } from '@/test-utils/rewards';
 
+import { Badges } from './badges';
 import { ChestOpening } from './chest-opening';
 import { ChildDetail } from './child-detail';
 import { ChildForm } from './child-form';
@@ -167,9 +169,21 @@ const screens: { name: string; render: () => ReactElement }[] = [
         goal={{ type: 'duration', minutes: 15 }}
         rewards={rewards([{ id: 'chest-1', kind: 'common' }])}
         onOpenChest={jest.fn()}
+        onOpenBadges={jest.fn()}
         sync="offline"
         onStart={jest.fn()}
         onSwitchProfile={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'Badges',
+    render: () => (
+      <Badges
+        groups={badgeGroups({
+          earned: [{ badge_code: 'streak-3', earned_at: '2026-10-07T16:00:00Z' }],
+          metrics: { streak_best: 4, validated_daily: 4 },
+        })}
       />
     ),
   },
@@ -232,6 +246,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
         saved
         award={{ status: 'ready', award: award({ chest: { id: 'chest-1', kind: 'rare' } }) }}
         onOpenChest={jest.fn()}
+        onOpenBadges={jest.fn()}
         onBonus={jest.fn()}
         onHome={jest.fn()}
       />

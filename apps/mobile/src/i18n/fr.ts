@@ -1,3 +1,5 @@
+import type { BadgeCode } from '@math-genius/shared';
+
 export const fr = {
   common: {
     loading: 'Chargement…',
@@ -342,11 +344,12 @@ export const fr = {
     chestsWaiting: (count: number) =>
       count > 1 ? `${count} coffres t’attendent\u00a0!` : 'Un coffre t’attend\u00a0!',
     openChest: 'Ouvrir mon coffre',
-    parentLine: (streak: number, best: number, level: number, gems: number) =>
+    parentLine: (streak: number, best: number, level: number, gems: number, badges: number) =>
       [
         `Série\u00a0: ${streak} jour${streak > 1 ? 's' : ''}${best > streak ? ` (record\u00a0: ${best})` : ''}`,
         `niveau ${level}`,
         `${gems} gemme${gems > 1 ? 's' : ''}`,
+        `${badges} badge${badges > 1 ? 's' : ''}`,
       ].join(' · '),
   },
   award: {
@@ -360,6 +363,8 @@ export const fr = {
     chest: 'Tu as gagné un coffre\u00a0!',
     rareChest: 'Tu as gagné un coffre rare\u00a0!',
     openChest: 'Ouvrir mon coffre',
+    newBadges: (count: number) => (count > 1 ? 'Nouveaux badges\u00a0!' : 'Nouveau badge\u00a0!'),
+    seeBadges: 'Voir mes badges',
   },
   chest: {
     common: 'Coffre',
@@ -373,6 +378,157 @@ export const fr = {
     total: (total: number) => `Tu as maintenant ${total}\u00a0gemme${total > 1 ? 's' : ''}.`,
     done: 'Super\u00a0!',
     gone: 'Ce coffre est déjà ouvert.',
+  },
+  badges: {
+    title: 'Mes badges',
+    open: (earned: number) => (earned > 0 ? `Mes badges (${earned})` : 'Mes badges'),
+    count: (earned: number, total: number) =>
+      `${earned} badge${earned > 1 ? 's' : ''} sur ${total}`,
+    loading: 'Chargement de tes badges…',
+    earned: 'Gagné\u00a0!',
+    progress: (value: number, threshold: number) => `${value} / ${threshold}`,
+    earnedLabel: (title: string, description: string) => `${title}, gagné\u00a0: ${description}`,
+    lockedLabel: (title: string, description: string, value: number, threshold: number) =>
+      `${title}, pas encore gagné\u00a0: ${description} (${value} sur ${threshold})`,
+    locked: '🔒',
+    categories: {
+      regularity: 'Régularité',
+      mastery: 'Maîtrise',
+      discovery: 'Découverte',
+      progression: 'Progression',
+    },
+    /** One per code of packages/shared/src/badges.ts. */
+    items: {
+      'streak-3': { icon: '🔥', title: 'Bien parti', description: '3 jours de série' },
+      'streak-7': { icon: '🔥', title: 'Une semaine de feu', description: '7 jours de série' },
+      'streak-14': {
+        icon: '⚡',
+        title: 'Deux semaines d’affilée',
+        description: '14 jours de série',
+      },
+      'streak-30': { icon: '🌟', title: 'Un mois de feu', description: '30 jours de série' },
+      'streak-50': { icon: '💪', title: 'Inarrêtable', description: '50 jours de série' },
+      'streak-100': { icon: '🏆', title: 'Cent jours', description: '100 jours de série' },
+      'streak-365': { icon: '👑', title: 'Une année de feu', description: '365 jours de série' },
+      'sessions-1': {
+        icon: '🎯',
+        title: 'Première mission',
+        description: 'Réussir ta première mission du jour',
+      },
+      'sessions-10': {
+        icon: '🎯',
+        title: 'Dix missions',
+        description: '10 missions du jour réussies',
+      },
+      'sessions-25': {
+        icon: '🚀',
+        title: 'Vingt-cinq missions',
+        description: '25 missions du jour réussies',
+      },
+      'sessions-50': {
+        icon: '🛰️',
+        title: 'Cinquante missions',
+        description: '50 missions du jour réussies',
+      },
+      'sessions-100': {
+        icon: '🌍',
+        title: 'Cent missions',
+        description: '100 missions du jour réussies',
+      },
+      weekend: {
+        icon: '🌞',
+        title: 'Même le week-end',
+        description: 'Une séance un samedi ou un dimanche',
+      },
+      comeback: {
+        icon: '🌈',
+        title: 'Le grand retour',
+        description: 'Reprendre ta série après une pause',
+      },
+      'mastery-1': {
+        icon: '🌱',
+        title: 'Première compétence',
+        description: 'Maîtriser une compétence',
+      },
+      'mastery-5': {
+        icon: '🌿',
+        title: 'Cinq compétences',
+        description: 'Maîtriser 5 compétences',
+      },
+      'mastery-10': {
+        icon: '🌳',
+        title: 'Dix compétences',
+        description: 'Maîtriser 10 compétences',
+      },
+      'mastery-25': {
+        icon: '🏔️',
+        title: 'Vingt-cinq compétences',
+        description: 'Maîtriser 25 compétences',
+      },
+      tables: {
+        icon: '✖️',
+        title: 'As des tables',
+        description: 'Maîtriser les tables de multiplication',
+      },
+      'mental-math': {
+        icon: '⚡',
+        title: 'Calcul éclair',
+        description: 'Maîtriser 3 compétences de calcul mental',
+      },
+      'all-domains': {
+        icon: '🧭',
+        title: 'Touche-à-tout',
+        description: 'Maîtriser une compétence en nombres, mesures, géométrie et données',
+      },
+      'combo-10': { icon: '💥', title: 'Combo ×10', description: '10 bonnes réponses d’affilée' },
+      'combo-25': { icon: '🌪️', title: 'Combo ×25', description: '25 bonnes réponses d’affilée' },
+      'perfect-5': {
+        icon: '✨',
+        title: 'Cinq sans-faute',
+        description: '5 séances sans aucune erreur',
+      },
+      'perfect-20': {
+        icon: '🎖️',
+        title: 'Vingt sans-faute',
+        description: '20 séances sans aucune erreur',
+      },
+      'answers-100': {
+        icon: '✅',
+        title: '100 bonnes réponses',
+        description: '100 bonnes réponses',
+      },
+      'answers-1000': {
+        icon: '🧠',
+        title: '1\u00a0000 bonnes réponses',
+        description: '1\u00a0000 bonnes réponses',
+      },
+      'answers-5000': {
+        icon: '🎓',
+        title: '5\u00a0000 bonnes réponses',
+        description: '5\u00a0000 bonnes réponses',
+      },
+      'perfect-1': {
+        icon: '⭐',
+        title: 'Premier sans-faute',
+        description: 'Une séance d’au moins 10 exercices sans erreur',
+      },
+      'bonus-1': { icon: '➕', title: 'Encore plus\u00a0!', description: 'Faire une séance bonus' },
+      'rare-chest': { icon: '🗝️', title: 'Coffre rare', description: 'Gagner un coffre rare' },
+      'explorer-10': {
+        icon: '🔭',
+        title: 'Exploration',
+        description: 'Réussir des exercices dans 10 compétences',
+      },
+      'explorer-25': {
+        icon: '🗺️',
+        title: 'Grande exploration',
+        description: 'Réussir des exercices dans 25 compétences',
+      },
+      'gems-100': { icon: '💰', title: 'Petit trésor', description: 'Gagner 100 gemmes' },
+      'level-5': { icon: '🥉', title: 'Niveau 5', description: 'Atteindre le niveau 5' },
+      'level-10': { icon: '🥈', title: 'Niveau 10', description: 'Atteindre le niveau 10' },
+      'level-20': { icon: '🥇', title: 'Niveau 20', description: 'Atteindre le niveau 20' },
+    } satisfies Record<BadgeCode, { icon: string; title: string; description: string }>,
   },
   genders: {
     girl: 'Fille',

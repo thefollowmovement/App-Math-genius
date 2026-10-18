@@ -30,6 +30,8 @@ type ChildDetailProps = {
   child: Child;
   /** Streak, level and gems; missing while loading. */
   progress?: ProgressView;
+  /** Badges earned. */
+  badges?: number;
   /** The child's sessions today. */
   sessions: readonly SessionRow[];
   onOpenSession: (sessionId: string) => void;
@@ -51,6 +53,7 @@ type ChildDetailProps = {
 export function ChildDetail({
   child,
   progress,
+  badges = 0,
   sessions,
   onOpenSession,
   routine,
@@ -76,6 +79,7 @@ export function ChildDetail({
               progress.bestStreak,
               progress.level,
               progress.gems,
+              badges,
             )}
           </ThemedText>
         ) : null}

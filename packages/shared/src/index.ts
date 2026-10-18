@@ -55,3 +55,14 @@ export {
   xpForLevel,
 } from './rewards';
 export { awardSchema, type Award } from './award';
+export {
+  BADGES,
+  BADGE_CATEGORIES,
+  BADGE_METRICS,
+  badgeProgress,
+  isBadgeCode,
+  type Badge,
+  type BadgeCategory,
+  type BadgeCode,
+  type BadgeMetric,
+} from './badges';

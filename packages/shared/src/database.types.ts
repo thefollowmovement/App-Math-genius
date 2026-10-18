@@ -95,6 +95,40 @@ export type Database = {
           },
         ];
       };
+      badges: {
+        Row: {
+          category: Database['public']['Enums']['badge_category'];
+          code: string;
+          created_at: string;
+          id: string;
+          metric: string;
+          position: number;
+          threshold: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category: Database['public']['Enums']['badge_category'];
+          code: string;
+          created_at?: string;
+          id?: string;
+          metric: string;
+          position: number;
+          threshold: number;
+          updated_at?: string;
+        };
+        Update: {
+          category?: Database['public']['Enums']['badge_category'];
+          code?: string;
+          created_at?: string;
+          id?: string;
+          metric?: string;
+          position?: number;
+          threshold?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       chests: {
         Row: {
           child_id: string;
@@ -142,6 +176,59 @@ export type Database = {
             foreignKeyName: 'chests_session_id_fkey';
             columns: ['session_id'];
             isOneToOne: true;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      child_badges: {
+        Row: {
+          badge_code: string;
+          child_id: string;
+          created_at: string;
+          earned_at: string;
+          id: string;
+          session_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          badge_code: string;
+          child_id: string;
+          created_at?: string;
+          earned_at: string;
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          badge_code?: string;
+          child_id?: string;
+          created_at?: string;
+          earned_at?: string;
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_badges_badge_code_fkey';
+            columns: ['badge_code'];
+            isOneToOne: false;
+            referencedRelation: 'badges';
+            referencedColumns: ['code'];
+          },
+          {
+            foreignKeyName: 'child_badges_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_badges_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
             referencedRelation: 'sessions';
             referencedColumns: ['id'];
           },
@@ -951,6 +1038,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      child_badge_metrics: { Args: { p_child_id: string }; Returns: Json };
       create_pairing_code: {
         Args: { p_child_id: string };
         Returns: {
@@ -1010,6 +1098,7 @@ export type Database = {
       unregister_push_token: { Args: { p_token: string }; Returns: undefined };
     };
     Enums: {
+      badge_category: 'regularity' | 'mastery' | 'discovery' | 'progression';
       chest_kind: 'common' | 'rare';
       child_gender: 'girl' | 'boy';
       device_platform: 'ios' | 'android' | 'web';
@@ -1142,6 +1231,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      badge_category: ['regularity', 'mastery', 'discovery', 'progression'],
       chest_kind: ['common', 'rare'],
       child_gender: ['girl', 'boy'],
       device_platform: ['ios', 'android', 'web'],

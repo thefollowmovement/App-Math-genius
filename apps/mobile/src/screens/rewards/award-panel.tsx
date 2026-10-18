@@ -9,6 +9,7 @@ import Animated, {
   type CSSStyle,
 } from 'react-native-reanimated';
 
+import { knownBadges } from '@/data/badges-model';
 import type { AwardState } from '@/data/rewards-model';
 import { strings } from '@/i18n';
 
@@ -21,10 +22,11 @@ const ARRIVE = FadeInDown.duration(300).easing(EASE_OUT);
 type AwardPanelProps = {
   state: AwardState;
   onOpenChest: (chestId: string) => void;
+  onOpenBadges: () => void;
 };
 
 /** What the session earned, as computed by the server from its own grading. */
-export function AwardPanel({ state, onOpenChest }: AwardPanelProps) {
+export function AwardPanel({ state, onOpenChest, onOpenBadges }: AwardPanelProps) {
   if (state.status !== 'ready') {
     return (
       <ThemedText variant="caption" className="text-center" accessibilityLiveRegion="polite">
@@ -34,6 +36,7 @@ export function AwardPanel({ state, onOpenChest }: AwardPanelProps) {
   }
   const { award } = state;
   const streakUp = award.streak > award.streak_before;
+  const badges = knownBadges(award.badges);
   return (
     <Animated.View entering={ARRIVE}>
       <View
@@ -50,6 +53,17 @@ export function AwardPanel({ state, onOpenChest }: AwardPanelProps) {
         </View>
         {streakUp ? <ThemedText>{t.streakUp}</ThemedText> : null}
         {award.gems > 0 ? <ThemedText>{t.gems(award.gems)}</ThemedText> : null}
+        {badges.length > 0 ? (
+          <View className="w-full items-center gap-2 pt-2">
+            <ThemedText variant="headline">{t.newBadges(badges.length)}</ThemedText>
+            {badges.map((code) => (
+              <ThemedText key={code} className="text-center">
+                {`${strings.badges.items[code].icon} ${strings.badges.items[code].title}`}
+              </ThemedText>
+            ))}
+            <Button variant="ghost" title={t.seeBadges} onPress={onOpenBadges} />
+          </View>
+        ) : null}
         {award.chest ? (
           <View className="w-full gap-3 pt-2">
             <ThemedText className="text-center">

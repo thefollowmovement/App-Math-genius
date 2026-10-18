@@ -31,6 +31,7 @@ export default function ChildDetailRoute() {
       <ChildDetail
         child={child.data}
         progress={rewards.data?.progress}
+        badges={rewards.data?.badges}
         sessions={(sessions.data ?? []).filter((session) => session.child_id === id)}
         onOpenSession={(sessionId) =>
           router.push({ pathname: '/parent/sessions/[id]', params: { id: sessionId } })

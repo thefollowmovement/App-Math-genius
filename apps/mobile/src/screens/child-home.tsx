@@ -24,6 +24,7 @@ type ChildHomeProps = {
   /** Missing until the first award, or while loading. */
   rewards?: Rewards;
   onOpenChest?: (chestId: string) => void;
+  onOpenBadges?: () => void;
   sync: SyncState;
   onStart: () => void;
   /** Shown when the device holds several profiles or a parent is signed in. */
@@ -54,6 +55,7 @@ export function ChildHome({
   goal,
   rewards,
   onOpenChest,
+  onOpenBadges,
   sync,
   onStart,
   onSwitchProfile,
@@ -89,6 +91,13 @@ export function ChildHome({
           onPress={onStart}
         />
       )}
+      {onOpenBadges ? (
+        <Button
+          variant="ghost"
+          title={strings.badges.open(rewards?.badges ?? 0)}
+          onPress={onOpenBadges}
+        />
+      ) : null}
       {sync === 'idle' ? null : (
         <ThemedText variant="caption" className="text-center" accessibilityLiveRegion="polite">
           {sync === 'offline' ? t.offline : t.syncing}

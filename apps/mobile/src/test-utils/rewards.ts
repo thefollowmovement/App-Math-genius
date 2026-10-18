@@ -17,10 +17,12 @@ export const award = (overrides: Partial<Award> = {}): Award => ({
   streak: 4,
   streak_before: 3,
   streak_best: 6,
+  badges: [],
   ...overrides,
 });
 
 export const rewards = (chests: Rewards['chests'] = []): Rewards => ({
   progress: progressView({ xp: 1040, gems: 45, streak_current: 4, streak_best: 6, freezes: 1 }),
   chests,
+  badges: 3,
 });

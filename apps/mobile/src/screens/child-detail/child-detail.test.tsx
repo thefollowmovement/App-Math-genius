@@ -51,7 +51,7 @@ function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
 describe('ChildDetail', () => {
   it('sums up the child’s streak, level and gems', async () => {
     await renderDetail({ progress: rewards().progress });
-    expect(screen.getByText(strings.rewards.parentLine(4, 6, 5, 45))).toBeOnTheScreen();
+    expect(screen.getByText(strings.rewards.parentLine(4, 6, 5, 45, 0))).toBeOnTheScreen();
   });
 
   it('offers to set a routine', async () => {

@@ -42,6 +42,7 @@ export default function ChildHomeRoute() {
       goal={routineOf(routines.data, id)?.goal ?? DEFAULT_SESSION_GOAL}
       rewards={rewards.data}
       onOpenChest={(chest) => router.push({ pathname: '/child/chest', params: { id, chest } })}
+      onOpenBadges={() => router.push({ pathname: '/child/badges', params: { id } })}
       sync={!online ? 'offline' : unsent ? 'syncing' : 'idle'}
       onStart={() => start()}
       onSwitchProfile={

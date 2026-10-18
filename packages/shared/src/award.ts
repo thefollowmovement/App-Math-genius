@@ -15,5 +15,7 @@ export const awardSchema = z.object({
   streak: z.int(),
   streak_before: z.int(),
   streak_best: z.int(),
+  /** Badges this session granted (supabase/migrations/*_badges.sql); absent from older awards. */
+  badges: z.array(z.string()).default([]),
 });
 export type Award = z.infer<typeof awardSchema>;

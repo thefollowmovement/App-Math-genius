@@ -36,7 +36,8 @@ export function progressView(row: ProgressRow | null): ProgressView {
   };
 }
 
-export type Rewards = { progress: ProgressView; chests: ChestRow[] };
+/** Progress, chests to open and how many badges the child has earned. */
+export type Rewards = { progress: ProgressView; chests: ChestRow[]; badges: number };
 
 export const parseAward = (value: unknown): Award | null => {
   const parsed = awardSchema.safeParse(value);

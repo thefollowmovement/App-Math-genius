@@ -114,6 +114,7 @@ describe('SessionSummary', () => {
         saved={false}
         award={{ status: 'waiting' }}
         onOpenChest={jest.fn()}
+        onOpenBadges={jest.fn()}
         onBonus={jest.fn()}
         onHome={jest.fn()}
       />,
@@ -127,14 +128,17 @@ describe('SessionSummary', () => {
 
   it('shows what the server awarded, and opens the chest', async () => {
     const onOpenChest = jest.fn();
+    const onOpenBadges = jest.fn();
     const user = userEvent.setup();
     const summary = { goalMet: true, answered: 40, correct: 32, minutes: 15, progressed: [] };
     await renderWithTheme(
       <SessionSummary
         summary={summary}
         saved
-        award={{ status: 'ready', award: award() }}
+        // A badge from a newer server is left out.
+        award={{ status: 'ready', award: award({ badges: ['perfect-1', 'from-the-future'] }) }}
         onOpenChest={onOpenChest}
+        onOpenBadges={onOpenBadges}
         onBonus={jest.fn()}
         onHome={jest.fn()}
       />,
@@ -146,6 +150,11 @@ describe('SessionSummary', () => {
     expect(screen.getByText(strings.award.gems(5))).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: strings.award.openChest }));
     expect(onOpenChest).toHaveBeenCalledWith('chest-1');
+    expect(screen.getByText(strings.award.newBadges(1))).toBeOnTheScreen();
+    const perfect = strings.badges.items['perfect-1'];
+    expect(screen.getByText(`${perfect.icon} ${perfect.title}`)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: strings.award.seeBadges }));
+    expect(onOpenBadges).toHaveBeenCalled();
   });
 
   it('waits for the server while the rewards are computed', async () => {
@@ -156,6 +165,7 @@ describe('SessionSummary', () => {
         saved
         award={{ status: 'computing' }}
         onOpenChest={jest.fn()}
+        onOpenBadges={jest.fn()}
         onBonus={jest.fn()}
         onHome={jest.fn()}
       />,
@@ -165,8 +175,9 @@ describe('SessionSummary', () => {
 });
 
 describe('ChildHome rewards', () => {
-  it('shows streak, gems and level, and the chests to open', async () => {
+  it('shows streak, gems and level, the chests to open and the badges', async () => {
     const onOpenChest = jest.fn();
+    const onOpenBadges = jest.fn();
     const user = userEvent.setup();
     await renderWithTheme(
       <ChildHome
@@ -178,6 +189,7 @@ describe('ChildHome rewards', () => {
           { id: 'chest-2', kind: 'rare' },
         ])}
         onOpenChest={onOpenChest}
+        onOpenBadges={onOpenBadges}
         sync="idle"
         onStart={jest.fn()}
       />,
@@ -189,5 +201,7 @@ describe('ChildHome rewards', () => {
     expect(screen.getByText(strings.rewards.chestsWaiting(2))).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: strings.rewards.openChest }));
     expect(onOpenChest).toHaveBeenCalledWith('chest-1');
+    await user.press(screen.getByRole('button', { name: strings.badges.open(3) }));
+    expect(onOpenBadges).toHaveBeenCalled();
   });
 });

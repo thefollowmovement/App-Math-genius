@@ -15,6 +15,7 @@ type SessionSummaryProps = {
   /** XP, streak and chest, computed by the server once the session is sent. */
   award: AwardState;
   onOpenChest: (chestId: string) => void;
+  onOpenBadges: () => void;
   onBonus: () => void;
   onHome: () => void;
 };
@@ -24,6 +25,7 @@ export function SessionSummary({
   saved,
   award,
   onOpenChest,
+  onOpenBadges,
   onBonus,
   onHome,
 }: SessionSummaryProps) {
@@ -39,7 +41,7 @@ export function SessionSummary({
         <ThemedText className="text-center">{t.duration(summary.minutes)}</ThemedText>
         {summary.goalMet ? null : <ThemedText className="text-center">{t.notValidated}</ThemedText>}
       </View>
-      <AwardPanel state={award} onOpenChest={onOpenChest} />
+      <AwardPanel state={award} onOpenChest={onOpenChest} onOpenBadges={onOpenBadges} />
       {summary.progressed.length > 0 ? (
         <View className="gap-2 rounded-lg border border-border bg-surface p-4">
           <ThemedText variant="headline">{t.progressed}</ThemedText>

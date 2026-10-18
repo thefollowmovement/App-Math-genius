@@ -28,6 +28,7 @@ export default function SummaryRoute() {
       saved={saved}
       award={awardState(saved, award.data)}
       onOpenChest={(chest) => router.push({ pathname: '/child/chest', params: { id, chest } })}
+      onOpenBadges={() => router.push({ pathname: '/child/badges', params: { id } })}
       onBonus={() => start('replace')}
       onHome={() => router.replace(home)}
     />

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
 
+import { parseMetrics, type BadgesData } from './badges-model';
 import { queryClient } from './query-client';
 import {
   awardsFromResponse,
@@ -34,7 +35,7 @@ export function useRewards(childId: string | undefined) {
     queryKey: ['rewards', childId],
     enabled: childId !== undefined,
     queryFn: async (): Promise<Rewards> => {
-      const [progress, chests] = await Promise.all([
+      const [progress, chests, badges] = await Promise.all([
         supabase
           .from('progress')
           .select('xp, gems, streak_current, streak_best, freezes')
@@ -46,10 +47,40 @@ export function useRewards(childId: string | undefined) {
           .eq('child_id', childId ?? '')
           .is('opened_at', null)
           .order('created_at'),
+        supabase
+          .from('child_badges')
+          .select('id', { count: 'exact', head: true })
+          .eq('child_id', childId ?? ''),
       ]);
       if (progress.error) throw progress.error;
       if (chests.error) throw chests.error;
-      return { progress: progressView(progress.data), chests: chests.data };
+      if (badges.error) throw badges.error;
+      return {
+        progress: progressView(progress.data),
+        chests: chests.data,
+        badges: badges.count ?? 0,
+      };
+    },
+  });
+}
+
+/** Badges earned and how far the child is from the others; refreshed with the rewards. */
+export function useBadges(childId: string | undefined) {
+  return useQuery({
+    queryKey: ['rewards', childId, 'badges'],
+    enabled: childId !== undefined,
+    queryFn: async (): Promise<BadgesData> => {
+      const [earned, metrics] = await Promise.all([
+        supabase
+          .from('child_badges')
+          .select('badge_code, earned_at')
+          .eq('child_id', childId ?? '')
+          .order('earned_at'),
+        supabase.rpc('child_badge_metrics', { p_child_id: childId ?? '' }),
+      ]);
+      if (earned.error) throw earned.error;
+      if (metrics.error) throw metrics.error;
+      return { earned: earned.data, metrics: parseMetrics(metrics.data) };
     },
   });
 }

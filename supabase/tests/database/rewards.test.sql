@@ -113,7 +113,7 @@ select is(
 select is(
   (public.award_session(
     pg_temp.play('00000000-0000-4000-8000-0000000000c2', '2026-10-06', 10, kind => 'bonus'),
-    pg_temp.verdicts(4), '2026-10-06 18:00+02') - 'session_id' - 'chest'),
+    pg_temp.verdicts(4), '2026-10-06 18:00+02') - 'session_id' - 'chest' - 'badges'),
   jsonb_build_object(
     'xp', 40, 'verified_correct', 4, 'answered', 10, 'goal_met', false, 'gems', 0,
     'level', 2, 'level_before', 1, 'xp_total', 120, 'streak', 0, 'streak_before', 0,
