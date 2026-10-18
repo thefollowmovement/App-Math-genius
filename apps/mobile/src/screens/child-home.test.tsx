@@ -107,7 +107,14 @@ describe('ChildHome', () => {
 
 describe('SessionSummary', () => {
   it('celebrates, and says whether the session is saved or waiting', async () => {
-    const summary = { goalMet: false, answered: 30, correct: 15, minutes: 22, progressed: [] };
+    const summary = {
+      kind: 'daily' as const,
+      goalMet: false,
+      answered: 30,
+      correct: 15,
+      minutes: 22,
+      progressed: [],
+    };
     await renderWithTheme(
       <SessionSummary
         summary={summary}
@@ -130,7 +137,14 @@ describe('SessionSummary', () => {
     const onOpenChest = jest.fn();
     const onOpenBadges = jest.fn();
     const user = userEvent.setup();
-    const summary = { goalMet: true, answered: 40, correct: 32, minutes: 15, progressed: [] };
+    const summary = {
+      kind: 'daily' as const,
+      goalMet: true,
+      answered: 40,
+      correct: 32,
+      minutes: 15,
+      progressed: [],
+    };
     await renderWithTheme(
       <SessionSummary
         summary={summary}
@@ -157,8 +171,61 @@ describe('SessionSummary', () => {
     expect(onOpenBadges).toHaveBeenCalled();
   });
 
+  it('tells how the boss went', async () => {
+    const summary = {
+      kind: 'boss' as const,
+      goalMet: true,
+      answered: 10,
+      correct: 9,
+      minutes: 6,
+      progressed: [],
+    };
+    const props = { saved: true, onOpenChest: jest.fn(), onOpenBadges: jest.fn() };
+    const won = award({
+      chest: null,
+      gems: 0,
+      boss: { grade: 'CM1', domain: 'numbers', passed: true, first: true },
+    });
+    await renderWithTheme(
+      <SessionSummary
+        {...props}
+        summary={summary}
+        award={{ status: 'ready', award: won }}
+        onBonus={jest.fn()}
+        onHome={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(strings.summary.bossOver)).toBeOnTheScreen();
+    expect(screen.getByText(`${strings.map.boss.icon} ${strings.award.bossWon}`)).toBeOnTheScreen();
+    expect(
+      screen.getByText(strings.award.islandDone(strings.map.islands.numbers.the)),
+    ).toBeOnTheScreen();
+
+    const lost = award({
+      answered: 10,
+      boss: { grade: 'CM1', domain: 'numbers', passed: false, first: false },
+    });
+    await renderWithTheme(
+      <SessionSummary
+        {...props}
+        summary={{ ...summary, correct: 6 }}
+        award={{ status: 'ready', award: lost }}
+        onBonus={jest.fn()}
+        onHome={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(strings.award.bossLost(8))).toBeOnTheScreen();
+  });
+
   it('waits for the server while the rewards are computed', async () => {
-    const summary = { goalMet: false, answered: 20, correct: 9, minutes: 22, progressed: [] };
+    const summary = {
+      kind: 'daily' as const,
+      goalMet: false,
+      answered: 20,
+      correct: 9,
+      minutes: 22,
+      progressed: [],
+    };
     await renderWithTheme(
       <SessionSummary
         summary={summary}

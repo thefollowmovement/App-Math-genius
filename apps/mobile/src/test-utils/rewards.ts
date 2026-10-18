@@ -18,6 +18,7 @@ export const award = (overrides: Partial<Award> = {}): Award => ({
   streak_before: 3,
   streak_best: 6,
   badges: [],
+  boss: null,
   ...overrides,
 });
 

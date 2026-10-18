@@ -25,6 +25,7 @@ type ChildHomeProps = {
   rewards?: Rewards;
   onOpenChest?: (chestId: string) => void;
   onOpenBadges?: () => void;
+  onOpenMap?: () => void;
   sync: SyncState;
   onStart: () => void;
   /** Shown when the device holds several profiles or a parent is signed in. */
@@ -56,6 +57,7 @@ export function ChildHome({
   rewards,
   onOpenChest,
   onOpenBadges,
+  onOpenMap,
   sync,
   onStart,
   onSwitchProfile,
@@ -91,6 +93,7 @@ export function ChildHome({
           onPress={onStart}
         />
       )}
+      {onOpenMap ? <Button variant="ghost" title={strings.map.open} onPress={onOpenMap} /> : null}
       {onOpenBadges ? (
         <Button
           variant="ghost"

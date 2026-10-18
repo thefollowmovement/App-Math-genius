@@ -1,3 +1,5 @@
+import { DOMAINS, type Domain } from '@math-genius/curriculum';
+import { BOSS_PASS_RATE, type Award } from '@math-genius/shared';
 import { Button, ThemedText, View } from '@math-genius/ui';
 import type { ViewStyle } from 'react-native';
 import Animated, {
@@ -47,12 +49,16 @@ export function AwardPanel({ state, onOpenChest, onOpenBadges }: AwardPanelProps
         {award.level > award.level_before ? (
           <ThemedText variant="headline">{t.levelUp(award.level)}</ThemedText>
         ) : null}
-        <View className="flex-row items-center gap-2">
-          <Flame bump={streakUp} />
-          <ThemedText variant="headline">{t.streak(award.streak)}</ThemedText>
-        </View>
+        {/* No streak yet (a boss or a bonus before the first mission): nothing to show. */}
+        {award.streak > 0 ? (
+          <View className="flex-row items-center gap-2">
+            <Flame bump={streakUp} />
+            <ThemedText variant="headline">{t.streak(award.streak)}</ThemedText>
+          </View>
+        ) : null}
         {streakUp ? <ThemedText>{t.streakUp}</ThemedText> : null}
         {award.gems > 0 ? <ThemedText>{t.gems(award.gems)}</ThemedText> : null}
+        {award.boss ? <BossResult boss={award.boss} answered={award.answered} /> : null}
         {badges.length > 0 ? (
           <View className="w-full items-center gap-2 pt-2">
             <ThemedText variant="headline">{t.newBadges(badges.length)}</ThemedText>
@@ -74,6 +80,28 @@ export function AwardPanel({ state, onOpenChest, onOpenBadges }: AwardPanelProps
         ) : null}
       </View>
     </Animated.View>
+  );
+}
+
+const isDomain = (value: string): value is Domain => (DOMAINS as readonly string[]).includes(value);
+
+/** How the boss went, by the server's grading. */
+function BossResult({ boss, answered }: { boss: NonNullable<Award['boss']>; answered: number }) {
+  if (!boss.passed) {
+    return (
+      <ThemedText className="text-center">
+        {t.bossLost(Math.ceil(BOSS_PASS_RATE * answered))}
+      </ThemedText>
+    );
+  }
+  const island = isDomain(boss.domain) ? strings.map.islands[boss.domain] : null;
+  return (
+    <View className="items-center gap-1 pt-2">
+      <ThemedText variant="headline">{`${strings.map.boss.icon} ${t.bossWon}`}</ThemedText>
+      <ThemedText className="text-center">
+        {boss.first && island ? t.islandDone(island.the) : t.bossWonAgain}
+      </ThemedText>
+    </View>
   );
 }
 

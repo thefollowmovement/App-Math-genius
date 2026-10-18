@@ -1,3 +1,4 @@
+import { worldMap } from '@math-genius/exercise-engine';
 import { DEFAULT_ROUTINE } from '@math-genius/shared';
 import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
@@ -35,6 +36,7 @@ import { SignIn } from './sign-in';
 import { SessionDetail } from './session-detail';
 import { SessionSummary } from './session-summary';
 import { SignUp } from './sign-up';
+import { WorldMap } from './world-map';
 
 const globalCss = compileGlobalCss();
 
@@ -188,6 +190,16 @@ const screens: { name: string; render: () => ReactElement }[] = [
     ),
   },
   {
+    name: 'WorldMap',
+    render: () => (
+      <WorldMap
+        islands={worldMap({ grade: 'CE2', mastery: {}, at: '2026-10-18T17:00:00Z', defeated: [] })}
+        busy={false}
+        onFightBoss={jest.fn()}
+      />
+    ),
+  },
+  {
     name: 'ChestOpening (closed)',
     render: () => (
       <ChestOpening
@@ -237,6 +249,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
     render: () => (
       <SessionSummary
         summary={{
+          kind: 'daily',
           goalMet: true,
           answered: 45,
           correct: 37,

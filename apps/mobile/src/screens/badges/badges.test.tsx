@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react-native';
 
-import { badgeGroups } from '@/data/badges-model';
+import { BADGE_COUNT, badgeGroups } from '@/data/badges-model';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
 
@@ -21,7 +21,7 @@ describe('Badges', () => {
         })}
       />,
     );
-    expect(screen.getByText(t.count(2, 37))).toBeOnTheScreen();
+    expect(screen.getByText(t.count(2, BADGE_COUNT))).toBeOnTheScreen();
     expect(screen.getByText(t.categories.regularity)).toBeOnTheScreen();
     const streak3 = t.items['streak-3'];
     expect(

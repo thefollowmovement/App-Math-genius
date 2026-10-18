@@ -33,13 +33,15 @@ export function SessionSummary({
     <Screen centered>
       <View className="gap-2">
         <ThemedText variant="display" className="text-center" accessibilityRole="header">
-          {summary.goalMet ? t.goalMet : t.finished}
+          {summary.kind === 'boss' ? t.bossOver : summary.goalMet ? t.goalMet : t.finished}
         </ThemedText>
         <ThemedText variant="headline" className="text-center">
           {t.score(summary.correct, summary.answered)}
         </ThemedText>
         <ThemedText className="text-center">{t.duration(summary.minutes)}</ThemedText>
-        {summary.goalMet ? null : <ThemedText className="text-center">{t.notValidated}</ThemedText>}
+        {summary.goalMet || summary.kind === 'boss' ? null : (
+          <ThemedText className="text-center">{t.notValidated}</ThemedText>
+        )}
       </View>
       <AwardPanel state={award} onOpenChest={onOpenChest} onOpenBadges={onOpenBadges} />
       {summary.progressed.length > 0 ? (

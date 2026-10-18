@@ -23,7 +23,12 @@ const t = strings.practice;
 
 async function renderPractice(
   exercise: Exercise,
-  options: { feedback?: PracticeFeedback; notice?: string; reminder?: boolean } = {},
+  options: {
+    feedback?: PracticeFeedback;
+    notice?: string;
+    reminder?: boolean;
+    boss?: { grade: 'CM1'; domain: 'measures' };
+  } = {},
 ) {
   const handlers = {
     onSubmit: jest.fn<void, [ExerciseResponse]>(),
@@ -36,6 +41,7 @@ async function renderPractice(
       exercise={exercise}
       slot="current"
       twin={false}
+      boss={options.boss}
       reminder={options.reminder ?? false}
       progress={0.3}
       hintShown={false}
@@ -58,6 +64,15 @@ function submitted(onSubmit: jest.Mock<void, [ExerciseResponse]>, exercise: Exer
 
 const press = (label: string) => fireEvent.press(screen.getByLabelText(label));
 const pressText = (text: string) => fireEvent.press(screen.getByText(text));
+
+describe('the session header', () => {
+  it('names the kind of exercise, or the island of a boss', async () => {
+    await renderPractice(exerciseOfType('numeric'));
+    expect(screen.getByText(t.slots.current)).toBeOnTheScreen();
+    await renderPractice(exerciseOfType('numeric'), { boss: { grade: 'CM1', domain: 'measures' } });
+    expect(screen.getByText(t.boss(strings.map.islands.measures.name))).toBeOnTheScreen();
+  });
+});
 
 describe('answering each type of exercise by touch', () => {
   it('types a number on the built-in keypad', async () => {

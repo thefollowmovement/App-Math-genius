@@ -1,3 +1,4 @@
+import { islandKey } from '@math-genius/exercise-engine';
 import type { Award } from '@math-genius/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -60,6 +61,22 @@ export function useRewards(childId: string | undefined) {
         chests: chests.data,
         badges: badges.count ?? 0,
       };
+    },
+  });
+}
+
+/** Islands whose boss the child has beaten (islandKey), for the world map. */
+export function useIslands(childId: string | undefined) {
+  return useQuery({
+    queryKey: ['rewards', childId, 'islands'],
+    enabled: childId !== undefined,
+    queryFn: async (): Promise<string[]> => {
+      const { data, error } = await supabase
+        .from('island_completions')
+        .select('grade, domain')
+        .eq('child_id', childId ?? '');
+      if (error) throw error;
+      return data.map(islandKey);
     },
   });
 }

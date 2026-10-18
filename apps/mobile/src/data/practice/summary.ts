@@ -8,9 +8,15 @@ import {
 } from '@math-genius/exercise-engine';
 import type { Grade } from '@math-genius/shared';
 
-import { plannerContext, type ChildPractice, type StoredSession } from './practice-store';
+import {
+  plannerContext,
+  type ChildPractice,
+  type SessionKind,
+  type StoredSession,
+} from './practice-store';
 
 export type SessionSummary = {
+  kind: SessionKind;
   goalMet: boolean;
   answered: number;
   correct: number;
@@ -41,6 +47,7 @@ export function summarize(session: StoredSession): SessionSummary {
     .map(({ title, mastery }) => ({ title, mastery }));
 
   return {
+    kind: session.kind,
     goalMet: progress.goalMet,
     answered: progress.answered,
     correct: progress.correct,

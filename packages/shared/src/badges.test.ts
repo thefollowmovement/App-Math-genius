@@ -3,14 +3,24 @@ import { join } from 'node:path';
 
 import { BADGES, BADGE_METRICS, badgeProgress, isBadgeCode } from './badges';
 
-// The catalog and the measures as the migration writes them.
+// The catalog and the measures as the migrations write them, in order.
 const migrations = join(__dirname, '../../../supabase/migrations');
-const file = readdirSync(migrations).find((name) => name.endsWith('_badges.sql'));
-const sql = readFileSync(join(migrations, file ?? ''), 'utf8');
+const sql = readdirSync(migrations)
+  .filter((name) => name.endsWith('.sql'))
+  .sort()
+  .map((name) => readFileSync(join(migrations, name), 'utf8'))
+  .join('\n');
+const catalog = [
+  ...sql.matchAll(
+    /insert into public\.badges \(code, category, metric, threshold, position\) values([^;]*);/g,
+  ),
+]
+  .map(([, values]) => values)
+  .join('\n');
 
 describe('badges', () => {
-  it('match the catalog of the migration, in the same order', () => {
-    const rows = [...sql.matchAll(/\('([a-z0-9-]+)', '(\w+)', '(\w+)', (\d+), (\d+)\)/g)].map(
+  it('match the catalog of the migrations, in the same order', () => {
+    const rows = [...catalog.matchAll(/\('([a-z0-9-]+)', '(\w+)', '(\w+)', (\d+), (\d+)\)/g)].map(
       ([, code, category, metric, threshold, position]) => ({
         code,
         category,

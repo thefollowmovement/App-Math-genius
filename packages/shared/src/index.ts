@@ -43,6 +43,9 @@ export {
 } from './routine';
 export { CHILD_MESSAGE_MAX_LENGTH, childMessageSchema } from './notifications';
 export {
+  BOSS_MAX_EXERCISES,
+  BOSS_MIN_EXERCISES,
+  BOSS_PASS_RATE,
   COMBO_LENGTH,
   COMBO_XP,
   FREEZE_PRICE,

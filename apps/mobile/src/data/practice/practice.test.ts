@@ -1,4 +1,4 @@
-import { planNext } from '@math-genius/exercise-engine';
+import { bossLength, bossSkills, planNext } from '@math-genius/exercise-engine';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { playSession } from '@/test-utils/play-session';
@@ -30,6 +30,35 @@ const never = () => false;
 beforeEach(async () => {
   usePracticeStore.setState({ children: {}, itemRatings: {} });
   await AsyncStorage.clear();
+});
+
+describe('a boss session', () => {
+  it("asks the island's skills, ends after bossLength exercises and is not the daily mission", () => {
+    const island = { grade: 'CM1', domain: 'numbers' } as const;
+    const session = openSession({
+      childId: CHILD,
+      grade: 'CM1',
+      now: evening(15),
+      id: 'boss-1',
+      seed: 3,
+      boss: island,
+    });
+    expect(session).toMatchObject({
+      kind: 'boss',
+      boss: island,
+      goal: { type: 'count', count: bossLength(island) },
+    });
+    expect(plannerContext(session).boss).toEqual(island);
+    play(session);
+
+    const child = childPractice(CHILD);
+    const [finished] = child.outbox;
+    expect(finished?.attempts).toHaveLength(bossLength(island));
+    const skills = new Set<string>(bossSkills(island));
+    expect(finished?.attempts.every((attempt) => skills.has(attempt.skill))).toBe(true);
+    expect(child.lastDailyDate).toBeNull();
+    expect(finished && sessionPayload(finished).kind).toBe('boss');
+  });
 });
 
 describe('a session without network', () => {

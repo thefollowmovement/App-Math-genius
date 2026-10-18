@@ -17,5 +17,10 @@ export const awardSchema = z.object({
   streak_best: z.int(),
   /** Badges this session granted (supabase/migrations/*_badges.sql); absent from older awards. */
   badges: z.array(z.string()).default([]),
+  /** A boss session only: its island and whether it was beaten (*_islands.sql). */
+  boss: z
+    .object({ grade: z.string(), domain: z.string(), passed: z.boolean(), first: z.boolean() })
+    .nullable()
+    .default(null),
 });
 export type Award = z.infer<typeof awardSchema>;

@@ -27,8 +27,9 @@ export default function ChildLayout() {
       <Stack.Screen name="practice" options={{ headerShown: false }} />
       <Stack.Screen name="summary" options={{ headerShown: false, gestureEnabled: false }} />
       <Stack.Screen name="chest" options={{ headerShown: false, presentation: 'modal' }} />
-      {/* The screen shows its own title. */}
+      {/* These screens show their own title. */}
       <Stack.Screen name="badges" />
+      <Stack.Screen name="map" />
     </Stack>
   );
 }

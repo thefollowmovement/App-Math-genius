@@ -14,6 +14,11 @@ export const FREEZE_PRICE = 30;
 export const MAX_FREEZES = 3;
 /** Every 7 days of streak, the chest is a rare one. */
 export const RARE_CHEST_EVERY = 7;
+/** A boss (end of an island) is beaten with this share of right answers, by the server's grading. */
+export const BOSS_PASS_RATE = 0.8;
+/** Exercises of a boss: 2 per skill of the island, within these bounds. */
+export const BOSS_MIN_EXERCISES = 6;
+export const BOSS_MAX_EXERCISES = 10;
 
 /** XP needed to reach a level: 0, 100, 300, 600, 1000… (50 × L × (L − 1)). */
 export const xpForLevel = (level: number): number => 50 * level * (level - 1);

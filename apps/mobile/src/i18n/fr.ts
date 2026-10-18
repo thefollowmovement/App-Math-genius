@@ -257,6 +257,7 @@ export const fr = {
       challenge: 'Défi',
     },
     twin: 'Une autre chance',
+    boss: (island: string) => `🐉 Boss · ${island}`,
     reminder: 'Petit rappel',
     hint: 'Un indice\u00a0?',
     hintTitle: 'Indice',
@@ -309,6 +310,7 @@ export const fr = {
   },
   summary: {
     goalMet: 'Mission accomplie\u00a0!',
+    bossOver: 'Combat terminé\u00a0!',
     finished: 'Séance terminée, merci pour tes efforts\u00a0!',
     notValidated:
       'Pour valider une mission, il faut au moins 6 bonnes réponses sur 10. Tu y arriveras la prochaine fois\u00a0!',
@@ -365,6 +367,11 @@ export const fr = {
     openChest: 'Ouvrir mon coffre',
     newBadges: (count: number) => (count > 1 ? 'Nouveaux badges\u00a0!' : 'Nouveau badge\u00a0!'),
     seeBadges: 'Voir mes badges',
+    bossWon: 'Boss vaincu\u00a0!',
+    islandDone: (island: string) => `Tu as terminé ${island}\u00a0!`,
+    bossWonAgain: 'Tu l’as encore battu, bravo\u00a0!',
+    bossLost: (needed: number) =>
+      `Le boss résiste… Il faut ${needed}\u00a0bonnes réponses pour le vaincre. Retente ta chance\u00a0!`,
   },
   chest: {
     common: 'Coffre',
@@ -378,6 +385,49 @@ export const fr = {
     total: (total: number) => `Tu as maintenant ${total}\u00a0gemme${total > 1 ? 's' : ''}.`,
     done: 'Super\u00a0!',
     gone: 'Ce coffre est déjà ouvert.',
+  },
+  map: {
+    title: 'Carte du monde',
+    open: 'Carte du monde',
+    intro: 'Une île par domaine. Maîtrise ses compétences pour affronter son boss\u00a0!',
+    islands: {
+      numbers: { icon: '🏝️', name: 'Île des Nombres', the: 'l’île des Nombres' },
+      measures: { icon: '⛰️', name: 'Île des Mesures', the: 'l’île des Mesures' },
+      geometry: { icon: '🔷', name: 'Île des Formes', the: 'l’île des Formes' },
+      data: { icon: '📊', name: 'Île des Données', the: 'l’île des Données' },
+    },
+    progress: (mastered: number, playable: number) =>
+      `${mastered} compétence${mastered > 1 ? 's' : ''} maîtrisée${mastered > 1 ? 's' : ''} sur ${playable}`,
+    soon: 'Île en construction\u00a0: ses exercices arrivent bientôt.',
+    status: {
+      to_discover: 'À découvrir',
+      in_progress: 'En cours',
+      mastered: 'Maîtrisée',
+      to_review: 'À réviser',
+      locked: 'Pas encore ouverte',
+      coming_soon: 'Bientôt',
+    },
+    statusIcon: {
+      to_discover: '⚪',
+      in_progress: '🟡',
+      mastered: '⭐',
+      to_review: '🔁',
+      locked: '🔒',
+      coming_soon: '🚧',
+    },
+    node: (title: string, status: string, mastery: number | null) =>
+      mastery === null
+        ? `${title}\u00a0: ${status}`
+        : `${title}\u00a0: ${status}, ${mastery}\u00a0/\u00a0100`,
+    boss: {
+      icon: '🐉',
+      name: 'Le boss de l’île',
+      locked: 'Maîtrise toutes les compétences de l’île pour l’affronter.',
+      ready: 'Le boss t’attend\u00a0!',
+      defeated: 'Boss vaincu\u00a0! Tu peux l’affronter de nouveau.',
+      fight: 'Affronter le boss',
+      busy: 'Termine d’abord ta séance en cours.',
+    },
   },
   badges: {
     title: 'Mes badges',
@@ -528,6 +578,14 @@ export const fr = {
       'level-5': { icon: '🥉', title: 'Niveau 5', description: 'Atteindre le niveau 5' },
       'level-10': { icon: '🥈', title: 'Niveau 10', description: 'Atteindre le niveau 10' },
       'level-20': { icon: '🥇', title: 'Niveau 20', description: 'Atteindre le niveau 20' },
+      'island-1': { icon: '🏝️', title: 'Première île', description: 'Vaincre le boss d’une île' },
+      'island-2': { icon: '⛵', title: 'Deux îles', description: 'Vaincre les boss de 2 îles' },
+      'island-4': { icon: '🧭', title: 'Tour des îles', description: 'Vaincre les boss de 4 îles' },
+      'boss-perfect': {
+        icon: '🐉',
+        title: 'Boss sans faute',
+        description: 'Vaincre un boss sans aucune erreur',
+      },
     } satisfies Record<BadgeCode, { icon: string; title: string; description: string }>,
   },
   genders: {

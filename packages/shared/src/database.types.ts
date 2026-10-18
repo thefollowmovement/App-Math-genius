@@ -495,6 +495,55 @@ export type Database = {
           },
         ];
       };
+      island_completions: {
+        Row: {
+          child_id: string;
+          completed_at: string;
+          created_at: string;
+          domain: Database['public']['Enums']['skill_domain'];
+          grade: Database['public']['Enums']['grade'];
+          id: string;
+          session_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          completed_at: string;
+          created_at?: string;
+          domain: Database['public']['Enums']['skill_domain'];
+          grade: Database['public']['Enums']['grade'];
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          completed_at?: string;
+          created_at?: string;
+          domain?: Database['public']['Enums']['skill_domain'];
+          grade?: Database['public']['Enums']['grade'];
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'island_completions_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'island_completions_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       item_ratings: {
         Row: {
           answers_count: number;

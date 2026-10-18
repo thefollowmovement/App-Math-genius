@@ -1,4 +1,15 @@
 export {
+  bossLength,
+  bossSkills,
+  islandKey,
+  worldMap,
+  type BossState,
+  type Island,
+  type IslandView,
+  type NodeStatus,
+  type SkillNode,
+} from './adaptive/islands';
+export {
   MASTERY_THRESHOLD,
   SESSIONS_TO_MASTER,
   isAcquired,
