@@ -1,8 +1,15 @@
 import type { ShopItemCode } from '@math-genius/shared';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
-import Animated, { Easing, ZoomIn } from 'react-native-reanimated';
+import type { ViewStyle } from 'react-native';
+import Animated, {
+  css,
+  cubicBezier,
+  useReducedMotion,
+  type CSSStyle,
+} from 'react-native-reanimated';
 
 import { Decor } from '@/components/decor';
+import { MascotSays } from '@/components/mascot/mascot-says';
 import type { SessionSummary as Summary } from '@/data/practice/summary';
 import type { AwardState } from '@/data/rewards-model';
 import { useThemeStrings } from '@/hooks/use-theme-strings';
@@ -37,9 +44,16 @@ export function SessionSummary({
   onHome,
 }: SessionSummaryProps) {
   const theme = useThemeStrings();
+  const { cheer, proud } = strings.mascot;
+  const reduced = useReducedMotion();
   return (
     <Screen centered backdrop={<Decor />}>
       {effect ? <VictoryEffect icon={strings.shop.items[effect].icon} /> : null}
+      <Animated.View style={reduced ? undefined : styles.pop}>
+        <MascotSays mood={summary.goalMet ? 'cheer' : 'comfort'} size="md">
+          {summary.goalMet ? (cheer[summary.correct % cheer.length] ?? cheer[0]) : proud}
+        </MascotSays>
+      </Animated.View>
       <View className="gap-2">
         <ThemedText variant="display" className="text-center" accessibilityRole="header">
           {summary.kind === 'boss' ? t.bossOver : summary.goalMet ? theme.goalMet : t.finished}
@@ -72,14 +86,31 @@ export function SessionSummary({
   );
 }
 
-// Rare moment (end of a session), worth a short celebration; Reanimated skips it with reduced
-// motion (ReduceMotion.System by default).
-const POP = ZoomIn.duration(300).easing(Easing.bezier(0.23, 1, 0.32, 1));
+// Rare moments (end of a session), worth a short celebration, skipped with reduced motion. CSS
+// animations, not layout ones: on the web, Reanimated replays an entering animation, with the view
+// positioned absolutely, when the award appears below.
+const pop = css.keyframes({
+  '0%': { opacity: 0, transform: [{ scale: 0.8 }] },
+  '70%': { opacity: 1, transform: [{ scale: 1.05 }] },
+  '100%': { opacity: 1, transform: [{ scale: 1 }] },
+});
+
+const styles: Record<'pop', CSSStyle<ViewStyle>> = {
+  pop: {
+    animationName: pop,
+    animationDuration: '400ms',
+    animationTimingFunction: cubicBezier(0.23, 1, 0.32, 1),
+  },
+};
 
 /** The victory effect bought in the shop, three times, as a decoration. */
 function VictoryEffect({ icon }: { icon: string }) {
+  const reduced = useReducedMotion();
   return (
-    <Animated.View entering={POP} importantForAccessibility="no-hide-descendants">
+    <Animated.View
+      style={reduced ? undefined : styles.pop}
+      importantForAccessibility="no-hide-descendants"
+    >
       <ThemedText
         variant="display"
         className="text-center"

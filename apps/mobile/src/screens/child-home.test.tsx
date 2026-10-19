@@ -151,6 +151,8 @@ describe('SessionSummary', () => {
     );
     expect(screen.getByText(strings.summary.finished)).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.notValidated)).toBeOnTheScreen();
+    // The mascot comforts, never scolds.
+    expect(screen.getByText(strings.mascot.proud)).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.score(15, 30))).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.savedOffline)).toBeOnTheScreen();
     expect(screen.getByText(strings.award.waiting)).toBeOnTheScreen();
@@ -276,6 +278,8 @@ describe('SessionSummary', () => {
           name: strings.themes[theme.id as keyof typeof themes].goalMet,
         }),
       ).toBeOnTheScreen();
+      const { cheer } = strings.mascot;
+      expect(screen.getByText(cheer[summary.correct % cheer.length] ?? '')).toBeOnTheScreen();
     }
   });
 

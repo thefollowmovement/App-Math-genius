@@ -29,6 +29,7 @@ import { ChildDetail } from './child-detail';
 import { ChildForm } from './child-form';
 import { ChildHome } from './child-home';
 import { LookEditor } from './look';
+import { MascotIntro } from './mascot-intro';
 import { PairDevice } from './pair-device';
 import { ParentHome } from './parent-home';
 import { PracticeScreen } from './practice';
@@ -187,6 +188,10 @@ const screens: { name: string; render: () => ReactElement }[] = [
         onSwitchProfile={jest.fn()}
       />
     ),
+  },
+  {
+    name: 'MascotIntro',
+    render: () => <MascotIntro childName="Léa" onMakeAvatar={jest.fn()} onLater={jest.fn()} />,
   },
   {
     name: 'LookEditor',

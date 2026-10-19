@@ -4,6 +4,7 @@ import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import { AvatarPicture } from '@/components/avatar';
 import { Decor } from '@/components/decor';
+import { MascotSays } from '@/components/mascot/mascot-says';
 import type { Child } from '@/data/children';
 import type { ParentRewardView } from '@/data/parent-rewards-model';
 import type { PracticeStatus } from '@/data/practice/summary';
@@ -129,7 +130,7 @@ export function ChildHome({
         <ThemedText variant="display" className="text-center">
           {t.greeting(child.display_name)}
         </ThemedText>
-        <ThemedText className="text-center">{message(practice, plan, goal)}</ThemedText>
+        <MascotSays className="self-stretch">{message(practice, plan, goal)}</MascotSays>
       </View>
       {chest && onOpenChest ? (
         <View className="gap-3 rounded-lg border border-primary bg-surface p-4">

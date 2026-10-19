@@ -32,6 +32,7 @@ export const kawaii: Theme = {
       cheek: '#FF9EC2',
       ink: '#46233A',
     },
+    mascotStyle: 'ears',
     decor: 'bubbles',
     decorColors: ['#FFE0EC', '#DDF2FA'],
   },

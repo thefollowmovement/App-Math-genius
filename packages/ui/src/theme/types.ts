@@ -48,6 +48,8 @@ export interface ThemeTypography {
 export interface ThemeArt {
   /** The mascot, drawn in the theme's style (apps/mobile/src/components/mascot). */
   mascot: { body: string; belly: string; accent: string; cheek: string; ink: string };
+  /** What crowns the mascot: cat ears, a hero's headband or an antenna. */
+  mascotStyle: 'ears' | 'headband' | 'antenna';
   /** Shapes in two corners of the child's screens (apps/mobile/src/components/decor.tsx). */
   decor: 'bubbles' | 'speed-lines' | 'stars';
   /** Large shapes, which text may cross (readable, tested), then small accents. */

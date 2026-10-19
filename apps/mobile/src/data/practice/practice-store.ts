@@ -65,6 +65,8 @@ export type ChildPractice = {
 type PracticeState = {
   children: Record<string, ChildPractice>;
   itemRatings: ItemRatings;
+  /** Children who met the mascot on this device (its 3-screen intro). */
+  introSeen: Record<string, true>;
 };
 
 const EMPTY_CHILD: ChildPractice = {
@@ -76,7 +78,7 @@ const EMPTY_CHILD: ChildPractice = {
 };
 
 export const usePracticeStore = create<PracticeState>()(
-  persist(() => ({ children: {}, itemRatings: {} }), {
+  persist(() => ({ children: {}, itemRatings: {}, introSeen: {} }), {
     name: 'math-genius.practice',
     version: 1,
     storage: createJSONStorage(() => AsyncStorage),
@@ -89,6 +91,10 @@ const subscribeHydration = (onChange: () => void) =>
 /** False until the device's saved practice is loaded: nothing may start a session before. */
 export function usePracticeHydrated(): boolean {
   return useSyncExternalStore(subscribeHydration, () => usePracticeStore.persist.hasHydrated());
+}
+
+export function markIntroSeen(childId: string) {
+  usePracticeStore.setState((state) => ({ introSeen: { ...state.introSeen, [childId]: true } }));
 }
 
 export const plannerContext = (session: StoredSession): PlannerContext => ({

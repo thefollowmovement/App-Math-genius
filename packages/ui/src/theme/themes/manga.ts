@@ -32,6 +32,7 @@ export const manga: Theme = {
       cheek: '#FF6B6B',
       ink: '#141414',
     },
+    mascotStyle: 'headband',
     decor: 'speed-lines',
     decorColors: ['#EDE8D8', '#FFE58A'],
   },

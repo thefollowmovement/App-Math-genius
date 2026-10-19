@@ -32,6 +32,7 @@ export const space: Theme = {
       cheek: '#FF9ECF',
       ink: '#0B1026',
     },
+    mascotStyle: 'antenna',
     decor: 'stars',
     decorColors: ['#2F3A73', '#FFE58A'],
   },

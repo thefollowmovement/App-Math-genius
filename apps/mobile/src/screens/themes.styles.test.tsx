@@ -10,6 +10,7 @@ import { award, rewards } from '@/test-utils/rewards';
 
 import { ChildHome } from './child-home';
 import { LookEditor } from './look';
+import { MascotIntro } from './mascot-intro';
 import { SessionSummary } from './session-summary';
 
 const globalCss = compileGlobalCss();
@@ -57,6 +58,10 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
         onStart={jest.fn()}
       />
     ),
+  },
+  {
+    name: 'MascotIntro',
+    render: () => <MascotIntro childName="Léa" onMakeAvatar={jest.fn()} onLater={jest.fn()} />,
   },
   {
     name: 'SessionSummary',

@@ -24,6 +24,7 @@ export default function ChildHomeRoute() {
   const child = useChild(id);
   const practice = usePracticeStore((state) => state.children[id]);
   const unsent = usePracticeStore((state) => hasUnsentAnswers(state.children[id]));
+  const introSeen = usePracticeStore((state) => state.introSeen[id] === true);
   const online = useIsOnline();
   const start = useStartSession(child.data);
   const routines = useRoutines();
@@ -36,6 +37,8 @@ export default function ChildHomeRoute() {
 
   if (child.isPending) return <LoadingScreen />;
   if (!child.data) return <Redirect href="/child" />;
+  // The first time on this device, the mascot introduces itself.
+  if (!introSeen) return <Redirect href={{ pathname: '/child/intro', params: { id } }} />;
 
   const profileCount = child.allProfiles.length;
 

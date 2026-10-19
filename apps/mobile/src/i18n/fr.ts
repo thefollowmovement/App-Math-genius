@@ -718,6 +718,45 @@ export const fr = {
       },
     } satisfies Record<BadgeCode, { icon: string; title: string; description: string }>,
   },
+  /** The mascot (components/mascot). Its name is a placeholder, still to be chosen. */
+  mascot: {
+    name: 'Mimo',
+    encourage: [
+      'Pas grave\u00a0! C’est en se trompant qu’on apprend.',
+      'Regarde bien la correction, la prochaine est pour toi\u00a0!',
+      'Courage, tu progresses à chaque essai\u00a0!',
+      'Tout le monde se trompe. On continue ensemble\u00a0?',
+    ],
+    cheer: [
+      'Super séance aujourd’hui\u00a0!',
+      'Quelle mission\u00a0! Tu m’impressionnes.',
+      'Bravo, ton cerveau a bien travaillé\u00a0!',
+    ],
+    proud: 'Tu as bien travaillé. On réessaie demain\u00a0?',
+  },
+  intro: {
+    progress: (step: number, count: number) => `Étape ${step} sur ${count}`,
+    steps: [
+      {
+        title: (name: string) => `Salut ${name}\u00a0!`,
+        text: (mascot: string) =>
+          `Moi, c’est ${mascot}. Je vais t’accompagner dans tes aventures de maths.`,
+      },
+      {
+        title: () => 'Une mission par jour',
+        text: () =>
+          'Chaque jour, quelques minutes d’exercices, à ton rythme. Se tromper, c’est comme ça qu’on apprend\u00a0!',
+      },
+      {
+        title: () => 'Des trésors à gagner',
+        text: () =>
+          'Gagne des gemmes et des badges, et explore les îles de la carte du monde. Pour commencer, crée ton avatar\u00a0!',
+      },
+    ],
+    next: 'Suivant',
+    makeAvatar: 'Créer mon avatar',
+    later: 'Plus tard',
+  },
   /** One per theme of packages/ui/src/theme/themes. */
   themes: {
     kawaii: {
