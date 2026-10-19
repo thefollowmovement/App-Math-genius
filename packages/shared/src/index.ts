@@ -96,14 +96,19 @@ export {
   type ParentRewardGoal,
   type ParentRewardInput,
 } from './parent-rewards';
+export { DEFAULT_LOOKS, avatarOf, avatarSchema, type Avatar } from './avatar';
 export {
-  AVATAR_LOCKS,
-  AVATAR_PARTS,
-  AVATAR_PART_NAMES,
-  DEFAULT_LOOKS,
-  avatarLock,
-  avatarOf,
-  avatarSchema,
-  type Avatar,
-  type AvatarPart,
-} from './avatar';
+  COSMETICS,
+  COSMETIC_SLOTS,
+  cosmeticOf,
+  cosmeticsOf,
+  missingUnlock,
+  type Cosmetic,
+  type CosmeticId,
+  type CosmeticSlot,
+  type CosmeticUnlock,
+  type CosmeticVisual,
+  type EarnedCosmeticId,
+  type Unlocked,
+} from './cosmetics';
+export { HERO_IDS, HERO_POSES, isHeroId, type HeroId, type HeroPose } from './heroes';

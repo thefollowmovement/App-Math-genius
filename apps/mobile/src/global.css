@@ -30,6 +30,8 @@
   --color-danger: var(--theme-color-danger);
   --color-success: var(--theme-color-success);
   --color-on-success: var(--theme-color-on-success);
+  /* Under filled buttons (see Button): its height is --theme-relief-depth. */
+  --color-relief: var(--theme-relief-color);
 
   --radius-sm: var(--theme-radius-sm);
   --radius-md: var(--theme-radius-md);
@@ -37,6 +39,9 @@
 
   /* Display and title texts: the theme's font, with the one weight its file has. */
   --font-heading: var(--theme-font-heading);
+  /* Body texts, for the themes that have their own font (ThemedText adds the class then). */
+  --font-body: var(--theme-font-body);
+  --font-body-semibold: var(--theme-font-body-semibold);
   --text-display--font-weight: var(--theme-font-heading-weight);
   --text-title--font-weight: var(--theme-font-heading-weight);
 }

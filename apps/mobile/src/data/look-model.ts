@@ -1,12 +1,17 @@
 import {
-  avatarLock,
+  COSMETIC_SLOTS,
+  SHOP_ITEMS,
   avatarOf,
-  avatarSchema,
+  cosmeticOf,
+  missingUnlock,
   type Avatar,
-  type AvatarPart,
-  type BadgeCode,
+  type CosmeticId,
+  type CosmeticSlot,
+  type CosmeticUnlock,
+  type HeroId,
+  type Unlocked,
 } from '@math-genius/shared';
-import { isThemeId, type ThemeId } from '@math-genius/ui';
+import { DEFAULT_THEME, isThemeId, type ThemeId } from '@math-genius/ui';
 
 import type { Child } from './children';
 
@@ -15,36 +20,42 @@ export type Look = { theme: ThemeId; avatar: Avatar };
 /** The child's theme and avatar as stored, or the defaults of the profile. */
 export function lookOf(child: Pick<Child, 'theme_id' | 'avatar' | 'gender'>): Look {
   return {
-    theme: isThemeId(child.theme_id) ? child.theme_id : 'kawaii',
+    theme: isThemeId(child.theme_id) ? child.theme_id : DEFAULT_THEME,
     avatar: avatarOf(child.avatar, child.gender),
   };
 }
 
 export const sameLook = (a: Look, b: Look) =>
   a.theme === b.theme &&
-  (Object.keys(a.avatar) as AvatarPart[]).every((part) => a.avatar[part] === b.avatar[part]);
+  a.avatar.hero === b.avatar.hero &&
+  COSMETIC_SLOTS.every((slot) => a.avatar.wear[slot] === b.avatar.wear[slot]);
 
-/** The avatar with one part changed, or null when the option does not exist. */
-export function withPart(avatar: Avatar, part: AvatarPart, option: string): Avatar | null {
-  const parsed = avatarSchema.safeParse({ ...avatar, [part]: option });
-  return parsed.success ? parsed.data : null;
-}
+export const withHero = (look: Look, hero: HeroId): Look => ({
+  ...look,
+  avatar: { ...look.avatar, hero },
+});
 
-/** A rare option the child tried without its badge. */
-export type LockedHint = { part: AvatarPart; option: string; badge: BadgeCode };
+/** A cosmetic the child tried before unlocking it, and what it waits for. */
+export type LockedHint = { cosmetic: CosmeticId; missing: CosmeticUnlock };
 
 /**
- * The look with an option picked, or why it cannot be: a rare option waits for its badge
- * (`earned`; the server checks it again). Null for an option that does not exist.
+ * The look with a cosmetic worn in its slot (or the slot emptied with null), or what the
+ * cosmetic still waits for: a badge, or a purchase. The server checks it again.
  */
-export function pickOption(
+export function pickCosmetic(
   look: Look,
-  part: AvatarPart,
-  option: string,
-  earned: ReadonlySet<string>,
+  slot: CosmeticSlot,
+  id: CosmeticId | null,
+  unlocked: Unlocked,
 ): { look: Look } | { locked: LockedHint } | null {
-  const badge = avatarLock(part, option);
-  if (badge && !earned.has(badge)) return { locked: { part, option, badge } };
-  const avatar = withPart(look.avatar, part, option);
-  return avatar ? { look: { ...look, avatar } } : null;
+  const { [slot]: _removed, ...others } = look.avatar.wear;
+  if (id === null) return { look: { ...look, avatar: { ...look.avatar, wear: others } } };
+  const cosmetic = cosmeticOf(id);
+  if (!cosmetic || cosmetic.slot !== slot) return null;
+  const missing = missingUnlock(cosmetic, unlocked);
+  if (missing) return { locked: { cosmetic: id, missing } };
+  return { look: { ...look, avatar: { ...look.avatar, wear: { ...others, [slot]: id } } } };
 }
+
+/** The price of a cosmetic sold in the shop. */
+export const shopPrice = (item: string) => SHOP_ITEMS.find(({ code }) => code === item)?.price ?? 0;

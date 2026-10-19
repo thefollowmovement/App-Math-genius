@@ -1,8 +1,9 @@
 import type {
-  AVATAR_PARTS,
-  AvatarPart,
   BadgeCode,
   ChallengeCode,
+  CosmeticSlot,
+  EarnedCosmeticId,
+  HeroId,
   ShopItemCode,
 } from '@math-genius/shared';
 import type { ThemeId } from '@math-genius/ui';
@@ -465,7 +466,7 @@ export const fr = {
     },
     kindHints: {
       companion: 'Il t’accompagne sur ton accueil.',
-      accessory: 'Il décore ton avatar.',
+      accessory: 'Il décore le portrait de ton héros.',
       effect: 'Il fête la fin de tes séances.',
     },
     freezes: {
@@ -484,7 +485,6 @@ export const fr = {
     takeOff: 'Retirer',
     worn: 'Porté',
     wearLabel: (name: string) => `Porter ${name}`,
-    companionLabel: (name: string) => `Ton compagnon\u00a0: ${name}`,
     takeOffLabel: (name: string) => `Retirer ${name}`,
     /** One per code of packages/shared/src/shop.ts. */
     items: {
@@ -718,9 +718,22 @@ export const fr = {
       },
     } satisfies Record<BadgeCode, { icon: string; title: string; description: string }>,
   },
-  /** The mascot (components/mascot). Its name is a placeholder, still to be chosen. */
-  mascot: {
-    name: 'Mimo',
+  /** The six heroes (packages/shared/src/heroes.ts, docs/design/personnages.md). */
+  heroes: {
+    items: {
+      nova: { name: 'Nova', role: 'Étoile du rythme' },
+      juno: { name: 'Juno', role: 'Reine des combos' },
+      mika: { name: 'Mika', role: 'Fée des étoiles' },
+      kai: { name: 'Kai', role: 'Maître du beat' },
+      taro: { name: 'Taro', role: 'Roi des défis' },
+      leo: { name: 'Leo', role: 'Héros de la scène' },
+    } satisfies Record<HeroId, { name: string; role: string }>,
+    label: (name: string, role: string) => `${name}, ${role}`,
+    portrait: (name: string, wearing: string[] = []) =>
+      wearing.length > 0
+        ? `Ton héros, ${name}, avec ${wearing.join(' et ')}`
+        : `Ton héros, ${name}`,
+    // What the child's hero says. Never a reproach: the firm reminders go to the parent.
     encourage: [
       'Pas grave\u00a0! C’est en se trompant qu’on apprend.',
       'Regarde bien la correction, la prochaine est pour toi\u00a0!',
@@ -733,14 +746,21 @@ export const fr = {
       'Bravo, ton cerveau a bien travaillé\u00a0!',
     ],
     proud: 'Tu as bien travaillé. On réessaie demain\u00a0?',
+    hint: 'Réfléchissons ensemble…',
   },
+  /** The child's first time on a device: they choose their hero, who explains the app. */
   intro: {
     progress: (step: number, count: number) => `Étape ${step} sur ${count}`,
+    choose: {
+      title: 'Choisis ton héros',
+      text: 'Il t’accompagne dans toutes tes missions. Tu pourras en changer quand tu veux.',
+      confirm: (name: string) => `Je choisis ${name}\u00a0!`,
+    },
     steps: [
       {
         title: (name: string) => `Salut ${name}\u00a0!`,
-        text: (mascot: string) =>
-          `Moi, c’est ${mascot}. Je vais t’accompagner dans tes aventures de maths.`,
+        text: (hero: string) =>
+          `Moi, c’est ${hero}. Ensemble, on va chasser les monstres de calcul\u00a0!`,
       },
       {
         title: () => 'Une mission par jour',
@@ -750,15 +770,21 @@ export const fr = {
       {
         title: () => 'Des trésors à gagner',
         text: () =>
-          'Gagne des gemmes et des badges, et explore les îles de la carte du monde. Pour commencer, crée ton avatar\u00a0!',
+          'Gagne des gemmes et des badges pour débloquer des auras, des cadres et des compagnons.',
       },
     ],
     next: 'Suivant',
-    makeAvatar: 'Créer mon avatar',
-    later: 'Plus tard',
+    start: 'C’est parti\u00a0!',
+    customize: 'Personnaliser mon héros',
   },
   /** One per theme of packages/ui/src/theme/themes. */
   themes: {
+    neon: {
+      icon: '🎤',
+      name: 'Neon Stage',
+      description: 'La scène de concert\u00a0: néons, projecteurs et paillettes.',
+      goalMet: 'Mission accomplie\u00a0!',
+    },
     kawaii: {
       icon: '🌸',
       name: 'Kawaii',
@@ -781,74 +807,44 @@ export const fr = {
   look: {
     title: 'Personnaliser',
     open: 'Personnaliser',
-    intro: 'Change ton avatar et ton thème\u00a0: tu vois le résultat avant de l’enregistrer.',
-    avatar: 'Ton avatar',
-    avatarWith: (accessory: string) => `Ton avatar, avec ${accessory}`,
+    intro:
+      'Choisis ton héros, ce qui l’entoure et ton thème\u00a0: tu vois le résultat avant d’enregistrer.',
+    hero: 'Ton héros',
+    style: 'Autour de ton héros',
     themes: 'Ton thème',
-    parts: {
-      skin: 'Peau',
-      hair: 'Coiffure',
-      hairColor: 'Cheveux',
-      eyes: 'Yeux',
-      outfit: 'Tenue',
-      outfitColor: 'Couleur',
-    } satisfies Record<AvatarPart, string>,
-    options: {
-      skin: {
-        'skin-1': 'Peau très claire',
-        'skin-2': 'Peau claire',
-        'skin-3': 'Peau dorée',
-        'skin-4': 'Peau mate',
-        'skin-5': 'Peau brune',
-        'skin-6': 'Peau foncée',
-      },
-      hair: {
-        short: 'Cheveux courts',
-        curly: 'Cheveux bouclés',
-        long: 'Cheveux longs',
-        bun: 'Chignon',
-        braids: 'Tresses',
-        spiky: 'Cheveux en pétard',
-        pigtails: 'Couettes',
-        none: 'Sans cheveux',
-      },
-      hairColor: {
-        black: 'Cheveux noirs',
-        'dark-brown': 'Cheveux bruns',
-        brown: 'Cheveux châtains',
-        blond: 'Cheveux blonds',
-        red: 'Cheveux roux',
-        blue: 'Cheveux bleus',
-        pink: 'Cheveux roses',
-        gold: 'Cheveux dorés',
-      },
-      eyes: {
-        round: 'Yeux ronds',
-        happy: 'Yeux rieurs',
-        wink: 'Clin d’œil',
-        glasses: 'Lunettes',
-      },
-      outfit: {
-        tshirt: 'T-shirt',
-        hoodie: 'Sweat à capuche',
-        dress: 'Robe',
-        overalls: 'Salopette',
-        sport: 'Maillot de sport',
-        cape: 'Cape de héros',
-        astronaut: 'Combinaison d’astronaute',
-      },
-      outfitColor: {
-        red: 'Rouge',
-        blue: 'Bleu',
-        green: 'Vert',
-        yellow: 'Jaune',
-        purple: 'Violet',
-        orange: 'Orange',
-      },
-    } satisfies { [P in AvatarPart]: Record<(typeof AVATAR_PARTS)[P][number], string> },
-    lockedLabel: (option: string, badge: string) => `${option}, se gagne avec le badge ${badge}`,
-    locked: (option: string, badge: string) =>
-      `🔒 ${option}\u00a0: se débloque avec le badge «\u00a0${badge}\u00a0».`,
+    slots: {
+      aura: 'Aura',
+      frame: 'Cadre',
+      companion: 'Compagnon',
+      accessory: 'Accessoire',
+      head: 'Tête',
+      top: 'Haut',
+      bottom: 'Bas',
+      shoes: 'Chaussures',
+    } satisfies Record<CosmeticSlot, string>,
+    none: 'Aucun',
+    noneLabel: (slot: string) => `${slot}\u00a0: aucun`,
+    /** Names of the cosmetics that are not shop items (shop.items names the others). */
+    cosmetics: {
+      'aura-pink': 'Aura rose néon',
+      'aura-cyan': 'Aura cyan',
+      'aura-gold': 'Aura dorée',
+      'aura-green': 'Aura verte',
+      'aura-rainbow': 'Aura arc-en-ciel',
+      'frame-neon': 'Cadre néon',
+      'frame-stars': 'Cadre étoilé',
+      'frame-crown': 'Cadre couronne',
+      'frame-lightning': 'Cadre éclair',
+      'frame-gold': 'Cadre en or',
+      'pixel-robot': 'Robot pixel',
+      'glitch-cube': 'Petit Glitch',
+      'golden-mic': 'Micro doré',
+    } satisfies Record<EarnedCosmeticId, string>,
+    lockedLabel: (item: string) => `${item}, pas encore débloqué`,
+    lockedBadge: (item: string, badge: string) =>
+      `🔒 ${item}\u00a0: se débloque avec le badge «\u00a0${badge}\u00a0».`,
+    lockedShop: (item: string, price: number) =>
+      `🛍️ ${item}\u00a0: à acheter dans la boutique (${price}\u00a0💎).`,
     lock: '🔒',
     chosen: 'Choisi',
     themeLabel: (name: string, description: string) => `Thème ${name}. ${description}`,
@@ -884,7 +880,7 @@ export const fr = {
     notEnoughGems: 'Il manque des gemmes pour cet achat.',
     alreadyOwned: 'Cet objet est déjà acheté.',
     tooManyFreezes: 'Le stock de gels est déjà plein.',
-    avatarLocked: 'Cet objet rare se gagne avec un badge.',
+    avatarLocked: 'Cet objet n’est pas encore débloqué.',
     network: 'Pas de connexion. Vérifiez le réseau et réessayez.',
     unknown: 'Une erreur est survenue. Réessayez.',
   },

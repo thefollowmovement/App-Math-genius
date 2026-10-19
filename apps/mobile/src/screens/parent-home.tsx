@@ -1,6 +1,6 @@
 import { Button, Pressable, Screen, ThemedText, View } from '@math-genius/ui';
 
-import { ChildAvatar } from '@/components/avatar/child-avatar';
+import { ChildHero } from '@/components/hero/child-hero';
 import type { Child } from '@/data/children';
 import { type ChildDay, minutesOf } from '@/data/session-report';
 import { strings } from '@/i18n';
@@ -41,7 +41,7 @@ export function ParentHome({
             onPress={() => onOpenChild(child.id)}
             className="flex-row items-center gap-4 rounded-lg border border-border bg-surface p-4 active:opacity-80"
           >
-            <ChildAvatar child={child} size="sm" />
+            <ChildHero child={child} size="sm" />
             <View className="flex-1 gap-1">
               <ThemedText variant="headline">{child.display_name}</ThemedText>
               <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>

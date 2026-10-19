@@ -21,6 +21,11 @@ export function ThemeProvider({ theme, children }: PropsWithChildren<{ theme: Th
   );
 }
 
+/** The active theme, or null outside a ThemeProvider (for components that work without one). */
+export function useOptionalTheme(): Theme | null {
+  return useContext(ThemeContext);
+}
+
 /** Raw token values, for the few APIs that cannot take a class (status bar, navigation, Skia). */
 export function useTheme(): Theme {
   const theme = useContext(ThemeContext);

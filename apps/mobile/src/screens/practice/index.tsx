@@ -1,6 +1,8 @@
 import type { Exercise, ExerciseResponse, Island, Slot } from '@math-genius/exercise-engine';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
+import { useChildHero } from '@/components/hero/hero-context';
+import { HeroView } from '@/components/hero/hero-view';
 import { strings } from '@/i18n';
 
 import { EclairTimer } from './eclair-timer';
@@ -55,7 +57,7 @@ export function PracticeScreen({
     <Screen>
       <SessionHeader progress={progress} slot={slot} twin={twin} boss={boss} onPause={onPause} />
       {reminder && !feedback ? <Card title={t.reminder} text={exercise.hint} /> : null}
-      <ThemedText variant="title" accessibilityRole="header">
+      <ThemedText variant="statement" accessibilityRole="header">
         {exercise.prompt}
       </ThemedText>
       {slot === 'automatism' && !feedback ? <EclairTimer key={exercise.seed} /> : null}
@@ -89,11 +91,16 @@ export function PracticeScreen({
   );
 }
 
+/** A hint or a reminder, with the child's hero thinking it over. */
 function Card({ title, text }: { title: string; text: string }) {
+  const { hero } = useChildHero();
   return (
-    <View className="gap-1 rounded-lg border border-border bg-surface p-4">
-      <ThemedText variant="headline">{title}</ThemedText>
-      <ThemedText>{text}</ThemedText>
+    <View className="flex-row items-center gap-3">
+      <HeroView hero={hero} pose="think" size="sm" />
+      <View className="flex-1 gap-1 rounded-lg border border-border bg-surface p-4">
+        <ThemedText variant="headline">{title}</ThemedText>
+        <ThemedText>{text}</ThemedText>
+      </View>
     </View>
   );
 }

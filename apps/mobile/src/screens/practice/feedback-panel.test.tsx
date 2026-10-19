@@ -7,7 +7,7 @@ import { renderWithTheme } from '@/test-utils/render';
 import { FeedbackPanel } from './feedback-panel';
 
 const exercise = exerciseOfType('numeric');
-const { encourage } = strings.mascot;
+const { encourage } = strings.heroes;
 
 describe('FeedbackPanel', () => {
   it('has the mascot encourage the child after a mistake', async () => {

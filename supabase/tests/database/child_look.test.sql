@@ -1,8 +1,8 @@
--- The child's look (phase 6): theme and avatar, checked by the database. Run with
+-- The child's look (phase 6): theme, hero and cosmetics, checked by the database. Run with
 -- `pnpm supabase:test`.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(17);
+select plan(21);
 
 -- Alice's family (Léa and her device), Bob's family (Tom).
 insert into auth.users (id, aud, role, email, raw_user_meta_data, is_anonymous)
@@ -35,35 +35,52 @@ language sql as $$
     'sub', id, 'role', 'authenticated', 'is_anonymous', anonymous)::text, true);
 $$;
 
-create function pg_temp.look(theme text default 'manga', outfit text default 'hoodie')
+create function pg_temp.look(hero text default 'juno', wear jsonb default '{}')
 returns jsonb language sql as $$
-  select jsonb_build_object('skin', 'skin-3', 'hair', 'curly', 'hairColor', 'red',
-    'eyes', 'happy', 'outfit', outfit, 'outfitColor', 'green');
+  select jsonb_build_object('hero', hero, 'wear', wear);
 $$;
 
 create function pg_temp.lea() returns text
 language sql security definer as $$
-  select theme_id || ' ' || (avatar ->> 'outfit') from public.children
-  where id = '00000000-0000-4000-8000-0000000000c1';
+  select theme_id || ' ' || (avatar ->> 'hero') || ' ' || coalesce(avatar #>> '{wear,aura}', '-')
+  from public.children where id = '00000000-0000-4000-8000-0000000000c1';
 $$;
 
 -- Avatars ------------------------------------------------------------------------------------
 
-select ok(private.valid_avatar(pg_temp.look()), 'An avatar names one option of every part');
-select ok(not private.valid_avatar(pg_temp.look() - 'eyes'), 'none may be missing');
-select ok(not private.valid_avatar(pg_temp.look() || '{"hat": "top"}'), 'nor added');
-select ok(not private.valid_avatar(pg_temp.look() || '{"skin": "green"}'), 'nor unknown');
-select ok(not private.valid_avatar(pg_temp.look() || '{"skin": 3}'), 'nor of another type');
+select ok(private.valid_avatar(pg_temp.look()), 'An avatar names a hero');
+select ok(
+  private.valid_avatar(pg_temp.look(wear => '{"aura": "aura-pink", "frame": "frame-stars"}')),
+  'and a cosmetic in the slots it uses'
+);
+select ok(not private.valid_avatar(pg_temp.look(hero => 'pikachu')), 'An unknown hero is refused');
+select ok(not private.valid_avatar(pg_temp.look() - 'wear'), 'and so is an avatar without wear');
+select ok(not private.valid_avatar(pg_temp.look() || '{"skin": "skin-1"}'), 'or with another key');
+select ok(
+  not private.valid_avatar(pg_temp.look(wear => '{"frame": "aura-pink"}')),
+  'A cosmetic cannot go in another slot'
+);
+select ok(
+  not private.valid_avatar(pg_temp.look(wear => '{"aura": "aura-plasma"}')),
+  'nor can an unknown one'
+);
+select is(
+  private.default_avatar('boy'),
+  '{"hero": "kai", "wear": {"frame": "frame-neon"}}',
+  'Before choosing, a boy is Kai and a girl Nova, as in packages/shared/src/avatar.ts'
+);
 
 -- As Alice (the parent) -------------------------------------------------------------------------
 
 set local role authenticated;
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000a1');
-select lives_ok(
-  $$insert into public.children (family_id, display_name, gender, grade, theme_id)
-    select family_id, 'Noé', 'boy', 'CM1', 'space' from public.parents
-    where user_id = '00000000-0000-4000-8000-0000000000a1'$$,
-  'A parent adds a child with the theme of the profile, the avatar still to choose'
+insert into public.children (family_id, display_name, gender, grade)
+select family_id, 'Noé', 'boy', 'CM1' from public.parents
+where user_id = '00000000-0000-4000-8000-0000000000a1';
+select is(
+  (select theme_id || ' ' || avatar::text from public.children where display_name = 'Noé'),
+  'neon {}',
+  'A new child takes the Neon Stage theme, the hero still to choose'
 );
 select throws_ok(
   $$update public.children set theme_id = 'pirates'
@@ -71,7 +88,7 @@ select throws_ok(
   '23514', null, 'An unknown theme is refused'
 );
 select throws_ok(
-  $$update public.children set avatar = '{"skin": "skin-1"}'
+  $$update public.children set avatar = '{"hero": "nova"}'
     where id = '00000000-0000-4000-8000-0000000000c1'$$,
   '23514', null, 'and an incomplete avatar'
 );
@@ -81,34 +98,41 @@ select throws_ok(
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000d1', true);
 select lives_ok(
   $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'manga',
-    pg_temp.look())$$,
-  'Léa''s device sets her theme and avatar'
+    pg_temp.look('mika', '{"aura": "aura-pink"}'))$$,
+  'Léa''s device sets her theme, her hero and a free aura'
 );
-select is(pg_temp.lea(), 'manga hoodie', 'which are kept');
+select is(pg_temp.lea(), 'manga mika aura-pink', 'which are kept');
 select throws_ok(
   $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'manga',
-    pg_temp.look(outfit => 'cape'))$$,
-  'PT403', 'avatar_locked', 'The cape needs its badge (7 days of streak)'
+    pg_temp.look('mika', '{"aura": "aura-gold"}'))$$,
+  'PT403', 'avatar_locked', 'The golden aura needs its badge (7 days of streak)'
+);
+select throws_ok(
+  $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'manga',
+    pg_temp.look('mika', '{"companion": "kitten"}'))$$,
+  'PT403', 'avatar_locked', 'and the kitten must be bought first'
 );
 reset role;
 insert into public.child_badges (child_id, badge_code, earned_at)
 values ('00000000-0000-4000-8000-0000000000c1', 'streak-7', now());
+insert into public.child_items (child_id, item_code, bought_at)
+values ('00000000-0000-4000-8000-0000000000c1', 'kitten', now());
 set local role authenticated;
 select lives_ok(
-  $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'space',
-    pg_temp.look(outfit => 'cape'))$$,
-  'Once earned, Léa wears it'
+  $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'neon',
+    pg_temp.look('mika', '{"aura": "aura-gold", "companion": "kitten"}'))$$,
+  'Once the badge earned and the kitten bought, Léa wears both'
 );
-select is(pg_temp.lea(), 'space cape', 'in the space theme');
+select is(pg_temp.lea(), 'neon mika aura-gold', 'in the Neon Stage theme');
 select throws_ok(
   $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'pirates',
     pg_temp.look())$$,
   'PT400', 'invalid_theme', 'An unknown theme is refused'
 );
 select throws_ok(
-  $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'manga',
-    pg_temp.look() - 'skin')$$,
-  'PT400', 'invalid_avatar', 'and an incomplete avatar'
+  $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'neon',
+    pg_temp.look(hero => 'pikachu'))$$,
+  'PT400', 'invalid_avatar', 'and an unknown hero'
 );
 
 -- As Bob -------------------------------------------------------------------------------------------
@@ -119,7 +143,7 @@ select throws_ok(
     pg_temp.look())$$,
   'PT404', 'child_not_found', 'Bob cannot change Léa''s look'
 );
-select is(pg_temp.lea(), 'space cape', 'which stays as she chose');
+select is(pg_temp.lea(), 'neon mika aura-gold', 'which stays as she chose');
 
 select * from finish();
 rollback;

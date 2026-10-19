@@ -4,45 +4,54 @@ import { join } from 'node:path';
 import { DEFAULT_LOOKS } from '@math-genius/shared';
 import { THEME_IDS } from '@math-genius/ui';
 
-import { lookOf, pickOption, sameLook, withPart } from './look-model';
+import { lookOf, pickCosmetic, sameLook, withHero } from './look-model';
 
 const lea = { theme_id: 'space', avatar: {}, gender: 'girl' } as const;
+const nothing = { badges: new Set<string>(), owned: new Set<string>() };
 
 describe('look', () => {
   it('reads the stored theme and avatar, or the defaults of the profile', () => {
     expect(lookOf(lea)).toEqual({ theme: 'space', avatar: DEFAULT_LOOKS.girl.avatar });
-    const avatar = { ...DEFAULT_LOOKS.boy.avatar, hair: 'curly' };
+    const avatar = { hero: 'taro', wear: { companion: 'kitten' } };
     expect(lookOf({ theme_id: 'pirates', avatar, gender: 'boy' })).toEqual({
-      theme: 'kawaii',
+      theme: 'neon',
       avatar,
     });
   });
 
-  it('compares looks part by part', () => {
+  it('compares looks by theme, hero and slot', () => {
     const look = lookOf(lea);
-    expect(sameLook(look, { ...look, avatar: { ...look.avatar } })).toBe(true);
+    expect(
+      sameLook(look, { ...look, avatar: { ...look.avatar, wear: { ...look.avatar.wear } } }),
+    ).toBe(true);
     expect(sameLook(look, { ...look, theme: 'manga' })).toBe(false);
-    expect(sameLook(look, { ...look, avatar: { ...look.avatar, eyes: 'wink' } })).toBe(false);
+    expect(sameLook(look, withHero(look, 'leo'))).toBe(false);
+    expect(sameLook(look, { ...look, avatar: { ...look.avatar, wear: {} } })).toBe(false);
   });
 
-  it('changes one part at a time, with options that exist', () => {
-    const { avatar } = lookOf(lea);
-    expect(withPart(avatar, 'hair', 'bun')).toEqual({ ...avatar, hair: 'bun' });
-    expect(withPart(avatar, 'hair', 'mohawk')).toBeNull();
-  });
-
-  it('keeps rare options for the children who earned their badge', () => {
+  it('wears what is unlocked, and says what the rest waits for', () => {
     const look = lookOf(lea);
-    expect(pickOption(look, 'outfit', 'cape', new Set())).toEqual({
-      locked: { part: 'outfit', option: 'cape', badge: 'streak-7' },
+    expect(pickCosmetic(look, 'aura', 'aura-pink', nothing)).toEqual({
+      look: {
+        ...look,
+        avatar: { ...look.avatar, wear: { ...look.avatar.wear, aura: 'aura-pink' } },
+      },
     });
-    expect(pickOption(look, 'outfit', 'cape', new Set(['streak-7']))).toEqual({
-      look: { ...look, avatar: { ...look.avatar, outfit: 'cape' } },
+    expect(pickCosmetic(look, 'aura', 'aura-gold', nothing)).toEqual({
+      locked: { cosmetic: 'aura-gold', missing: { kind: 'badge', badge: 'streak-7' } },
     });
-    expect(pickOption(look, 'eyes', 'wink', new Set())).toEqual({
-      look: { ...look, avatar: { ...look.avatar, eyes: 'wink' } },
+    expect(pickCosmetic(look, 'companion', 'kitten', nothing)).toEqual({
+      locked: { cosmetic: 'kitten', missing: { kind: 'shop', item: 'kitten' } },
     });
-    expect(pickOption(look, 'eyes', 'laser', new Set())).toBeNull();
+    const bought = { ...nothing, owned: new Set(['kitten']) };
+    expect(pickCosmetic(look, 'companion', 'kitten', bought)).toMatchObject({
+      look: { avatar: { wear: { companion: 'kitten' } } },
+    });
+    // The slot can be emptied, and a cosmetic only goes in its own slot.
+    expect(pickCosmetic(look, 'frame', null, nothing)).toEqual({
+      look: { ...look, avatar: { ...look.avatar, wear: {} } },
+    });
+    expect(pickCosmetic(look, 'frame', 'aura-pink', nothing)).toBeNull();
   });
 
   it('only stores themes the database knows (latest private.theme_ids)', () => {

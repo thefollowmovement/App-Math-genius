@@ -76,7 +76,31 @@ function Stars({ colors: [planet, star] }: { colors: Colors }) {
   );
 }
 
-const DRAWINGS = { bubbles: Bubbles, 'speed-lines': SpeedLines, stars: Stars } as const;
+// Two stage spotlights falling from the corner, and sparkles in their light.
+function Spotlights({ colors: [beam, sparkleColor] }: { colors: Colors }) {
+  return (
+    <>
+      <Path d="M150 0 L58 160 L112 160 Z" fill={beam} fillOpacity={0.9} />
+      <Path d="M160 18 L132 160 L160 160 Z" fill={beam} fillOpacity={0.6} />
+      <Circle cx={152} cy={4} r={12} fill={beam} />
+      {[
+        [96, 112],
+        [128, 74],
+        [70, 150],
+      ].map(([x = 0, y = 0]) => (
+        <Path key={`${x}-${y}`} d={sparkle(x, y)} fill={sparkleColor} />
+      ))}
+      <Circle cx={112} cy={136} r={2} fill={sparkleColor} />
+    </>
+  );
+}
+
+const DRAWINGS = {
+  bubbles: Bubbles,
+  'speed-lines': SpeedLines,
+  stars: Stars,
+  spotlights: Spotlights,
+} as const;
 
 function Corner({ turned }: { turned: boolean }) {
   const { art } = useTheme();

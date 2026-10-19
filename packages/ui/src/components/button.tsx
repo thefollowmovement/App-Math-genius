@@ -2,9 +2,16 @@ import { cx } from '../class-names';
 import { ActivityIndicator, Pressable } from '../primitives';
 import { ThemedText } from './themed-text';
 
+// Filled buttons stand on the theme's relief: a solid shadow under them (none on flat themes).
+const RELIEF = 'border-b-(length:--theme-relief-depth) border-b-relief';
+
 const variantClassNames = {
-  primary: { container: 'bg-primary', label: 'text-on-primary', tone: 'onPrimary' },
-  secondary: { container: 'bg-secondary', label: 'text-on-secondary', tone: 'onSecondary' },
+  primary: { container: cx('bg-primary', RELIEF), label: 'text-on-primary', tone: 'onPrimary' },
+  secondary: {
+    container: cx('bg-secondary', RELIEF),
+    label: 'text-on-secondary',
+    tone: 'onSecondary',
+  },
   ghost: { container: 'bg-transparent', label: 'text-foreground', tone: 'default' },
   danger: {
     container: 'bg-transparent border border-danger',
