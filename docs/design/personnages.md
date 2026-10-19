@@ -21,7 +21,18 @@ Images de référence (concepts générés) : `docs/design/personnages/<prénom>
 - Boutons épais avec relief (ombre portée pleine), texte foncé sur couleur vive.
 - Maquettes de référence : canevas « Math Genius – Maquettes gaming » (accueil, séance, fin de séance avec coffre, carte du monde, choix de l'avatar).
 
+## Poses disponibles (fond transparent)
+Dossier `docs/design/personnages/poses/`, une image par héros et par situation : `<prénom>-<pose>.png`.
+
+| Pose | Fichier | Où l'utiliser |
+| --- | --- | --- |
+| Buste | `<prénom>-buste.png` (carré) | Avatar de l'accueil, fiche enfant côté parent, notifications |
+| Victoire | `<prénom>-victoire.png` | Fin de séance réussie, badge débloqué, boss vaincu |
+| Encouragement | `<prénom>-encouragement.png` | Après une erreur, rappel de séance, début de séance |
+| Réflexion | `<prénom>-reflexion.png` | Indices, coach IA, exercice difficile |
+
+Les images sont des concepts (1024 px) : les optimiser (WebP, plusieurs tailles) avant intégration dans l'app. L'enfant choisit son héros ; ce héros remplace la mascotte générique dans tous les écrans.
+
 ## À produire pour la phase 6
-- Pour chaque héros : buste (avatar d'accueil), pose victoire, pose encouragement, pose réflexion, cohérents entre eux.
 - Variantes de tenues pour la boutique.
 - Le boss « Le Glitch » et les monstres de calcul (cubes pixel, mignons, pas effrayants).
