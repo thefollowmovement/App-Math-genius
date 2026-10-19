@@ -16,6 +16,10 @@ describe('errorKind', () => {
     );
   });
 
+  it('recognizes a parent sending messages too fast', () => {
+    expect(errorKind({ code: 'PT429', message: 'too_many_messages' })).toBe('tooManyMessages');
+  });
+
   it('recognizes network failures and falls back to unknown', () => {
     expect(errorKind(new TypeError('Network request failed'))).toBe('network');
     expect(errorKind('boom')).toBe('unknown');

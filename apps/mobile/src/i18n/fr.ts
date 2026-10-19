@@ -45,6 +45,57 @@ export const fr = {
     addChild: 'Ajouter un enfant',
     childMode: 'Passer en mode enfant',
     signOut: 'Me déconnecter',
+    today: {
+      not_started: 'Pas encore de séance aujourd’hui',
+      in_progress: 'Séance en cours',
+      done: 'Séance du jour faite',
+      missed: 'Séance manquée aujourd’hui',
+      off: 'Pas de séance prévue aujourd’hui',
+      vacation: 'En vacances',
+    },
+    todayScore: (score: number, answered: number, minutes: number) =>
+      `${score}/${answered} · ${minutes}\u00a0min`,
+    startsAt: (time: string) => `prévue à ${time}`,
+    todayLine: (status: string, detail: string | null) =>
+      detail ? `${status} · ${detail}` : status,
+  },
+  todaySessions: {
+    title: 'Aujourd’hui',
+    empty: 'Aucune séance aujourd’hui pour l’instant.',
+    kinds: {
+      daily: 'Séance du jour',
+      bonus: 'Entraînement bonus',
+      placement: 'Test de départ',
+      boss: 'Défi de fin d’île',
+    },
+    states: {
+      in_progress: 'En cours',
+      validated: 'Validée',
+      not_validated: 'Terminée, non validée',
+    },
+    startedAt: (time: string) => `Commencée à ${time}`,
+    score: (score: number, answered: number) =>
+      answered === 0
+        ? 'Pas encore de réponse'
+        : `${score} bonne${score > 1 ? 's' : ''} réponse${score > 1 ? 's' : ''} sur ${answered}`,
+    duration: (minutes: number) => (minutes < 1 ? 'Moins d’1\u00a0min' : `${minutes}\u00a0min`),
+    summary: (scoreText: string, durationText: string) => `${scoreText} · ${durationText}`,
+    flagged: 'Beaucoup de réponses très rapides\u00a0: peut-être tapées au hasard.',
+    open: 'Voir les questions',
+  },
+  sessionDetail: {
+    title: 'Détail de la séance',
+    question: (position: number, skill: string) => `Question ${position} · ${skill}`,
+    answer: (text: string) => `Réponse\u00a0: ${text}`,
+    rightAnswer: (text: string) => `Bonne réponse\u00a0: ${text}`,
+    meta: (correct: boolean, seconds: number, hintUsed: boolean) =>
+      [
+        correct ? 'Juste' : 'Erreur',
+        `${seconds}\u00a0s`,
+        ...(hintUsed ? ['avec indice'] : []),
+      ].join(' · '),
+    unavailable: 'Cet exercice n’existe plus dans cette version de l’app.',
+    empty: 'Aucune réponse pour l’instant.',
   },
   childForm: {
     title: 'Ajouter un enfant',
@@ -78,6 +129,85 @@ export const fr = {
     noDevices: 'Aucun appareil relié pour l’instant.',
     pairedOn: (date: string) => `Relié depuis le ${date}`,
     revoke: 'Retirer',
+    push: {
+      enabled: 'Notifications activées.',
+      denied:
+        'Notifications refusées sur cet appareil\u00a0: autorisez-les dans les réglages du téléphone pour qu’il reçoive les rappels.',
+      unsupported:
+        'Cet appareil ne peut pas recevoir de notifications (navigateur, ou version de test de l’app comme Expo Go sur Android)\u00a0: rappels et messages ne lui parviennent pas.',
+      unknown: 'Notifications\u00a0: état pas encore connu, ouvrez l’app sur cet appareil.',
+    },
+  },
+  routine: {
+    title: 'Routine',
+    none: 'Pas encore de routine\u00a0: la séance dure 15\u00a0minutes et aucun rappel n’est envoyé.',
+    set: 'Régler la routine',
+    edit: 'Modifier la routine',
+    everyDay: 'Tous les jours',
+    weekdays: ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'],
+    shortWeekdays: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+    daysLine: (days: string) => `Séance\u00a0: ${days}`,
+    startLine: (time: string, others: string[]) => [`Début à ${time}`, ...others].join(', '),
+    wednesdayAt: (time: string) => `${time} le mercredi`,
+    weekendAt: (time: string) => `${time} le week-end`,
+    deadlineLine: (time: string) => `Heure limite\u00a0: ${time}`,
+    goalLine: (goal: string) => `Objectif\u00a0: ${goal}`,
+    goals: {
+      duration: (minutes: number) => `${minutes}\u00a0minutes`,
+      count: (count: number) => `${count}\u00a0exercices`,
+    },
+    vacationLine: (from: string, to: string) => `Vacances du ${from} au ${to}`,
+    form: {
+      days: 'Jours de séance',
+      startTime: 'Heure de début',
+      wednesday: 'Autre horaire le mercredi',
+      wednesdayStartTime: 'Début le mercredi',
+      weekend: 'Autre horaire le week-end',
+      weekendStartTime: 'Début le week-end',
+      deadlineTime: 'Heure limite',
+      deadlineHint: 'Au-delà, la séance du jour est comptée comme manquée.',
+      goal: 'Objectif de la séance',
+      submit: 'Enregistrer la routine',
+      saved: 'Routine enregistrée.',
+      errors: {
+        days: 'Choisissez au moins un jour.',
+        deadlineTime: 'L’heure limite doit venir après chaque heure de début.',
+      },
+    },
+    vacations: {
+      title: 'Vacances',
+      intro:
+        'Pendant les vacances, la routine est suspendue\u00a0: pas de séance prévue ni de rappel.',
+      empty: 'Aucune période de vacances prévue.',
+      from: 'Premier jour',
+      to: 'Dernier jour',
+      add: 'Ajouter ces vacances',
+      remove: 'Supprimer',
+      removeLabel: (period: string) => `Supprimer les vacances du ${period}`,
+      period: (from: string, to: string) => `Du ${from} au ${to}`,
+    },
+  },
+  nudge: {
+    title: (name: string) => `Envoyer un message à ${name}`,
+    intro: 'Il s’affiche sur son appareil, même app fermée.',
+    suggestions: [
+      'C’est l’heure de ta séance de maths\u00a0!',
+      'Tu fais ta mission du jour maintenant\u00a0?',
+      'Je compte sur toi pour ta séance.',
+    ],
+    message: 'Message',
+    send: 'Envoyer',
+    sent: 'Message envoyé.',
+    noDevice: (name: string) =>
+      `Message non reçu\u00a0: aucun appareil de ${name} ne reçoit les notifications (voir « Appareils reliés »).`,
+    unreachable: (name: string) =>
+      `Aucun appareil de ${name} ne reçoit les notifications pour l’instant\u00a0: les rappels et ce message ne lui parviendront pas.`,
+    errors: {
+      message: 'Écrivez un message (120 caractères maximum).',
+    },
+  },
+  notifications: {
+    channel: 'Rappels de séance',
   },
   pairDevice: {
     title: 'Relie ton appareil',
@@ -103,6 +233,10 @@ export const fr = {
     greeting: (name: string) => `Bonjour ${name}\u00a0!`,
     switchProfile: 'Changer de profil',
     ready: 'Ta mission du jour t’attend.',
+    readyGoal: (goal: string) => `Ta mission du jour t’attend\u00a0: ${goal}.`,
+    dayOff: 'Pas de séance prévue aujourd’hui. Tu peux t’entraîner quand même\u00a0!',
+    vacation: 'C’est les vacances\u00a0! Tu peux t’entraîner si tu en as envie.',
+    train: 'M’entraîner',
     start: 'Commencer ma séance',
     resume: (percent: number) => `Reprendre ma séance (${percent}\u00a0%)`,
     todayDone: 'Séance du jour terminée, bravo\u00a0!',
@@ -211,6 +345,8 @@ export const fr = {
     emailTaken: 'Un compte existe déjà avec cet email.',
     invalidPairingCode: 'Ce code ne marche pas. Vérifie-le ou demande un nouveau code.',
     deviceInOtherFamily: 'Cet appareil est déjà relié à une autre famille.',
+    tooManyMessages:
+      'Vous venez d’envoyer un message\u00a0: attendez 2\u00a0minutes avant le suivant.',
     network: 'Pas de connexion. Vérifiez le réseau et réessayez.',
     unknown: 'Une erreur est survenue. Réessayez.',
   },

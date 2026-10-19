@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
 
-export type PairedDevice = Pick<Tables<'devices'>, 'id' | 'platform'> & {
+/** Push status null: not reported yet (the app has not run on the device since pairing). */
+export type PairedDevice = Pick<Tables<'devices'>, 'id' | 'platform' | 'push_status'> & {
   /** When this device was linked to the child. */
   paired_at: string;
 };
@@ -29,7 +30,7 @@ export function useChildDevices(
     queryFn: async (): Promise<PairedDevice[]> => {
       const { data, error } = await supabase
         .from('device_children')
-        .select('created_at, device:devices(id, platform)')
+        .select('created_at, device:devices(id, platform, push_status)')
         .eq('child_id', childId ?? '')
         .order('created_at');
       if (error) throw error;

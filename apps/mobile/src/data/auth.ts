@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
 
+import { unregisterPushToken } from './push';
 import { queryClient } from './query-client';
 
 /** The database creates the family when the metadata carries the privacy consent. */
@@ -33,6 +34,8 @@ export function useParentSignIn() {
 export function useSignOut() {
   return useMutation({
     mutationFn: async () => {
+      // Best effort: offline, the token stays until Expo reports it gone or another user takes it.
+      await unregisterPushToken().catch(() => undefined);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       queryClient.clear();

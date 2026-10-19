@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
+import { useLiveSessions } from '@/data/family-sessions';
+import { usePushRegistration } from '@/data/push';
 import { useAccountKind, useSessionStore } from '@/data/session';
 import { useStackScreenOptions } from '@/hooks/use-stack-screen-options';
 import { strings } from '@/i18n';
@@ -9,6 +11,10 @@ export default function ParentLayout() {
   const ready = useSessionStore((state) => state.ready);
   const isParent = useAccountKind() === 'parent';
   const screenOptions = useStackScreenOptions();
+  // One Realtime subscription for every parent screen: sessions update as children play.
+  useLiveSessions(isParent);
+  // Alerts (session not started, missed, finished) reach the parent's phone.
+  usePushRegistration(isParent ? 'parent' : null);
 
   if (!ready) return <LoadingScreen />;
 
@@ -25,7 +31,9 @@ export default function ParentLayout() {
           }}
         />
         <Stack.Screen name="children/new" options={{ title: strings.childForm.title }} />
-        <Stack.Screen name="children/[id]" />
+        <Stack.Screen name="children/[id]/index" />
+        <Stack.Screen name="children/[id]/routine" options={{ title: strings.routine.title }} />
+        <Stack.Screen name="sessions/[id]" options={{ title: strings.sessionDetail.title }} />
       </Stack.Protected>
       <Stack.Protected guard={!isParent}>
         <Stack.Screen name="sign-in" options={{ title: strings.signIn.title }} />

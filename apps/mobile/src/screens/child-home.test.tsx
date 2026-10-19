@@ -16,19 +16,29 @@ const lea: Child = {
   theme_id: 'kawaii',
 };
 const t = strings.childHome;
+const goal = { type: 'duration', minutes: 15 } as const;
+const today = { plan: 'planned', goal } as const;
 
 describe('ChildHome', () => {
   it('starts, resumes or offers bonus training', async () => {
     const onStart = jest.fn();
     const user = userEvent.setup();
     const { rerender } = await renderWithTheme(
-      <ChildHome child={lea} practice={{ status: 'ready' }} sync="idle" onStart={onStart} />,
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'ready' }}
+        sync="idle"
+        onStart={onStart}
+      />,
     );
+    expect(screen.getByText(t.readyGoal(strings.routine.goals.duration(15)))).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: t.start }));
     expect(onStart).toHaveBeenCalledTimes(1);
 
     await rerender(
       <ChildHome
+        {...today}
         child={lea}
         practice={{ status: 'in-progress', percent: 40 }}
         sync="offline"
@@ -39,7 +49,13 @@ describe('ChildHome', () => {
     expect(screen.getByText(t.offline)).toBeOnTheScreen();
 
     await rerender(
-      <ChildHome child={lea} practice={{ status: 'done' }} sync="syncing" onStart={onStart} />,
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'done' }}
+        sync="syncing"
+        onStart={onStart}
+      />,
     );
     expect(screen.getByText(t.todayDone)).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: t.bonus })).toBeOnTheScreen();
@@ -49,6 +65,7 @@ describe('ChildHome', () => {
   it('says when the grade has no exercises yet', async () => {
     await renderWithTheme(
       <ChildHome
+        {...today}
         child={lea}
         practice={{ status: 'unavailable' }}
         sync="idle"
@@ -57,6 +74,33 @@ describe('ChildHome', () => {
     );
     expect(screen.getByText(t.notAvailable)).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: t.start })).toBeNull();
+  });
+
+  it('invites to train anyway on a day off or during holidays', async () => {
+    const { rerender } = await renderWithTheme(
+      <ChildHome
+        child={lea}
+        practice={{ status: 'ready' }}
+        plan="off"
+        goal={{ type: 'count', count: 20 }}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(t.dayOff)).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: t.train })).toBeOnTheScreen();
+
+    await rerender(
+      <ChildHome
+        child={lea}
+        practice={{ status: 'ready' }}
+        plan="vacation"
+        goal={goal}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(t.vacation)).toBeOnTheScreen();
   });
 });
 
