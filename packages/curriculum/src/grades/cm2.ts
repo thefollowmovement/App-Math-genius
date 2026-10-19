@@ -30,6 +30,7 @@ export const cm2Skills = defineGradeSkills('CM2', '2026', [
   {
     code: 'cm2.multiplier-diviser-10-100-1000',
     domain: 'numbers',
+    automatism: true,
     title: 'Multiplier et diviser par 10, 100 et 1 000',
     prerequisites: ['cm1.nombres-decimaux'],
   },
@@ -66,6 +67,7 @@ export const cm2Skills = defineGradeSkills('CM2', '2026', [
   {
     code: 'cm2.calcul-mental',
     domain: 'numbers',
+    automatism: true,
     title: 'Calculer mentalement avec des nombres décimaux',
     prerequisites: ['cm1.calcul-mental'],
   },

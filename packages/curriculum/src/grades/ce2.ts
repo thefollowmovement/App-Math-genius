@@ -24,12 +24,14 @@ export const ce2Skills = defineGradeSkills('CE2', '2025', [
   {
     code: 'ce2.complements',
     domain: 'numbers',
+    automatism: true,
     title: 'Trouver les compléments à la dizaine, à la centaine et à 1 000',
     prerequisites: [],
   },
   {
     code: 'ce2.calcul-mental-additif',
     domain: 'numbers',
+    automatism: true,
     title: 'Additionner et soustraire mentalement',
     prerequisites: ['ce2.complements'],
   },
@@ -48,18 +50,21 @@ export const ce2Skills = defineGradeSkills('CE2', '2025', [
   {
     code: 'ce2.doubles-moities',
     domain: 'numbers',
+    automatism: true,
     title: 'Connaître les doubles et les moitiés des nombres usuels',
     prerequisites: ['ce2.calcul-mental-additif'],
   },
   {
     code: 'ce2.tables-multiplication',
     domain: 'numbers',
+    automatism: true,
     title: 'Connaître les tables de multiplication de 2 à 10',
     prerequisites: ['ce2.doubles-moities'],
   },
   {
     code: 'ce2.multiplier-par-10-100',
     domain: 'numbers',
+    automatism: true,
     title: 'Multiplier un nombre entier par 10 ou par 100',
     prerequisites: ['ce2.nombres-jusqua-10000'],
   },

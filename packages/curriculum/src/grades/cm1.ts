@@ -48,6 +48,7 @@ export const cm1Skills = defineGradeSkills('CM1', '2025', [
   {
     code: 'cm1.calcul-mental',
     domain: 'numbers',
+    automatism: true,
     title: 'Calculer mentalement avec des stratégies et des faits numériques',
     prerequisites: ['ce2.calcul-mental-additif', 'ce2.tables-multiplication'],
   },

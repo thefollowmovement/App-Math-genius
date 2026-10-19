@@ -12,6 +12,8 @@ export type SkillDefinition = {
   title: string;
   /** Codes of the skills to master first (same or earlier grade). */
   prerequisites: readonly string[];
+  /** Mental calculation to make automatic: practised in timed rounds in every session. */
+  automatism?: boolean;
 };
 
 export type Skill = SkillDefinition & {

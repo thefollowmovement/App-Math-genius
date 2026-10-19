@@ -1,8 +1,7 @@
-import { GRADES, type Grade } from '@math-genius/shared';
+import { gradeRank as gradeIndex, type Grade } from '@math-genius/shared';
 
 import { DOMAINS, getSkill, isSkillCode, skills } from '.';
 
-const gradeIndex = (grade: Grade) => GRADES.indexOf(grade);
 const codePrefix: Partial<Record<Grade, string>> = {
   CE2: 'ce2.',
   CM1: 'cm1.',
@@ -62,4 +61,10 @@ describe('skill referential', () => {
       expect(new Set(gradeSkills.map((skill) => skill.domain))).toEqual(new Set(DOMAINS));
     },
   );
+
+  it('only marks calculation skills as automatisms, from CE2 on', () => {
+    const automatisms = skills.filter((skill) => 'automatism' in skill && skill.automatism);
+    expect(automatisms.map((skill) => skill.grade)).toContain('CE2');
+    expect(automatisms.every((skill) => skill.domain === 'numbers')).toBe(true);
+  });
 });
