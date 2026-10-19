@@ -36,7 +36,7 @@ export function Tile({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={{ disabled, selected: state === 'selected' }}
+      aria-selected={state === 'selected'}
       disabled={disabled}
       onPress={onPress}
       hitSlop={4}

@@ -124,7 +124,7 @@ Le cahier des charges complet est dans `docs/specs.md` : lis la section de la ph
 - Onboarding de l'enfant : la première fois qu'il ouvre son accueil sur un appareil, la route `child/intro` (`screens/hero-intro.tsx`, `hooks/use-hero-intro.ts`) montre « Choisis ton héros » (enregistré avant de continuer), puis le héros présente l'app en trois écrans et propose de le personnaliser. Le fait de l'avoir vue est gardé sur l'appareil (`introSeen` et `markIntroSeen` dans `practice-store.ts`).
 - Répliques du héros (`strings.heroes`) : il encourage après une erreur (`encourage`, choisi par la graine de l'exercice), réfléchit sur les indices et célèbre la fin de séance (`cheer`, ou `proud` quand la mission n'est pas validée : jamais de reproche). `HeroSays` montre une pose et une bulle, `SpeechBubble` la bulle seule.
 - Animations au-dessus d'un contenu qui change de taille (fin de séance) : Reanimated CSS (`css.keyframes`, sautées avec `useReducedMotion`), pas d'animation d'entrée (`entering`). Sur le web, Reanimated rejoue une animation d'entrée en position absolue quand le contenu en dessous change, et la vue recouvre le titre.
-- Accessibilité : `aria-checked` et `aria-selected` plutôt que `accessibilityState` (react-native-web ignore ce dernier).
+- Accessibilité : `aria-checked`, `aria-selected` et `aria-busy` plutôt que `accessibilityState` (react-native-web 0.21 ignore ce dernier). L'état désactivé vient de la prop `disabled` de `Pressable`, qui le transmet sur web (`aria-disabled`) comme sur natif : pas besoin d'`aria-disabled` en plus.
 
 ## Façon de travailler
 

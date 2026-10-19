@@ -49,7 +49,7 @@ export function FractionShadeInput({
                 key={part}
                 accessibilityRole="checkbox"
                 accessibilityLabel={t.shade.part(part + 1, shaded[part] ?? false)}
-                accessibilityState={{ checked: shaded[part], disabled: done }}
+                aria-checked={shaded[part] ?? false}
                 disabled={done}
                 onPress={() =>
                   setShaded((current) =>

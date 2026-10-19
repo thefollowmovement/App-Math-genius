@@ -58,7 +58,7 @@ export function NudgePanel({
           <Pressable
             key={suggestion}
             accessibilityRole="radio"
-            accessibilityState={{ selected: message === suggestion }}
+            aria-checked={message === suggestion}
             onPress={() => edit(suggestion)}
             className={
               message === suggestion

@@ -34,7 +34,7 @@ export function WeekdayPicker({ label, days, onChange, error }: WeekdayPickerPro
               key={day}
               accessibilityRole="checkbox"
               accessibilityLabel={t.weekdays[day - 1]}
-              accessibilityState={{ checked: on }}
+              aria-checked={on}
               onPress={() => toggle(day)}
               className={
                 on

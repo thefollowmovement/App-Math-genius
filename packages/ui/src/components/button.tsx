@@ -60,7 +60,7 @@ export function Button({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
-      accessibilityState={{ disabled: inactive, busy: loading }}
+      aria-busy={loading}
       disabled={inactive}
       onPress={onPress}
       testID={testID}

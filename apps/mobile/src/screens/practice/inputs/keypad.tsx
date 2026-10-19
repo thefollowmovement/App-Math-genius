@@ -46,7 +46,6 @@ export function Keypad({ onKey, onSubmit, canSubmit }: KeypadProps) {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={t.submit}
-              accessibilityState={{ disabled: !canSubmit }}
               disabled={!canSubmit}
               onPress={onSubmit}
               className={cx(
