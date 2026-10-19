@@ -42,10 +42,16 @@ language sql security definer as $$
 $$;
 select pg_temp.give_gems(100);
 
+-- What Léa wears: on her hero (companion, accessory) and at the end of sessions (effect).
 create function pg_temp.worn() returns text[]
 language sql security definer as $$
-  select coalesce(array_agg(item_code order by item_code), '{}') from public.child_items
-  where child_id = '00000000-0000-4000-8000-0000000000c1' and equipped;
+  select coalesce(array_agg(code order by code), '{}') from (
+    select item_code as code from public.child_items
+    where child_id = '00000000-0000-4000-8000-0000000000c1' and equipped
+    union all
+    select worn.value from public.children c, jsonb_each_text(c.avatar -> 'wear') worn
+    where c.id = '00000000-0000-4000-8000-0000000000c1' and worn.key in ('companion', 'accessory')
+  ) worn;
 $$;
 
 select ok(

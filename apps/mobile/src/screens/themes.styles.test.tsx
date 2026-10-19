@@ -1,5 +1,5 @@
 import { DEFAULT_LOOKS } from '@math-genius/shared';
-import { ThemedText, themes, type Theme } from '@math-genius/ui';
+import { Button, ThemedText, themes, type Theme } from '@math-genius/ui';
 import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
@@ -10,7 +10,7 @@ import { award, rewards } from '@/test-utils/rewards';
 
 import { ChildHome } from './child-home';
 import { LookEditor } from './look';
-import { MascotIntro } from './mascot-intro';
+import { HeroIntro } from './hero-intro';
 import { SessionSummary } from './session-summary';
 
 const globalCss = compileGlobalCss();
@@ -39,7 +39,8 @@ function foreignColors(tree: unknown, palette: string[]): string[] {
   );
 }
 
-const palette = (theme: Theme) => Object.values(theme.colors);
+// The interface's colors, and the buttons' relief.
+const palette = (theme: Theme) => [...Object.values(theme.colors), theme.relief.color];
 
 const childScreens: { name: string; render: () => ReactElement }[] = [
   {
@@ -60,8 +61,21 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
     ),
   },
   {
-    name: 'MascotIntro',
-    render: () => <MascotIntro childName="Léa" onMakeAvatar={jest.fn()} onLater={jest.fn()} />,
+    name: 'HeroIntro',
+    render: () => (
+      <HeroIntro
+        childName="Léa"
+        step={0}
+        hero="taro"
+        saving={false}
+        error={null}
+        onPickHero={jest.fn()}
+        onConfirmHero={jest.fn()}
+        onNext={jest.fn()}
+        onStart={jest.fn()}
+        onCustomize={jest.fn()}
+      />
+    ),
   },
   {
     name: 'SessionSummary',
@@ -105,11 +119,32 @@ describe.each(Object.values(themes))('theme $id with native styles', (theme) => 
     });
   });
 
-  it('keeps body text on the system font', async () => {
-    const { toJSON } = await renderWithTheme(<ThemedText>Bonjour</ThemedText>, theme);
-    const [text] = hostStyles(toJSON());
-    expect(text?.style.fontFamily).toBeUndefined();
-    expect(text?.style.color).toBe(theme.colors.foreground);
+  it('writes body texts in its body font, or the system font', async () => {
+    const texts = async (ui: ReactElement) =>
+      hostStyles((await renderWithTheme(ui, theme)).toJSON());
+    const [body] = await texts(<ThemedText>Bonjour</ThemedText>);
+    const [headline] = await texts(<ThemedText variant="headline">Bonjour</ThemedText>);
+    const font = theme.typography.bodyFont;
+    expect(body?.style.fontFamily).toBe(font?.regular);
+    // The semibold file, with the weight it holds.
+    expect(headline?.style.fontFamily).toBe(font?.semibold);
+    expect(String(headline?.style.fontWeight)).toBe('600');
+    // An exercise's statement: a title's size, never the arcade or comic font of titles.
+    const [statement] = await texts(<ThemedText variant="statement">Place 1/4</ThemedText>);
+    const [title] = await texts(<ThemedText variant="title">Place 1/4</ThemedText>);
+    expect(statement?.style.fontFamily).toBe(font?.semibold);
+    expect(String(statement?.style.fontWeight)).toBe('600');
+    expect(statement?.style.fontSize).toBe(title?.style.fontSize);
+    expect(body?.style.color).toBe(theme.colors.foreground);
+  });
+
+  it('gives filled buttons its relief', async () => {
+    const { toJSON } = await renderWithTheme(<Button title="Go" />, theme);
+    const [button] = hostStyles(toJSON());
+    expect(button?.style).toMatchObject({
+      borderBottomWidth: theme.relief.depth,
+      borderBottomColor: theme.relief.color,
+    });
   });
 
   it.each(childScreens)('draws $name in its colors only', async ({ render }) => {
@@ -126,9 +161,10 @@ describe.each(Object.values(themes))('theme $id with native styles', (theme) => 
     const { toJSON } = await renderWithTheme(
       <LookEditor
         look={look}
-        earned={new Set()}
+        unlocked={{ badges: new Set(), owned: new Set() }}
         hint={null}
-        onPart={jest.fn()}
+        onHero={jest.fn()}
+        onCosmetic={jest.fn()}
         changed={false}
         saving={false}
         error={null}

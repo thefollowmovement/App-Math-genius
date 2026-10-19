@@ -1,5 +1,5 @@
 import type { Theme } from '../types';
-import { themes } from '.';
+import { DEFAULT_THEME, THEME_IDS, themeOf, themes } from '.';
 
 // WCAG 2.x relative luminance and contrast ratio.
 function luminance(hex: string): number {
@@ -26,12 +26,19 @@ const readablePairs: [keyof Theme['colors'], keyof Theme['colors']][] = [
   ['onSuccess', 'success'],
 ];
 
+it('makes Neon Stage the default theme', () => {
+  expect(DEFAULT_THEME).toBe('neon');
+  expect(themeOf(undefined)).toBe(themes.neon);
+  expect(themeOf('a-theme-from-a-newer-app')).toBe(themes.neon);
+  expect(THEME_IDS[0]).toBe('neon');
+});
+
 describe.each(Object.values(themes))('theme $id', (theme) => {
-  it('uses 6-digit hex colors', () => {
-    const art = [...Object.values(theme.art.mascot), ...theme.art.decorColors];
-    for (const color of [...Object.values(theme.colors), ...art]) {
+  it('uses 6-digit hex colors, and #RRGGBBAA for its translucent relief', () => {
+    for (const color of [...Object.values(theme.colors), ...theme.art.decorColors]) {
       expect(color).toMatch(/^#[0-9A-F]{6}$/i);
     }
+    expect(theme.relief.color).toMatch(/^#[0-9A-F]{8}$/i);
   });
 
   it('is registered under its own id', () => {

@@ -1,11 +1,11 @@
 import { islandKey } from '@math-genius/exercise-engine';
 import type { Award, ShopItemCode } from '@math-genius/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
 
 import { parseMetrics, type BadgesData } from './badges-model';
-import { queryClient } from './query-client';
+import { queryClient, refetchAfterWrite } from './query-client';
 import {
   awardsFromResponse,
   parseAward,
@@ -165,7 +165,8 @@ export function useBuyItem(childId: string) {
       const { error } = await supabase.rpc('buy_item', { p_child_id: childId, p_item_code: code });
       if (error) throw error;
     },
-    onSuccess: () => client.invalidateQueries({ queryKey: ['rewards', childId] }),
+    // A companion or an accessory is worn by the hero: the child's avatar changes too.
+    onSuccess: () => wornChanged(client, childId),
   });
 }
 
@@ -181,9 +182,15 @@ export function useWearItem(childId: string) {
       });
       if (error) throw error;
     },
-    onSuccess: () => client.invalidateQueries({ queryKey: ['rewards', childId] }),
+    onSuccess: () => wornChanged(client, childId),
   });
 }
+
+const wornChanged = (client: QueryClient, childId: string) =>
+  Promise.all([
+    client.invalidateQueries({ queryKey: ['rewards', childId] }),
+    refetchAfterWrite(client, ['children']),
+  ]);
 
 /** Buys a streak freeze (FREEZE_PRICE gems, MAX_FREEZES at most). */
 export function useBuyFreeze(childId: string) {

@@ -1,0 +1,34 @@
+import type { HeroPose } from '@math-genius/shared';
+import { ThemedText, View, cx } from '@math-genius/ui';
+import type { ComponentProps } from 'react';
+
+import { useChildHero } from './hero-context';
+import { HeroView } from './hero-view';
+
+/** What the hero says, in a speech bubble. */
+export function SpeechBubble({ children, className }: { children: string; className?: string }) {
+  return (
+    <View className={cx('rounded-lg border border-border bg-surface px-4 py-3', className)}>
+      <ThemedText>{children}</ThemedText>
+    </View>
+  );
+}
+
+type HeroSaysProps = {
+  pose: Exclude<HeroPose, 'bust'>;
+  size?: ComponentProps<typeof HeroView>['size'];
+  children: string;
+  /** Layout only. */
+  className?: string;
+};
+
+/** The child's hero in a pose, and what it says. */
+export function HeroSays({ pose, size = 'sm', children, className }: HeroSaysProps) {
+  const { hero } = useChildHero();
+  return (
+    <View className={cx('flex-row items-center gap-3', className)}>
+      <HeroView hero={hero} pose={pose} size={size} />
+      <SpeechBubble className="flex-1">{children}</SpeechBubble>
+    </View>
+  );
+}

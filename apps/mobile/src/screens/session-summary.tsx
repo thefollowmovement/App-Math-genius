@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { Decor } from '@/components/decor';
-import { MascotSays } from '@/components/mascot/mascot-says';
+import { HeroSays } from '@/components/hero/hero-says';
 import type { SessionSummary as Summary } from '@/data/practice/summary';
 import type { AwardState } from '@/data/rewards-model';
 import { useThemeStrings } from '@/hooks/use-theme-strings';
@@ -44,15 +44,15 @@ export function SessionSummary({
   onHome,
 }: SessionSummaryProps) {
   const theme = useThemeStrings();
-  const { cheer, proud } = strings.mascot;
+  const { cheer, proud } = strings.heroes;
   const reduced = useReducedMotion();
   return (
     <Screen centered backdrop={<Decor />}>
       {effect ? <VictoryEffect icon={strings.shop.items[effect].icon} /> : null}
       <Animated.View style={reduced ? undefined : styles.pop}>
-        <MascotSays mood={summary.goalMet ? 'cheer' : 'comfort'} size="md">
+        <HeroSays pose={summary.goalMet ? 'victory' : 'encourage'} size="lg">
           {summary.goalMet ? (cheer[summary.correct % cheer.length] ?? cheer[0]) : proud}
-        </MascotSays>
+        </HeroSays>
       </Animated.View>
       <View className="gap-2">
         <ThemedText variant="display" className="text-center" accessibilityRole="header">

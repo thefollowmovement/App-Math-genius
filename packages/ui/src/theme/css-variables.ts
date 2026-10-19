@@ -22,6 +22,16 @@ export function themeToCssVariables(theme: Theme, platform: StylePlatform): CssV
 
   variables['--theme-font-heading'] = theme.typography.headingFont;
   variables['--theme-font-heading-weight'] = theme.typography.headingWeight;
+  // Read only by the classes ThemedText adds when the theme has a body font.
+  const { bodyFont } = theme.typography;
+  if (bodyFont) {
+    variables['--theme-font-body'] = bodyFont.regular;
+    variables['--theme-font-body-semibold'] = bodyFont.semibold;
+  }
+
+  variables['--theme-relief-depth'] =
+    platform === 'web' ? `${theme.relief.depth}px` : theme.relief.depth;
+  variables['--theme-relief-color'] = theme.relief.color;
 
   return variables;
 }

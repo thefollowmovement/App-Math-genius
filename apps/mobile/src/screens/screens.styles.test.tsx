@@ -1,5 +1,5 @@
 import { worldMap } from '@math-genius/exercise-engine';
-import { DEFAULT_LOOKS, DEFAULT_ROUTINE } from '@math-genius/shared';
+import { DEFAULT_ROUTINE } from '@math-genius/shared';
 import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
@@ -29,7 +29,7 @@ import { ChildDetail } from './child-detail';
 import { ChildForm } from './child-form';
 import { ChildHome } from './child-home';
 import { LookEditor } from './look';
-import { MascotIntro } from './mascot-intro';
+import { HeroIntro } from './hero-intro';
 import { PairDevice } from './pair-device';
 import { ParentHome } from './parent-home';
 import { PracticeScreen } from './practice';
@@ -60,6 +60,18 @@ const vacation: VacationRow = {
   from_date: '2026-10-17',
   to_date: '2026-11-01',
 };
+
+const introProps = {
+  childName: 'Léa',
+  hero: 'mika',
+  saving: false,
+  error: null,
+  onPickHero: jest.fn(),
+  onConfirmHero: jest.fn(),
+  onNext: jest.fn(),
+  onStart: jest.fn(),
+  onCustomize: jest.fn(),
+} as const;
 
 const screens: { name: string; render: () => ReactElement }[] = [
   {
@@ -190,18 +202,28 @@ const screens: { name: string; render: () => ReactElement }[] = [
     ),
   },
   {
-    name: 'MascotIntro',
-    render: () => <MascotIntro childName="Léa" onMakeAvatar={jest.fn()} onLater={jest.fn()} />,
+    name: 'HeroIntro (choose)',
+    render: () => <HeroIntro {...introProps} step={0} error="network" />,
+  },
+  {
+    name: 'HeroIntro (hero speaks)',
+    render: () => <HeroIntro {...introProps} step={3} />,
   },
   {
     name: 'LookEditor',
     render: () => (
       <LookEditor
-        look={{ theme: 'space', avatar: DEFAULT_LOOKS.boy.avatar }}
-        earned={new Set(['streak-7'])}
-        hint={{ part: 'hairColor', option: 'gold', badge: 'combo-10' }}
-        accessory="top-hat"
-        onPart={jest.fn()}
+        look={{
+          theme: 'space',
+          avatar: {
+            hero: 'juno',
+            wear: { aura: 'aura-gold', accessory: 'crown', companion: 'fox' },
+          },
+        }}
+        unlocked={{ badges: new Set(['streak-7']), owned: new Set(['crown', 'fox']) }}
+        hint={{ cosmetic: 'frame-gold', missing: { kind: 'badge', badge: 'boss-perfect' } }}
+        onHero={jest.fn()}
+        onCosmetic={jest.fn()}
         changed
         saving={false}
         error="avatarLocked"
@@ -227,7 +249,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
       <Shop
         gems={70}
         freezes={1}
-        groups={shopGroups([{ item_code: 'kitten', equipped: true }])}
+        groups={shopGroups([{ item_code: 'kitten', equipped: false }], { companion: 'kitten' })}
         pending={null}
         error="notEnoughGems"
         onBuyFreeze={jest.fn()}

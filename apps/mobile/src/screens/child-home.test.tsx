@@ -151,8 +151,8 @@ describe('SessionSummary', () => {
     );
     expect(screen.getByText(strings.summary.finished)).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.notValidated)).toBeOnTheScreen();
-    // The mascot comforts, never scolds.
-    expect(screen.getByText(strings.mascot.proud)).toBeOnTheScreen();
+    // The hero comforts, never scolds.
+    expect(screen.getByText(strings.heroes.proud)).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.score(15, 30))).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.savedOffline)).toBeOnTheScreen();
     expect(screen.getByText(strings.award.waiting)).toBeOnTheScreen();
@@ -278,7 +278,7 @@ describe('SessionSummary', () => {
           name: strings.themes[theme.id as keyof typeof themes].goalMet,
         }),
       ).toBeOnTheScreen();
-      const { cheer } = strings.mascot;
+      const { cheer } = strings.heroes;
       expect(screen.getByText(cheer[summary.correct % cheer.length] ?? '')).toBeOnTheScreen();
     }
   });
@@ -315,7 +315,7 @@ describe('ChildHome rewards', () => {
     await renderWithTheme(
       <ChildHome
         {...today}
-        child={lea}
+        child={{ ...lea, avatar: { hero: 'nova', wear: { companion: 'kitten' } } }}
         practice={{ status: 'ready' }}
         rewards={rewards([
           { id: 'chest-1', kind: 'common' },
@@ -345,11 +345,12 @@ describe('ChildHome rewards', () => {
     expect(onOpenChest).toHaveBeenCalledWith('chest-1');
     await user.press(screen.getByRole('button', { name: strings.badges.open(3) }));
     expect(onOpenBadges).toHaveBeenCalled();
-    // The kitten bought in the shop is worn; the bow is not.
+    // Léa's hero, Nova, with the kitten she wears.
     expect(
-      screen.getByLabelText(strings.shop.companionLabel(strings.shop.items.kitten.name)),
+      screen.getByRole('image', {
+        name: strings.heroes.portrait('Nova', [strings.shop.items.kitten.name]),
+      }),
     ).toBeOnTheScreen();
-    expect(screen.getByRole('image', { name: strings.look.avatar })).toBeOnTheScreen();
     // This week's challenge.
     expect(screen.getByText(strings.challenge.items['daily-5'])).toBeOnTheScreen();
     expect(screen.getByLabelText(strings.challenge.progressLabel(3, 5))).toBeOnTheScreen();

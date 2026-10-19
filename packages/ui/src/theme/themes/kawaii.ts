@@ -24,15 +24,9 @@ export const kawaii: Theme = {
     lg: 28,
   },
   typography: { headingFont: 'Fredoka_600SemiBold', headingWeight: '600' },
+  // Flat buttons.
+  relief: { depth: 0, color: '#00000000' },
   art: {
-    mascot: {
-      body: '#FFC6DC',
-      belly: '#FFF1F6',
-      accent: '#FF8FB8',
-      cheek: '#FF9EC2',
-      ink: '#46233A',
-    },
-    mascotStyle: 'ears',
     decor: 'bubbles',
     decorColors: ['#FFE0EC', '#DDF2FA'],
   },

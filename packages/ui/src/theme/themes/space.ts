@@ -24,15 +24,9 @@ export const space: Theme = {
     lg: 22,
   },
   typography: { headingFont: 'Orbitron_700Bold', headingWeight: '700' },
+  // Flat buttons.
+  relief: { depth: 0, color: '#00000000' },
   art: {
-    mascot: {
-      body: '#8E7CFF',
-      belly: '#D9D2FF',
-      accent: '#45D1C9',
-      cheek: '#FF9ECF',
-      ink: '#0B1026',
-    },
-    mascotStyle: 'antenna',
     decor: 'stars',
     decorColors: ['#2F3A73', '#FFE58A'],
   },

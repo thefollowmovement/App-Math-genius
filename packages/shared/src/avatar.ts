@@ -1,71 +1,37 @@
 import { z } from 'zod';
 
-import type { BadgeCode } from './badges';
+import {
+  COSMETICS,
+  COSMETIC_SLOTS,
+  cosmeticOf,
+  type CosmeticId,
+  type CosmeticSlot,
+} from './cosmetics';
+import { HERO_IDS, type HeroId } from './heroes';
 
 /**
- * The child's avatar: one choice per part, stored as JSON on the child (children.avatar) and
- * checked by the database (supabase/migrations/*_child_look.sql holds the same catalog:
- * avatar.test.ts compares them). Option codes are stored: never rename one. The app draws them
- * (apps/mobile/src/components/avatar).
+ * The child's avatar: the hero they picked and what it wears, one cosmetic per slot. Stored as
+ * JSON on the child (children.avatar) and checked by the database (*_neon_heroes.sql), which
+ * also checks that each cosmetic is unlocked. The hero's drawing never changes: cosmetics are
+ * drawn around it (or, later, as layers of its animation).
  */
-export const AVATAR_PARTS = {
-  skin: ['skin-1', 'skin-2', 'skin-3', 'skin-4', 'skin-5', 'skin-6'],
-  hair: ['short', 'curly', 'long', 'bun', 'braids', 'spiky', 'pigtails', 'none'],
-  hairColor: ['black', 'dark-brown', 'brown', 'blond', 'red', 'blue', 'pink', 'gold'],
-  eyes: ['round', 'happy', 'wink', 'glasses'],
-  outfit: ['tshirt', 'hoodie', 'dress', 'overalls', 'sport', 'cape', 'astronaut'],
-  outfitColor: ['red', 'blue', 'green', 'yellow', 'purple', 'orange'],
-} as const;
+export type Avatar = { hero: HeroId; wear: Partial<Record<CosmeticSlot, CosmeticId>> };
 
-export type AvatarPart = keyof typeof AVATAR_PARTS;
-export const AVATAR_PART_NAMES = Object.keys(AVATAR_PARTS) as AvatarPart[];
-export type Avatar = { [P in AvatarPart]: (typeof AVATAR_PARTS)[P][number] };
+const COSMETIC_IDS = COSMETICS.map((item) => item.id);
 
-/** Rare options, earned with a badge ("objets rares", docs/specs.md). */
-export const AVATAR_LOCKS = {
-  'outfit:cape': 'streak-7',
-  'outfit:astronaut': 'island-1',
-  'hairColor:gold': 'combo-10',
-} as const satisfies Record<string, BadgeCode>;
+export const avatarSchema = z
+  .object({
+    hero: z.enum(HERO_IDS),
+    wear: z.partialRecord(z.enum(COSMETIC_SLOTS), z.enum(COSMETIC_IDS)),
+  })
+  .strict()
+  // Each cosmetic in its own slot.
+  .refine(({ wear }) => Object.entries(wear).every(([slot, id]) => cosmeticOf(id)?.slot === slot));
 
-export function avatarLock(part: AvatarPart, option: string): BadgeCode | null {
-  const key = `${part}:${option}`;
-  return key in AVATAR_LOCKS ? AVATAR_LOCKS[key as keyof typeof AVATAR_LOCKS] : null;
-}
-
-export const avatarSchema = z.object({
-  skin: z.enum(AVATAR_PARTS.skin),
-  hair: z.enum(AVATAR_PARTS.hair),
-  hairColor: z.enum(AVATAR_PARTS.hairColor),
-  eyes: z.enum(AVATAR_PARTS.eyes),
-  outfit: z.enum(AVATAR_PARTS.outfit),
-  outfitColor: z.enum(AVATAR_PARTS.outfitColor),
-});
-
-/** The avatar and theme preselected from the profile (docs/specs.md): everything stays open. */
+/** The theme and hero preselected from the profile (docs/specs.md): everything stays open. */
 export const DEFAULT_LOOKS = {
-  girl: {
-    theme: 'kawaii',
-    avatar: {
-      skin: 'skin-2',
-      hair: 'long',
-      hairColor: 'brown',
-      eyes: 'round',
-      outfit: 'dress',
-      outfitColor: 'purple',
-    },
-  },
-  boy: {
-    theme: 'space',
-    avatar: {
-      skin: 'skin-2',
-      hair: 'short',
-      hairColor: 'brown',
-      eyes: 'round',
-      outfit: 'tshirt',
-      outfitColor: 'blue',
-    },
-  },
+  girl: { theme: 'neon', avatar: { hero: 'nova', wear: { frame: 'frame-neon' } } },
+  boy: { theme: 'neon', avatar: { hero: 'kai', wear: { frame: 'frame-neon' } } },
 } as const satisfies Record<'girl' | 'boy', { theme: string; avatar: Avatar }>;
 
 /** The stored avatar, or the default one when none was chosen yet ({}) or it is unreadable. */

@@ -22,7 +22,8 @@
     "supabase:test": "supabase test db",
     "supabase:types": "supabase gen types --lang typescript --local --schema public > packages/shared/src/database.types.ts && prettier --write packages/shared/src/database.types.ts",
     "curriculum:sql": "pnpm --filter @math-genius/curriculum sql",
-    "functions:bundle": "pnpm --filter @math-genius/exercise-engine bundle:server"
+    "functions:bundle": "pnpm --filter @math-genius/exercise-engine bundle:server",
+    "heroes:images": "python3 apps/mobile/scripts/hero-images.py"
   },
   "devDependencies": {
     "eslint": "^9.39.5",

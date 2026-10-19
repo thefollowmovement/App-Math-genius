@@ -3,13 +3,14 @@ import {
   SHOP_KINDS,
   awardSchema,
   isChallengeCode,
-  isShopItemCode,
   levelProgress,
+  type Avatar,
   type Award,
   type ChallengeCode,
   type ShopItem,
   type ShopKind,
   type Tables,
+  type Unlocked,
 } from '@math-genius/shared';
 
 /** Rewards as stored by the server and as the app shows them, without Supabase (testable). */
@@ -63,35 +64,41 @@ export type ShopItemView = ShopItem & { owned: boolean; worn: boolean };
 export type ShopGroup = { kind: ShopKind; items: ShopItemView[] };
 
 /** The shop's catalog by kind, with what the child owns and wears. */
-export function shopGroups(items: readonly ItemRow[]): ShopGroup[] {
+/**
+ * The shop by kind, with what the child owns and wears: companions and accessories on the hero
+ * (the avatar's `wear`), victory effects in the child's items.
+ */
+export function shopGroups(items: readonly ItemRow[], wear: Avatar['wear']): ShopGroup[] {
   const owned = new Map(items.map((item) => [item.item_code, item.equipped]));
   return SHOP_KINDS.map((kind) => ({
     kind,
     items: SHOP_ITEMS.filter((item) => item.kind === kind).map((item) => ({
       ...item,
       owned: owned.has(item.code),
-      worn: owned.get(item.code) === true,
+      worn: item.kind === 'effect' ? owned.get(item.code) === true : wear[item.kind] === item.code,
     })),
   }));
 }
 
-/** The item worn of each kind (items this version of the app does not know are left out). */
-/** The item worn of each kind. */
-export type WornItems = { [K in ShopKind]?: Extract<ShopItem, { kind: K }>['code'] };
+type EffectCode = Extract<ShopItem, { kind: 'effect' }>['code'];
 
-export function wornItems(items: readonly ItemRow[]): WornItems {
-  const worn: WornItems = {};
+/** The victory effect worn at the end of sessions (one this app does not know is left out). */
+export function wornEffect(items: readonly ItemRow[]): EffectCode | undefined {
   for (const { item_code: code, equipped } of items) {
-    const item = isShopItemCode(code)
-      ? SHOP_ITEMS.find((candidate) => candidate.code === code)
-      : null;
-    if (!equipped || !item) continue;
-    if (item.kind === 'companion') worn.companion = item.code;
-    else if (item.kind === 'accessory') worn.accessory = item.code;
-    else worn.effect = item.code;
+    const item = SHOP_ITEMS.find((candidate) => candidate.code === code);
+    if (equipped && item?.kind === 'effect') return item.code;
   }
-  return worn;
+  return undefined;
 }
+
+/** What unlocks cosmetics: the badges earned and the items bought. */
+export const unlockedOf = (
+  earned: readonly { badge_code: string }[],
+  items: readonly ItemRow[],
+): Unlocked => ({
+  badges: new Set(earned.map(({ badge_code }) => badge_code)),
+  owned: new Set(items.map(({ item_code }) => item_code)),
+});
 
 export const parseAward = (value: unknown): Award | null => {
   const parsed = awardSchema.safeParse(value);

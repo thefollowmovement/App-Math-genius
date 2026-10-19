@@ -1,6 +1,6 @@
 import '../global.css';
 
-import { ThemeProvider, themes, useTheme } from '@math-genius/ui';
+import { DEFAULT_THEME, ThemeProvider, themes, useTheme } from '@math-genius/ui';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { router, Stack, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -35,7 +35,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
-        <ThemeProvider theme={themes.kawaii}>
+        <ThemeProvider theme={themes[DEFAULT_THEME]}>
           <RootStack />
         </ThemeProvider>
       </PersistQueryClientProvider>

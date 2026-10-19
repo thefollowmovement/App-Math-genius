@@ -18,7 +18,7 @@ async function renderShop(gems: number, freezes = 1) {
     <Shop
       gems={gems}
       freezes={freezes}
-      groups={shopGroups(items)}
+      groups={shopGroups(items, { companion: 'kitten' })}
       pending={null}
       error={null}
       {...handlers}

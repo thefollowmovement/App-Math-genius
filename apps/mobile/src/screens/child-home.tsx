@@ -2,14 +2,15 @@ import type { SessionGoal } from '@math-genius/exercise-engine';
 import { avatarOf, type DayPlan } from '@math-genius/shared';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
-import { AvatarPicture } from '@/components/avatar';
 import { Decor } from '@/components/decor';
-import { MascotSays } from '@/components/mascot/mascot-says';
+import { HeroBust } from '@/components/hero/hero-bust';
+import { SpeechBubble } from '@/components/hero/hero-says';
 import type { Child } from '@/data/children';
 import type { ParentRewardView } from '@/data/parent-rewards-model';
 import type { PracticeStatus } from '@/data/practice/summary';
-import { wornItems, type Rewards, type WeeklyChallenge } from '@/data/rewards-model';
+import type { Rewards, WeeklyChallenge } from '@/data/rewards-model';
 import { strings } from '@/i18n';
+import { portraitLabel } from '@/i18n/cosmetic-names';
 import { goalText } from '@/utils/routine-text';
 
 import { ChildShortcuts, type Shortcut } from './child-shortcuts';
@@ -104,33 +105,16 @@ export function ChildHome({
     ] satisfies (Shortcut | undefined)[]
   ).filter((shortcut) => shortcut !== undefined);
   const [chest] = rewards?.chests ?? [];
-  const worn = wornItems(rewards?.items ?? []);
-  const companion = worn.companion ? strings.shop.items[worn.companion] : null;
-  const accessory = worn.accessory ? strings.shop.items[worn.accessory] : null;
+  const avatar = avatarOf(child.avatar, child.gender);
   return (
     <Screen centered backdrop={<Decor />}>
       {rewards ? <ProgressStrip progress={rewards.progress} /> : null}
       <View className="items-center gap-4">
-        <View className="flex-row items-end gap-2">
-          <AvatarPicture
-            avatar={avatarOf(child.avatar, child.gender)}
-            accessory={worn.accessory}
-            size="lg"
-            label={accessory ? strings.look.avatarWith(accessory.name) : strings.look.avatar}
-          />
-          {companion ? (
-            <ThemedText
-              variant="display"
-              accessibilityLabel={strings.shop.companionLabel(companion.name)}
-            >
-              {companion.icon}
-            </ThemedText>
-          ) : null}
-        </View>
+        <HeroBust avatar={avatar} size="xl" label={portraitLabel(avatar)} />
         <ThemedText variant="display" className="text-center">
           {t.greeting(child.display_name)}
         </ThemedText>
-        <MascotSays className="self-stretch">{message(practice, plan, goal)}</MascotSays>
+        <SpeechBubble className="self-stretch">{message(practice, plan, goal)}</SpeechBubble>
       </View>
       {chest && onOpenChest ? (
         <View className="gap-3 rounded-lg border border-primary bg-surface p-4">

@@ -24,15 +24,9 @@ export const manga: Theme = {
     lg: 10,
   },
   typography: { headingFont: 'Bangers_400Regular', headingWeight: '400' },
+  // Flat buttons.
+  relief: { depth: 0, color: '#00000000' },
   art: {
-    mascot: {
-      body: '#FF9F1C',
-      belly: '#FFF3D6',
-      accent: '#C1121F',
-      cheek: '#FF6B6B',
-      ink: '#141414',
-    },
-    mascotStyle: 'headband',
     decor: 'speed-lines',
     decorColors: ['#EDE8D8', '#FFE58A'],
   },

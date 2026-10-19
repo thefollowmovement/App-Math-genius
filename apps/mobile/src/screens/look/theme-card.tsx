@@ -25,7 +25,7 @@ export function ThemeCard({ id, chosen, onPress }: ThemeCardProps) {
     <ThemeProvider theme={themes[id]}>
       <Pressable
         accessibilityRole="radio"
-        accessibilityState={{ checked: chosen }}
+        aria-checked={chosen}
         accessibilityLabel={t.themeLabel(text.name, text.description)}
         onPress={onPress}
         className={cx(

@@ -6,7 +6,8 @@ import {
   parseOpenedChest,
   progressView,
   shopGroups,
-  wornItems,
+  unlockedOf,
+  wornEffect,
   parseWeeklyChallenge,
 } from './rewards-model';
 
@@ -60,8 +61,8 @@ describe('shop', () => {
     { item_code: 'from-the-future', equipped: true },
   ];
 
-  it('lists the catalog by kind with what the child owns and wears', () => {
-    const groups = shopGroups(items);
+  it('lists the catalog by kind with what the child owns, and what the hero wears', () => {
+    const groups = shopGroups(items, { companion: 'kitten' });
     expect(groups.map((group) => group.kind)).toEqual(['companion', 'accessory', 'effect']);
     const all = groups.flatMap((group) => group.items);
     expect(all.find((item) => item.code === 'kitten')).toMatchObject({ owned: true, worn: true });
@@ -69,9 +70,25 @@ describe('shop', () => {
     expect(all.find((item) => item.code === 'fox')).toMatchObject({ owned: false, worn: false });
   });
 
-  it('knows the item worn of each kind', () => {
-    expect(wornItems(items)).toEqual({ companion: 'kitten', accessory: 'crown' });
-    expect(wornItems([])).toEqual({});
+  it('reads companions and accessories worn on the hero, effects in the items', () => {
+    const all = shopGroups([...items, { item_code: 'confetti', equipped: true }], {
+      accessory: 'bow',
+    }).flatMap((group) => group.items);
+    // The crown is equipped in the old way: only the hero's wear counts.
+    expect(all.find((item) => item.code === 'crown')).toMatchObject({ owned: true, worn: false });
+    expect(all.find((item) => item.code === 'bow')).toMatchObject({ owned: true, worn: true });
+    expect(all.find((item) => item.code === 'confetti')).toMatchObject({ worn: true });
+  });
+
+  it('knows the victory effect worn', () => {
+    expect(wornEffect([...items, { item_code: 'sparkles', equipped: true }])).toBe('sparkles');
+    expect(wornEffect(items)).toBeUndefined();
+  });
+
+  it('unlocks cosmetics with the badges earned and the items bought', () => {
+    const unlocked = unlockedOf([{ badge_code: 'streak-7' }], items);
+    expect([...unlocked.badges]).toEqual(['streak-7']);
+    expect(unlocked.owned.has('bow')).toBe(true);
   });
 });
 
