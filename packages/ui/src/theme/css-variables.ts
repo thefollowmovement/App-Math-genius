@@ -20,5 +20,8 @@ export function themeToCssVariables(theme: Theme, platform: StylePlatform): CssV
     variables[`--theme-radius-${name}`] = platform === 'web' ? `${value}px` : value;
   }
 
+  variables['--theme-font-heading'] = theme.typography.headingFont;
+  variables['--theme-font-heading-weight'] = theme.typography.headingWeight;
+
   return variables;
 }

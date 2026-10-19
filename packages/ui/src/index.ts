@@ -1,5 +1,4 @@
 export { cx } from './class-names';
-export { Avatar } from './components/avatar';
 export { Button, type ButtonSize, type ButtonVariant } from './components/button';
 export { Screen } from './components/screen';
 export { TextField } from './components/text-field';

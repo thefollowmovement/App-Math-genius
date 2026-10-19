@@ -31,7 +31,7 @@ export function NextRewardCard({ reward }: { reward: ParentRewardView }) {
               accessibilityRole="progressbar"
               accessibilityLabel={t.child.progressLabel(reward.value, reward.target)}
               accessibilityValue={{ min: 0, max: reward.target, now: reward.value }}
-              className="h-2 flex-1 overflow-hidden rounded-full bg-background"
+              className="h-2 flex-1 overflow-hidden rounded-full border border-border bg-background"
             >
               <View
                 className="h-2 rounded-full bg-primary"

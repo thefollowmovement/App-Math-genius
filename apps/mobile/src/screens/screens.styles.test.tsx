@@ -1,5 +1,5 @@
 import { worldMap } from '@math-genius/exercise-engine';
-import { DEFAULT_ROUTINE } from '@math-genius/shared';
+import { DEFAULT_LOOKS, DEFAULT_ROUTINE } from '@math-genius/shared';
 import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
@@ -28,6 +28,8 @@ import { ChestOpening } from './chest-opening';
 import { ChildDetail } from './child-detail';
 import { ChildForm } from './child-form';
 import { ChildHome } from './child-home';
+import { LookEditor } from './look';
+import { MascotIntro } from './mascot-intro';
 import { PairDevice } from './pair-device';
 import { ParentHome } from './parent-home';
 import { PracticeScreen } from './practice';
@@ -49,6 +51,7 @@ const lea: Child = {
   grade: 'CE2',
   birth_year: null,
   theme_id: 'kawaii',
+  avatar: {},
 };
 const tom: Child = { ...lea, id: 'tom', display_name: 'Tom', gender: 'boy', grade: 'CM1' };
 const vacation: VacationRow = {
@@ -177,9 +180,33 @@ const screens: { name: string; render: () => ReactElement }[] = [
         nextReward={parentReward({ status: 'unlocked', value: 1, unlocked_at: '2026-10-18' })}
         onOpenChest={jest.fn()}
         onOpenBadges={jest.fn()}
+        onOpenMap={jest.fn()}
+        onOpenShop={jest.fn()}
+        onOpenLook={jest.fn()}
         sync="offline"
         onStart={jest.fn()}
         onSwitchProfile={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'MascotIntro',
+    render: () => <MascotIntro childName="Léa" onMakeAvatar={jest.fn()} onLater={jest.fn()} />,
+  },
+  {
+    name: 'LookEditor',
+    render: () => (
+      <LookEditor
+        look={{ theme: 'space', avatar: DEFAULT_LOOKS.boy.avatar }}
+        earned={new Set(['streak-7'])}
+        hint={{ part: 'hairColor', option: 'gold', badge: 'combo-10' }}
+        accessory="top-hat"
+        onPart={jest.fn()}
+        changed
+        saving={false}
+        error="avatarLocked"
+        onTheme={jest.fn()}
+        onSave={jest.fn()}
       />
     ),
   },

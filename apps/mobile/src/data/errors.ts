@@ -7,6 +7,7 @@ export type ErrorKind =
   | 'notEnoughGems'
   | 'alreadyOwned'
   | 'tooManyFreezes'
+  | 'avatarLocked'
   | 'network'
   | 'unknown';
 
@@ -28,6 +29,7 @@ export function errorKind(error: unknown): ErrorKind {
   if (text.includes('not_enough_gems')) return 'notEnoughGems';
   if (text.includes('already_owned')) return 'alreadyOwned';
   if (text.includes('too_many_freezes')) return 'tooManyFreezes';
+  if (text.includes('avatar_locked')) return 'avatarLocked';
   if (/network request failed|failed to fetch|fetch failed/i.test(text)) return 'network';
   return 'unknown';
 }

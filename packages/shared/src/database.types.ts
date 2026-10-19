@@ -1331,6 +1331,10 @@ export type Database = {
       };
       revoke_device: { Args: { p_device_id: string }; Returns: undefined };
       send_child_message: { Args: { p_child_id: string; p_message: string }; Returns: number };
+      set_child_look: {
+        Args: { p_avatar: Json; p_child_id: string; p_theme_id: string };
+        Returns: undefined;
+      };
       sync_session: {
         Args: { p_session: Json };
         Returns: {

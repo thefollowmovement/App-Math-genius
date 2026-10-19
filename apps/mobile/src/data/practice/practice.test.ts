@@ -5,6 +5,7 @@ import { playSession } from '@/test-utils/play-session';
 
 import {
   childPractice,
+  markIntroSeen,
   mergeMastery,
   openSession,
   pendingSessions,
@@ -117,6 +118,21 @@ describe('a session without network', () => {
     await AsyncStorage.setItem('math-genius.practice', saved ?? '');
     await usePracticeStore.persist.rehydrate();
     expect(childPractice(CHILD).active?.attempts).toHaveLength(5);
+  });
+
+  it('remembers who met the mascot, and starts empty on a device saved before', async () => {
+    usePracticeStore.setState({ introSeen: {} });
+    markIntroSeen(CHILD);
+    expect(usePracticeStore.getState().introSeen).toEqual({ [CHILD]: true });
+
+    // A device saved before the mascot existed shows its intro once.
+    await AsyncStorage.setItem(
+      'math-genius.practice',
+      JSON.stringify({ state: { children: {}, itemRatings: {} }, version: 1 }),
+    );
+    usePracticeStore.setState({ introSeen: {} });
+    await usePracticeStore.persist.rehydrate();
+    expect(usePracticeStore.getState().introSeen).toEqual({});
   });
 
   it('resumes the same session later that day, exactly where it stopped', () => {

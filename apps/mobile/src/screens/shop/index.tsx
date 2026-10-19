@@ -1,6 +1,7 @@
 import { FREEZE_PRICE, MAX_FREEZES, type ShopItemCode } from '@math-genius/shared';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
+import { Decor } from '@/components/decor';
 import type { ErrorKind } from '@/data/errors';
 import type { ShopGroup } from '@/data/rewards-model';
 import { strings } from '@/i18n';
@@ -33,7 +34,7 @@ export function Shop({
   onWear,
 }: ShopProps) {
   return (
-    <Screen>
+    <Screen backdrop={<Decor />}>
       <View className="gap-1">
         <ThemedText variant="title">{t.title}</ThemedText>
         <ThemedText variant="headline">{`${strings.rewards.gem} ${t.balance(gems)}`}</ThemedText>

@@ -29,7 +29,7 @@ export function ChallengeCard({ challenge }: { challenge: WeeklyChallenge }) {
               accessibilityRole="progressbar"
               accessibilityLabel={t.progressLabel(challenge.progress, challenge.threshold)}
               accessibilityValue={{ min: 0, max: challenge.threshold, now: challenge.progress }}
-              className="h-2 flex-1 overflow-hidden rounded-full bg-background"
+              className="h-2 flex-1 overflow-hidden rounded-full border border-border bg-background"
             >
               <View
                 className="h-2 rounded-full bg-primary"

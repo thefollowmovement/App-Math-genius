@@ -31,6 +31,8 @@ export const SHOP_ITEMS = [
 
 export type ShopItem = (typeof SHOP_ITEMS)[number];
 export type ShopItemCode = ShopItem['code'];
+/** What the avatar wears (apps/mobile/src/components/avatar draws each one). */
+export type AccessoryCode = Extract<ShopItem, { kind: 'accessory' }>['code'];
 
 const SHOP_CODES: ReadonlySet<string> = new Set(SHOP_ITEMS.map((item) => item.code));
 

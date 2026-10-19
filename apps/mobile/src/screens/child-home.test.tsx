@@ -1,3 +1,4 @@
+import { themes } from '@math-genius/ui';
 import { screen, userEvent } from '@testing-library/react-native';
 
 import type { Child } from '@/data/children';
@@ -15,6 +16,7 @@ const lea: Child = {
   grade: 'CM1',
   birth_year: null,
   theme_id: 'kawaii',
+  avatar: {},
 };
 const t = strings.childHome;
 const goal = { type: 'duration', minutes: 15 } as const;
@@ -61,6 +63,27 @@ describe('ChildHome', () => {
     expect(screen.getByText(t.todayDone)).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: t.bonus })).toBeOnTheScreen();
     expect(screen.getByText(t.syncing)).toBeOnTheScreen();
+  });
+
+  it('opens the map, the shop, the badges and the look editor', async () => {
+    const pages = { onOpenMap: jest.fn(), onOpenShop: jest.fn(), onOpenLook: jest.fn() };
+    const user = userEvent.setup();
+    await renderWithTheme(
+      <ChildHome
+        {...today}
+        {...pages}
+        child={lea}
+        practice={{ status: 'ready' }}
+        onOpenBadges={jest.fn()}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    await user.press(screen.getByRole('button', { name: strings.map.open }));
+    await user.press(screen.getByRole('button', { name: strings.shop.open }));
+    await user.press(screen.getByRole('button', { name: strings.look.open }));
+    expect(screen.getByRole('button', { name: strings.badges.open(0) })).toBeOnTheScreen();
+    for (const open of Object.values(pages)) expect(open).toHaveBeenCalledTimes(1);
   });
 
   it('says when the grade has no exercises yet', async () => {
@@ -128,6 +151,8 @@ describe('SessionSummary', () => {
     );
     expect(screen.getByText(strings.summary.finished)).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.notValidated)).toBeOnTheScreen();
+    // The mascot comforts, never scolds.
+    expect(screen.getByText(strings.mascot.proud)).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.score(15, 30))).toBeOnTheScreen();
     expect(screen.getByText(strings.summary.savedOffline)).toBeOnTheScreen();
     expect(screen.getByText(strings.award.waiting)).toBeOnTheScreen();
@@ -226,6 +251,38 @@ describe('SessionSummary', () => {
     expect(screen.getByText(strings.award.bossLost(8))).toBeOnTheScreen();
   });
 
+  it('celebrates a mission in the words of the theme', async () => {
+    const summary = {
+      kind: 'daily' as const,
+      goalMet: true,
+      answered: 10,
+      correct: 9,
+      minutes: 15,
+      progressed: [],
+    };
+    for (const theme of Object.values(themes)) {
+      await renderWithTheme(
+        <SessionSummary
+          summary={summary}
+          saved
+          award={{ status: 'computing' }}
+          onOpenChest={jest.fn()}
+          onOpenBadges={jest.fn()}
+          onBonus={jest.fn()}
+          onHome={jest.fn()}
+        />,
+        theme,
+      );
+      expect(
+        screen.getByRole('header', {
+          name: strings.themes[theme.id as keyof typeof themes].goalMet,
+        }),
+      ).toBeOnTheScreen();
+      const { cheer } = strings.mascot;
+      expect(screen.getByText(cheer[summary.correct % cheer.length] ?? '')).toBeOnTheScreen();
+    }
+  });
+
   it('waits for the server while the rewards are computed', async () => {
     const summary = {
       kind: 'daily' as const,
@@ -292,7 +349,7 @@ describe('ChildHome rewards', () => {
     expect(
       screen.getByLabelText(strings.shop.companionLabel(strings.shop.items.kitten.name)),
     ).toBeOnTheScreen();
-    expect(screen.queryByLabelText(/Ton accessoire/)).toBeNull();
+    expect(screen.getByRole('image', { name: strings.look.avatar })).toBeOnTheScreen();
     // This week's challenge.
     expect(screen.getByText(strings.challenge.items['daily-5'])).toBeOnTheScreen();
     expect(screen.getByLabelText(strings.challenge.progressLabel(3, 5))).toBeOnTheScreen();

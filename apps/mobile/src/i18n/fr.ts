@@ -1,4 +1,11 @@
-import type { BadgeCode, ChallengeCode, ShopItemCode } from '@math-genius/shared';
+import type {
+  AVATAR_PARTS,
+  AvatarPart,
+  BadgeCode,
+  ChallengeCode,
+  ShopItemCode,
+} from '@math-genius/shared';
+import type { ThemeId } from '@math-genius/ui';
 
 export const fr = {
   common: {
@@ -246,6 +253,7 @@ export const fr = {
     notAvailable: 'Les exercices de ta classe arrivent bientôt.',
     offline: 'Pas de réseau\u00a0: tes réponses restent sur l’appareil et partiront plus tard.',
     syncing: 'Envoi de tes réponses…',
+    shortcutIcons: { map: '🗺️', shop: '🛍️', badges: '🏅', look: '🎨' },
   },
   practice: {
     pause: 'Pause',
@@ -309,7 +317,7 @@ export const fr = {
     },
   },
   summary: {
-    goalMet: 'Mission accomplie\u00a0!',
+    // A validated mission takes the theme's line (themes.*.goalMet).
     bossOver: 'Combat terminé\u00a0!',
     finished: 'Séance terminée, merci pour tes efforts\u00a0!',
     notValidated:
@@ -477,7 +485,6 @@ export const fr = {
     worn: 'Porté',
     wearLabel: (name: string) => `Porter ${name}`,
     companionLabel: (name: string) => `Ton compagnon\u00a0: ${name}`,
-    accessoryLabel: (name: string) => `Ton accessoire\u00a0: ${name}`,
     takeOffLabel: (name: string) => `Retirer ${name}`,
     /** One per code of packages/shared/src/shop.ts. */
     items: {
@@ -711,6 +718,142 @@ export const fr = {
       },
     } satisfies Record<BadgeCode, { icon: string; title: string; description: string }>,
   },
+  /** The mascot (components/mascot). Its name is a placeholder, still to be chosen. */
+  mascot: {
+    name: 'Mimo',
+    encourage: [
+      'Pas grave\u00a0! C’est en se trompant qu’on apprend.',
+      'Regarde bien la correction, la prochaine est pour toi\u00a0!',
+      'Courage, tu progresses à chaque essai\u00a0!',
+      'Tout le monde se trompe. On continue ensemble\u00a0?',
+    ],
+    cheer: [
+      'Super séance aujourd’hui\u00a0!',
+      'Quelle mission\u00a0! Tu m’impressionnes.',
+      'Bravo, ton cerveau a bien travaillé\u00a0!',
+    ],
+    proud: 'Tu as bien travaillé. On réessaie demain\u00a0?',
+  },
+  intro: {
+    progress: (step: number, count: number) => `Étape ${step} sur ${count}`,
+    steps: [
+      {
+        title: (name: string) => `Salut ${name}\u00a0!`,
+        text: (mascot: string) =>
+          `Moi, c’est ${mascot}. Je vais t’accompagner dans tes aventures de maths.`,
+      },
+      {
+        title: () => 'Une mission par jour',
+        text: () =>
+          'Chaque jour, quelques minutes d’exercices, à ton rythme. Se tromper, c’est comme ça qu’on apprend\u00a0!',
+      },
+      {
+        title: () => 'Des trésors à gagner',
+        text: () =>
+          'Gagne des gemmes et des badges, et explore les îles de la carte du monde. Pour commencer, crée ton avatar\u00a0!',
+      },
+    ],
+    next: 'Suivant',
+    makeAvatar: 'Créer mon avatar',
+    later: 'Plus tard',
+  },
+  /** One per theme of packages/ui/src/theme/themes. */
+  themes: {
+    kawaii: {
+      icon: '🌸',
+      name: 'Kawaii',
+      description: 'Des couleurs douces, des formes rondes et de petits animaux.',
+      goalMet: 'Youpi, mission accomplie\u00a0!',
+    },
+    manga: {
+      icon: '⚡',
+      name: 'Manga',
+      description: 'Des couleurs vives, des effets de vitesse et des onomatopées.',
+      goalMet: 'BOUM\u00a0! Mission accomplie\u00a0!',
+    },
+    space: {
+      icon: '🚀',
+      name: 'Espace',
+      description: 'Le bleu de la nuit, des planètes et des étoiles.',
+      goalMet: 'Mission réussie, astronaute\u00a0!',
+    },
+  } satisfies Record<ThemeId, { icon: string; name: string; description: string; goalMet: string }>,
+  look: {
+    title: 'Personnaliser',
+    open: 'Personnaliser',
+    intro: 'Change ton avatar et ton thème\u00a0: tu vois le résultat avant de l’enregistrer.',
+    avatar: 'Ton avatar',
+    avatarWith: (accessory: string) => `Ton avatar, avec ${accessory}`,
+    themes: 'Ton thème',
+    parts: {
+      skin: 'Peau',
+      hair: 'Coiffure',
+      hairColor: 'Cheveux',
+      eyes: 'Yeux',
+      outfit: 'Tenue',
+      outfitColor: 'Couleur',
+    } satisfies Record<AvatarPart, string>,
+    options: {
+      skin: {
+        'skin-1': 'Peau très claire',
+        'skin-2': 'Peau claire',
+        'skin-3': 'Peau dorée',
+        'skin-4': 'Peau mate',
+        'skin-5': 'Peau brune',
+        'skin-6': 'Peau foncée',
+      },
+      hair: {
+        short: 'Cheveux courts',
+        curly: 'Cheveux bouclés',
+        long: 'Cheveux longs',
+        bun: 'Chignon',
+        braids: 'Tresses',
+        spiky: 'Cheveux en pétard',
+        pigtails: 'Couettes',
+        none: 'Sans cheveux',
+      },
+      hairColor: {
+        black: 'Cheveux noirs',
+        'dark-brown': 'Cheveux bruns',
+        brown: 'Cheveux châtains',
+        blond: 'Cheveux blonds',
+        red: 'Cheveux roux',
+        blue: 'Cheveux bleus',
+        pink: 'Cheveux roses',
+        gold: 'Cheveux dorés',
+      },
+      eyes: {
+        round: 'Yeux ronds',
+        happy: 'Yeux rieurs',
+        wink: 'Clin d’œil',
+        glasses: 'Lunettes',
+      },
+      outfit: {
+        tshirt: 'T-shirt',
+        hoodie: 'Sweat à capuche',
+        dress: 'Robe',
+        overalls: 'Salopette',
+        sport: 'Maillot de sport',
+        cape: 'Cape de héros',
+        astronaut: 'Combinaison d’astronaute',
+      },
+      outfitColor: {
+        red: 'Rouge',
+        blue: 'Bleu',
+        green: 'Vert',
+        yellow: 'Jaune',
+        purple: 'Violet',
+        orange: 'Orange',
+      },
+    } satisfies { [P in AvatarPart]: Record<(typeof AVATAR_PARTS)[P][number], string> },
+    lockedLabel: (option: string, badge: string) => `${option}, se gagne avec le badge ${badge}`,
+    locked: (option: string, badge: string) =>
+      `🔒 ${option}\u00a0: se débloque avec le badge «\u00a0${badge}\u00a0».`,
+    lock: '🔒',
+    chosen: 'Choisi',
+    themeLabel: (name: string, description: string) => `Thème ${name}. ${description}`,
+    save: 'Enregistrer',
+  },
   genders: {
     girl: 'Fille',
     boy: 'Garçon',
@@ -741,6 +884,7 @@ export const fr = {
     notEnoughGems: 'Il manque des gemmes pour cet achat.',
     alreadyOwned: 'Cet objet est déjà acheté.',
     tooManyFreezes: 'Le stock de gels est déjà plein.',
+    avatarLocked: 'Cet objet rare se gagne avec un badge.',
     network: 'Pas de connexion. Vérifiez le réseau et réessayez.',
     unknown: 'Une erreur est survenue. Réessayez.',
   },

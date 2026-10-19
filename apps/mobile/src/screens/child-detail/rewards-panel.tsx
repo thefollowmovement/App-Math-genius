@@ -76,7 +76,7 @@ export function RewardsPanel({
           <ThemedText variant="caption">{t.goalText[reward.goal](reward.target)}</ThemedText>
           {reward.status === 'locked' ? (
             <View className="flex-row items-center gap-2">
-              <View className="h-2 flex-1 overflow-hidden rounded-full bg-background">
+              <View className="h-2 flex-1 overflow-hidden rounded-full border border-border bg-background">
                 <View
                   className="h-2 rounded-full bg-primary"
                   style={{ width: `${levelPercent(reward.value, reward.target)}%` }}

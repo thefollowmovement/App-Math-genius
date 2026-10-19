@@ -1,7 +1,10 @@
 import type { SessionGoal } from '@math-genius/exercise-engine';
-import type { DayPlan } from '@math-genius/shared';
-import { Avatar, Button, Screen, ThemedText, View } from '@math-genius/ui';
+import { avatarOf, type DayPlan } from '@math-genius/shared';
+import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
+import { AvatarPicture } from '@/components/avatar';
+import { Decor } from '@/components/decor';
+import { MascotSays } from '@/components/mascot/mascot-says';
 import type { Child } from '@/data/children';
 import type { ParentRewardView } from '@/data/parent-rewards-model';
 import type { PracticeStatus } from '@/data/practice/summary';
@@ -9,6 +12,7 @@ import { wornItems, type Rewards, type WeeklyChallenge } from '@/data/rewards-mo
 import { strings } from '@/i18n';
 import { goalText } from '@/utils/routine-text';
 
+import { ChildShortcuts, type Shortcut } from './child-shortcuts';
 import { ChallengeCard } from './rewards/challenge-card';
 import { NextRewardCard } from './rewards/next-reward-card';
 import { ProgressStrip } from './rewards/progress-strip';
@@ -34,6 +38,7 @@ type ChildHomeProps = {
   onOpenBadges?: () => void;
   onOpenMap?: () => void;
   onOpenShop?: () => void;
+  onOpenLook?: () => void;
   sync: SyncState;
   onStart: () => void;
   /** Shown when the device holds several profiles or a parent is signed in. */
@@ -69,31 +74,50 @@ export function ChildHome({
   onOpenBadges,
   onOpenMap,
   onOpenShop,
+  onOpenLook,
   sync,
   onStart,
   onSwitchProfile,
 }: ChildHomeProps) {
+  const icons = t.shortcutIcons;
+  const shortcuts = (
+    [
+      onOpenMap && { key: 'map', icon: icons.map, label: strings.map.open, onPress: onOpenMap },
+      onOpenShop && {
+        key: 'shop',
+        icon: icons.shop,
+        label: strings.shop.open,
+        onPress: onOpenShop,
+      },
+      onOpenBadges && {
+        key: 'badges',
+        icon: icons.badges,
+        label: strings.badges.open(rewards?.badges ?? 0),
+        onPress: onOpenBadges,
+      },
+      onOpenLook && {
+        key: 'look',
+        icon: icons.look,
+        label: strings.look.open,
+        onPress: onOpenLook,
+      },
+    ] satisfies (Shortcut | undefined)[]
+  ).filter((shortcut) => shortcut !== undefined);
   const [chest] = rewards?.chests ?? [];
   const worn = wornItems(rewards?.items ?? []);
   const companion = worn.companion ? strings.shop.items[worn.companion] : null;
   const accessory = worn.accessory ? strings.shop.items[worn.accessory] : null;
   return (
-    <Screen centered>
+    <Screen centered backdrop={<Decor />}>
       {rewards ? <ProgressStrip progress={rewards.progress} /> : null}
       <View className="items-center gap-4">
         <View className="flex-row items-end gap-2">
-          <View>
-            <Avatar name={child.display_name} size="lg" />
-            {accessory ? (
-              <ThemedText
-                variant="title"
-                className="absolute -right-2 -top-2"
-                accessibilityLabel={strings.shop.accessoryLabel(accessory.name)}
-              >
-                {accessory.icon}
-              </ThemedText>
-            ) : null}
-          </View>
+          <AvatarPicture
+            avatar={avatarOf(child.avatar, child.gender)}
+            accessory={worn.accessory}
+            size="lg"
+            label={accessory ? strings.look.avatarWith(accessory.name) : strings.look.avatar}
+          />
           {companion ? (
             <ThemedText
               variant="display"
@@ -106,7 +130,7 @@ export function ChildHome({
         <ThemedText variant="display" className="text-center">
           {t.greeting(child.display_name)}
         </ThemedText>
-        <ThemedText className="text-center">{message(practice, plan, goal)}</ThemedText>
+        <MascotSays className="self-stretch">{message(practice, plan, goal)}</MascotSays>
       </View>
       {chest && onOpenChest ? (
         <View className="gap-3 rounded-lg border border-primary bg-surface p-4">
@@ -130,17 +154,7 @@ export function ChildHome({
       )}
       {nextReward ? <NextRewardCard reward={nextReward} /> : null}
       {challenge ? <ChallengeCard challenge={challenge} /> : null}
-      {onOpenMap ? <Button variant="ghost" title={strings.map.open} onPress={onOpenMap} /> : null}
-      {onOpenShop ? (
-        <Button variant="ghost" title={strings.shop.open} onPress={onOpenShop} />
-      ) : null}
-      {onOpenBadges ? (
-        <Button
-          variant="ghost"
-          title={strings.badges.open(rewards?.badges ?? 0)}
-          onPress={onOpenBadges}
-        />
-      ) : null}
+      {shortcuts.length > 0 ? <ChildShortcuts shortcuts={shortcuts} /> : null}
       {sync === 'idle' ? null : (
         <ThemedText variant="caption" className="text-center" accessibilityLiveRegion="polite">
           {sync === 'offline' ? t.offline : t.syncing}

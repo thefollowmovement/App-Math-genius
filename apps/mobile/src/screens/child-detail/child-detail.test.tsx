@@ -24,6 +24,7 @@ const lea: Child = {
   grade: 'CE2',
   birth_year: null,
   theme_id: 'kawaii',
+  avatar: {},
 };
 
 function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {

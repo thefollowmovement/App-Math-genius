@@ -18,6 +18,7 @@ const lea = {
   grade: 'CM1',
   birth_year: null,
   theme_id: 'kawaii',
+  avatar: {},
 } as const;
 
 beforeEach(() => usePracticeStore.setState({ children: {}, itemRatings: {} }));

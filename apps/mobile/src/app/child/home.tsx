@@ -24,6 +24,7 @@ export default function ChildHomeRoute() {
   const child = useChild(id);
   const practice = usePracticeStore((state) => state.children[id]);
   const unsent = usePracticeStore((state) => hasUnsentAnswers(state.children[id]));
+  const introSeen = usePracticeStore((state) => state.introSeen[id] === true);
   const online = useIsOnline();
   const start = useStartSession(child.data);
   const routines = useRoutines();
@@ -36,6 +37,8 @@ export default function ChildHomeRoute() {
 
   if (child.isPending) return <LoadingScreen />;
   if (!child.data) return <Redirect href="/child" />;
+  // The first time on this device, the mascot introduces itself.
+  if (!introSeen) return <Redirect href={{ pathname: '/child/intro', params: { id } }} />;
 
   const profileCount = child.allProfiles.length;
 
@@ -57,6 +60,7 @@ export default function ChildHomeRoute() {
       onOpenBadges={() => router.push({ pathname: '/child/badges', params: { id } })}
       onOpenMap={() => router.push({ pathname: '/child/map', params: { id } })}
       onOpenShop={() => router.push({ pathname: '/child/shop', params: { id } })}
+      onOpenLook={() => router.push({ pathname: '/child/look', params: { id } })}
       sync={!online ? 'offline' : unsent ? 'syncing' : 'idle'}
       onStart={() => start()}
       onSwitchProfile={

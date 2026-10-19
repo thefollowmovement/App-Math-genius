@@ -73,6 +73,7 @@ export {
   SHOP_ITEMS,
   SHOP_KINDS,
   isShopItemCode,
+  type AccessoryCode,
   type ShopItem,
   type ShopItemCode,
   type ShopKind,
@@ -95,3 +96,14 @@ export {
   type ParentRewardGoal,
   type ParentRewardInput,
 } from './parent-rewards';
+export {
+  AVATAR_LOCKS,
+  AVATAR_PARTS,
+  AVATAR_PART_NAMES,
+  DEFAULT_LOOKS,
+  avatarLock,
+  avatarOf,
+  avatarSchema,
+  type Avatar,
+  type AvatarPart,
+} from './avatar';

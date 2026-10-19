@@ -35,7 +35,7 @@ export function BadgeCard({ badge }: { badge: BadgeView }) {
           </ThemedText>
         ) : (
           <View className="flex-row items-center gap-2">
-            <View className="h-2 flex-1 overflow-hidden rounded-full bg-background">
+            <View className="h-2 flex-1 overflow-hidden rounded-full border border-border bg-background">
               <View
                 className="h-2 rounded-full bg-primary"
                 style={{ width: `${levelPercent(badge.value, badge.threshold)}%` }}

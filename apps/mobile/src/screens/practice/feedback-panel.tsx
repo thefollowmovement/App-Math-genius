@@ -2,6 +2,8 @@ import type { Exercise } from '@math-genius/exercise-engine';
 import { Button, cx, ThemedText, View } from '@math-genius/ui';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
+import { Mascot } from '@/components/mascot';
+import { MascotSays } from '@/components/mascot/mascot-says';
 import { strings } from '@/i18n';
 import { rightAnswerText } from '@/utils/exercise-text';
 
@@ -25,6 +27,7 @@ export function FeedbackPanel({
   onContinue,
 }: FeedbackPanelProps) {
   const praise = t.correct[exercise.seed % t.correct.length] ?? t.correct[0];
+  const { encourage } = strings.mascot;
 
   return (
     <Animated.View entering={FadeIn.duration(120)}>
@@ -36,12 +39,18 @@ export function FeedbackPanel({
             correct ? 'border-success bg-success' : 'border-border bg-surface',
           )}
         >
-          <ThemedText variant="title" tone={correct ? 'onSuccess' : 'default'}>
-            {correct ? praise : t.wrong}
-          </ThemedText>
+          <View className="flex-row items-center gap-3">
+            <ThemedText variant="title" tone={correct ? 'onSuccess' : 'default'} className="flex-1">
+              {correct ? praise : t.wrong}
+            </ThemedText>
+            {correct ? <Mascot mood="cheer" size="sm" /> : null}
+          </View>
           {correct && fast ? <ThemedText tone="onSuccess">{t.fast}</ThemedText> : null}
           {correct ? null : (
             <>
+              <MascotSays mood="comfort">
+                {encourage[exercise.seed % encourage.length] ?? encourage[0]}
+              </MascotSays>
               <View className="gap-1">
                 <ThemedText variant="caption">{t.rightAnswer}</ThemedText>
                 <ThemedText variant="headline">{rightAnswerText(exercise)}</ThemedText>

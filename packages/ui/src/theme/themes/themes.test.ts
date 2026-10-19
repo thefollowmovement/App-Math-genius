@@ -28,9 +28,18 @@ const readablePairs: [keyof Theme['colors'], keyof Theme['colors']][] = [
 
 describe.each(Object.values(themes))('theme $id', (theme) => {
   it('uses 6-digit hex colors', () => {
-    for (const color of Object.values(theme.colors)) {
+    const art = [...Object.values(theme.art.mascot), ...theme.art.decorColors];
+    for (const color of [...Object.values(theme.colors), ...art]) {
       expect(color).toMatch(/^#[0-9A-F]{6}$/i);
     }
+  });
+
+  it('is registered under its own id', () => {
+    expect(themes[theme.id as keyof typeof themes]).toBe(theme);
+  });
+
+  it('keeps text readable over the large shapes of its backdrop (WCAG AA)', () => {
+    expect(contrast(theme.colors.foreground, theme.art.decorColors[0])).toBeGreaterThanOrEqual(4.5);
   });
 
   it.each(readablePairs)('keeps %s readable on %s (WCAG AA)', (text, background) => {
