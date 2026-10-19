@@ -23,7 +23,7 @@ describe('heroes', () => {
   });
 
   it('draws every cosmetic drawn around the hero, as its slot needs', () => {
-    const kinds = { aura: 'aura', frame: 'frame', companion: 'emoji', accessory: 'emoji' } as const;
+    const kinds = { aura: 'aura', frame: 'frame', accessory: 'emoji' } as const;
     for (const { id, slot, visual } of COSMETICS) {
       if (visual.kind !== 'overlay') continue;
       expect([id, COSMETIC_ART[visual.art]?.kind]).toEqual([id, kinds[slot as keyof typeof kinds]]);
@@ -33,11 +33,10 @@ describe('heroes', () => {
   it('shows the portrait with what the hero wears around it', async () => {
     const avatar: Avatar = {
       hero: 'juno',
-      wear: { aura: 'aura-gold', frame: 'frame-stars', companion: 'fox', accessory: 'crown' },
+      wear: { aura: 'aura-gold', frame: 'frame-stars', companion: 'renard', accessory: 'crown' },
     };
     await renderWithTheme(<HeroBust avatar={avatar} label="Juno" />);
     expect(screen.getByRole('image', { name: 'Juno' })).toBeOnTheScreen();
-    expect(screen.getByText('🦊')).toBeOnTheScreen();
     expect(screen.getByText('👑')).toBeOnTheScreen();
   });
 

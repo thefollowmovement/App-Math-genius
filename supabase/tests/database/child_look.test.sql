@@ -109,19 +109,19 @@ select throws_ok(
 );
 select throws_ok(
   $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'manga',
-    pg_temp.look('mika', '{"companion": "kitten"}'))$$,
-  'PT403', 'avatar_locked', 'and the kitten must be bought first'
+    pg_temp.look('mika', '{"companion": "dragon"}'))$$,
+  'PT403', 'avatar_locked', 'and Draco must be bought first'
 );
 reset role;
 insert into public.child_badges (child_id, badge_code, earned_at)
 values ('00000000-0000-4000-8000-0000000000c1', 'streak-7', now());
 insert into public.child_items (child_id, item_code, bought_at)
-values ('00000000-0000-4000-8000-0000000000c1', 'kitten', now());
+values ('00000000-0000-4000-8000-0000000000c1', 'dragon', now());
 set local role authenticated;
 select lives_ok(
   $$select public.set_child_look('00000000-0000-4000-8000-0000000000c1', 'neon',
-    pg_temp.look('mika', '{"aura": "aura-gold", "companion": "kitten"}'))$$,
-  'Once the badge earned and the kitten bought, Léa wears both'
+    pg_temp.look('mika', '{"aura": "aura-gold", "companion": "dragon"}'))$$,
+  'Once the badge earned and Draco bought, Léa wears both'
 );
 select is(pg_temp.lea(), 'neon mika aura-gold', 'in the Neon Stage theme');
 select throws_ok(

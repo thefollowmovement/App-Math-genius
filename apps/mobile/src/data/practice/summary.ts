@@ -89,6 +89,9 @@ export function sessionCount(
     : { done: Math.floor(progress.activeMs / 60_000), total: goal.minutes, unit: 'minutes' };
 }
 
+/** Right answers in a row from which the combo shows (and Phénix catches fire). */
+export const COMBO_FROM = 3;
+
 /** Right answers in a row at the end of the session so far (the combo). */
 export function comboOf(attempts: readonly { correct: boolean }[]): number {
   const lastWrong = attempts.findLastIndex((attempt) => !attempt.correct);

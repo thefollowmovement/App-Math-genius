@@ -1,8 +1,9 @@
 /**
- * The shop: items bought with gems, never with real money (docs/specs.md, Gamification). The
- * migration *_shop.sql holds the same catalog, in the same order (shop.test.ts compares them).
- * Codes are stored with each child's items: never rename one. Streak freezes are sold too, by
- * buy_freeze (FREEZE_PRICE in rewards.ts).
+ * The shop: items bought with gems, never with real money (docs/specs.md, Gamification). The last
+ * migration that writes the catalog (*_companions.sql) holds the same one, in the same order
+ * (shop.test.ts compares them). Codes are stored with each child's items: never rename one.
+ * Streak freezes are sold too, by buy_freeze (FREEZE_PRICE in rewards.ts). Companions sold here
+ * are those of companions.ts unlocked in the shop.
  */
 
 export const SHOP_KINDS = ['companion', 'accessory', 'effect'] as const;
@@ -11,13 +12,10 @@ export type ShopKind = (typeof SHOP_KINDS)[number];
 type ShopItemDefinition = { code: string; kind: ShopKind; price: number };
 
 export const SHOP_ITEMS = [
-  { code: 'kitten', kind: 'companion', price: 60 },
-  { code: 'puppy', kind: 'companion', price: 60 },
-  { code: 'fox', kind: 'companion', price: 80 },
-  { code: 'panda', kind: 'companion', price: 100 },
-  { code: 'octopus', kind: 'companion', price: 120 },
-  { code: 'unicorn', kind: 'companion', price: 150 },
-  { code: 'dragon', kind: 'companion', price: 200 },
+  { code: 'lapin', kind: 'companion', price: 80 },
+  { code: 'dragon', kind: 'companion', price: 120 },
+  { code: 'licorne', kind: 'companion', price: 150 },
+  { code: 'renard', kind: 'companion', price: 250 },
   { code: 'bow', kind: 'accessory', price: 30 },
   { code: 'cap', kind: 'accessory', price: 30 },
   { code: 'sunglasses', kind: 'accessory', price: 40 },
@@ -31,7 +29,7 @@ export const SHOP_ITEMS = [
 
 export type ShopItem = (typeof SHOP_ITEMS)[number];
 export type ShopItemCode = ShopItem['code'];
-/** What the avatar wears (apps/mobile/src/components/avatar draws each one). */
+/** What the avatar wears (apps/mobile/src/components/hero draws each one). */
 export type AccessoryCode = Extract<ShopItem, { kind: 'accessory' }>['code'];
 
 const SHOP_CODES: ReadonlySet<string> = new Set(SHOP_ITEMS.map((item) => item.code));

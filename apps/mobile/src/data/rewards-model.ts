@@ -1,6 +1,5 @@
 import {
   SHOP_ITEMS,
-  SHOP_KINDS,
   awardSchema,
   isChallengeCode,
   levelProgress,
@@ -52,35 +51,47 @@ export function progressView(row: ProgressRow | null): ProgressView {
 /** An item bought in the shop. */
 export type ItemRow = Pick<Tables<'child_items'>, 'item_code' | 'equipped'>;
 
-/** Progress, chests to open, how many badges the child has earned and the items bought. */
+/**
+ * Progress, chests to open, how many badges the child has earned, the items bought and the
+ * cosmetics kept without their condition (child_cosmetics).
+ */
 export type Rewards = {
   progress: ProgressView;
   chests: ChestRow[];
   badges: number;
   items: ItemRow[];
+  kept: string[];
 };
 
-export type ShopItemView = ShopItem & { owned: boolean; worn: boolean };
-export type ShopGroup = { kind: ShopKind; items: ShopItemView[] };
+export type ItemView<I extends ShopItem> = I & { owned: boolean; worn: boolean };
+export type ShopItemView = ItemView<ShopItem>;
+/** The items of one kind of the shop (companions get cards of their own). */
+export type ShopGroup = {
+  [K in ShopKind]: { kind: K; items: ItemView<Extract<ShopItem, { kind: K }>>[] };
+}[ShopKind];
 
-/** The shop's catalog by kind, with what the child owns and wears. */
 /**
  * The shop by kind, with what the child owns and wears: companions and accessories on the hero
  * (the avatar's `wear`), victory effects in the child's items.
  */
 export function shopGroups(items: readonly ItemRow[], wear: Avatar['wear']): ShopGroup[] {
   const owned = new Map(items.map((item) => [item.item_code, item.equipped]));
-  return SHOP_KINDS.map((kind) => ({
+  const view = <I extends ShopItem>(item: I): ItemView<I> => ({
+    ...item,
+    owned: owned.has(item.code),
+    worn: item.kind === 'effect' ? owned.get(item.code) === true : wear[item.kind] === item.code,
+  });
+  const ofKind = <K extends ShopKind>(kind: K) => ({
     kind,
-    items: SHOP_ITEMS.filter((item) => item.kind === kind).map((item) => ({
-      ...item,
-      owned: owned.has(item.code),
-      worn: item.kind === 'effect' ? owned.get(item.code) === true : wear[item.kind] === item.code,
-    })),
-  }));
+    items: SHOP_ITEMS.filter(
+      (item): item is Extract<ShopItem, { kind: K }> => item.kind === kind,
+    ).map(view),
+  });
+  // In the order of SHOP_KINDS.
+  return [ofKind('companion'), ofKind('accessory'), ofKind('effect')];
 }
 
-type EffectCode = Extract<ShopItem, { kind: 'effect' }>['code'];
+export type EffectCode = Extract<ShopItem, { kind: 'effect' }>['code'];
 
 /** The victory effect worn at the end of sessions (one this app does not know is left out). */
 export function wornEffect(items: readonly ItemRow[]): EffectCode | undefined {
@@ -91,13 +102,14 @@ export function wornEffect(items: readonly ItemRow[]): EffectCode | undefined {
   return undefined;
 }
 
-/** What unlocks cosmetics: the badges earned and the items bought. */
+/** What unlocks cosmetics: the badges earned, the items bought and the cosmetics kept. */
 export const unlockedOf = (
   earned: readonly { badge_code: string }[],
   items: readonly ItemRow[],
+  kept: readonly string[] = [],
 ): Unlocked => ({
   badges: new Set(earned.map(({ badge_code }) => badge_code)),
-  owned: new Set(items.map(({ item_code }) => item_code)),
+  owned: new Set([...items.map(({ item_code }) => item_code), ...kept]),
 });
 
 export const parseAward = (value: unknown): Award | null => {

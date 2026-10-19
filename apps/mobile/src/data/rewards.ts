@@ -32,13 +32,16 @@ export async function requestAwards(childId: string): Promise<Award[]> {
   return awards;
 }
 
-/** XP, level, gems, streak and chests to open. Kept on the device, to show them offline. */
+/**
+ * XP, level, gems, streak, chests to open, items bought and cosmetics kept. Kept on the device,
+ * to show them offline.
+ */
 export function useRewards(childId: string | undefined) {
   return useQuery({
     queryKey: ['rewards', childId],
     enabled: childId !== undefined,
     queryFn: async (): Promise<Rewards> => {
-      const [progress, chests, badges, items] = await Promise.all([
+      const [progress, chests, badges, items, kept] = await Promise.all([
         supabase
           .from('progress')
           .select('xp, gems, streak_current, streak_best, freezes')
@@ -59,16 +62,22 @@ export function useRewards(childId: string | undefined) {
           .select('item_code, equipped')
           .eq('child_id', childId ?? '')
           .order('bought_at'),
+        supabase
+          .from('child_cosmetics')
+          .select('cosmetic_id')
+          .eq('child_id', childId ?? ''),
       ]);
       if (progress.error) throw progress.error;
       if (chests.error) throw chests.error;
       if (badges.error) throw badges.error;
       if (items.error) throw items.error;
+      if (kept.error) throw kept.error;
       return {
         progress: progressView(progress.data),
         chests: chests.data,
         badges: badges.count ?? 0,
         items: items.data,
+        kept: kept.data.map(({ cosmetic_id }) => cosmetic_id),
       };
     },
   });

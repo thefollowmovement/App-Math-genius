@@ -324,6 +324,42 @@ export type Database = {
           },
         ];
       };
+      child_cosmetics: {
+        Row: {
+          child_id: string;
+          cosmetic_id: string;
+          created_at: string;
+          granted_at: string;
+          id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          cosmetic_id: string;
+          created_at?: string;
+          granted_at: string;
+          id?: string;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          cosmetic_id?: string;
+          created_at?: string;
+          granted_at?: string;
+          id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_cosmetics_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       child_items: {
         Row: {
           bought_at: string;
@@ -1374,7 +1410,7 @@ export type Database = {
       chest_kind: 'common' | 'rare';
       child_gender: 'girl' | 'boy';
       device_platform: 'ios' | 'android' | 'web';
-      gem_reason: 'session' | 'chest' | 'freeze' | 'shop' | 'challenge';
+      gem_reason: 'session' | 'chest' | 'freeze' | 'shop' | 'challenge' | 'refund';
       grade: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
       mastery_status: 'to_discover' | 'in_progress' | 'mastered' | 'to_review';
       notification_audience: 'child' | 'parent';
@@ -1509,7 +1545,7 @@ export const Constants = {
       chest_kind: ['common', 'rare'],
       child_gender: ['girl', 'boy'],
       device_platform: ['ios', 'android', 'web'],
-      gem_reason: ['session', 'chest', 'freeze', 'shop', 'challenge'],
+      gem_reason: ['session', 'chest', 'freeze', 'shop', 'challenge', 'refund'],
       grade: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
       mastery_status: ['to_discover', 'in_progress', 'mastered', 'to_review'],
       notification_audience: ['child', 'parent'],

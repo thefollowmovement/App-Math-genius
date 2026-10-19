@@ -76,8 +76,42 @@ describe('LookEditor', () => {
     await user.press(screen.getByRole('radio', { name: t.noneLabel(t.slots.frame) }));
     expect(onCosmetic).toHaveBeenCalledWith('frame', null);
 
-    const kitten = strings.shop.items.kitten.name;
-    expect(screen.getByRole('radio', { name: t.lockedLabel(kitten) })).toBeOnTheScreen();
+    // Companions on cards: Baekho comes with 7 days of streak, Draco from the shop.
+    const c = strings.companions;
+    await user.press(screen.getByRole('radio', { name: c.cardLabel('Baekho', 'Épique') }));
+    expect(onCosmetic).toHaveBeenCalledWith('companion', 'tigre');
+    expect(screen.getByRole('radio', { name: t.lockedLabel('Draco') })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: t.noneLabel(t.slots.companion) })).toBeChecked();
+  });
+
+  it('shows the sheet of the companion worn, or of the one just tried', async () => {
+    const c = strings.companions;
+    const { rerender } = await renderWithTheme(
+      <LookEditor
+        {...props}
+        look={{ ...props.look, avatar: { ...props.look.avatar, wear: { companion: 'hibou' } } }}
+        unlocked={{ badges: new Set(['first-exercise']), owned: new Set() }}
+      />,
+    );
+    expect(
+      screen.getByRole('radio', { name: c.cardLabel('Chouette Galactique', 'Commun') }),
+    ).toBeChecked();
+    expect(screen.getByText(c.items.hibou.fullName)).toBeOnTheScreen();
+    expect(screen.getByText(c.items.hibou.specialty)).toBeOnTheScreen();
+
+    await rerender(
+      <LookEditor
+        {...props}
+        look={{ ...props.look, avatar: { ...props.look.avatar, wear: { companion: 'hibou' } } }}
+        unlocked={{ badges: new Set(['first-exercise']), owned: new Set() }}
+        hint={{ cosmetic: 'phenix', missing: { kind: 'badge', badge: 'level-10' } }}
+      />,
+    );
+    expect(screen.getByText(c.items.phenix.fullName)).toBeOnTheScreen();
+    expect(screen.getByLabelText(c.rarityLabel('Légendaire'))).toBeOnTheScreen();
+    expect(
+      screen.getByText(t.lockedBadge('Phénix', strings.badges.items['level-10'].title)),
+    ).toBeOnTheScreen();
   });
 
   it('says what a locked cosmetic waits for, and why saving failed', async () => {
@@ -104,9 +138,9 @@ describe('LookEditor', () => {
     await rerender(
       <LookEditor
         {...props}
-        hint={{ cosmetic: 'kitten', missing: { kind: 'shop', item: 'kitten' } }}
+        hint={{ cosmetic: 'renard', missing: { kind: 'shop', item: 'renard' } }}
       />,
     );
-    expect(screen.getByText(t.lockedShop(strings.shop.items.kitten.name, 60))).toBeOnTheScreen();
+    expect(screen.getByText(t.lockedShop('Kitsune', 250))).toBeOnTheScreen();
   });
 });

@@ -88,7 +88,7 @@ select ok(
    where oid in ('public.badges'::regclass, 'public.child_badges'::regclass)),
   'RLS is enabled on badges and child badges'
 );
-select is((select count(*)::int from public.badges), 43, 'The catalog holds 43 badges');
+select is((select count(*)::int from public.badges), 44, 'The catalog holds 44 badges');
 select ok(
   (select bool_and(private.badge_metrics('00000000-0000-4000-8000-0000000000c1') ? b.metric)
    from public.badges b),
@@ -103,19 +103,19 @@ create temp table first_day as
     '2026-10-05 18:00+02') as award;
 select is(
   (select award -> 'badges' from first_day),
-  '["sessions-1", "combo-10", "perfect-1"]',
-  'A first perfect mission: first mission, 10 in a row and first perfect session'
+  '["sessions-1", "combo-10", "perfect-1", "first-exercise"]',
+  'A first perfect mission: first mission, 10 in a row, first perfect session, first exercise'
 );
 select is(
   public.award_session((select (award ->> 'session_id')::uuid from first_day), '[]',
     '2026-10-05 19:00+02') -> 'badges',
-  '["sessions-1", "combo-10", "perfect-1"]',
+  '["sessions-1", "combo-10", "perfect-1", "first-exercise"]',
   'Awarding the session again returns the same badges'
 );
 select is(
   (select count(*)::int from public.child_badges
    where child_id = '00000000-0000-4000-8000-0000000000c1'),
-  3,
+  4,
   'and grants nothing twice'
 );
 
@@ -159,13 +159,15 @@ select is(
     'streak_best', 7, 'validated_daily', 9, 'weekend_sessions', 2, 'comebacks', 1,
     'best_combo', 10, 'perfect_sessions', 1, 'correct_answers', 82, 'bonus_sessions', 0,
     'rare_chests', 1, 'explored_skills', 1, 'level', 4, 'islands_completed', 0,
-    'perfect_bosses', 0, 'challenges_completed', 0),
+    'perfect_bosses', 0, 'challenges_completed', 0, 'exercises_done', 90),
   'The measures behind the badges'
 );
 
 -- The server's grading, not the device's ----------------------------------------------------------
 
-select is(pg_temp.day('00000000-0000-4000-8000-0000000000c2', '2026-10-05', 9), '["sessions-1"]',
+select is(
+  pg_temp.day('00000000-0000-4000-8000-0000000000c2', '2026-10-05', 9),
+  '["sessions-1", "first-exercise"]',
   'A device claiming 10 right answers out of 10 when the server finds 9 gets no perfect badge');
 select is(
   pg_temp.day('00000000-0000-4000-8000-0000000000c2', '2026-10-05', 10, 'bonus', 800),
@@ -179,7 +181,7 @@ set local role authenticated;
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000a1');
 select is(
   (select count(*)::int from public.child_badges),
-  13,
+  14,
   'Alice reads Léa''s badges'
 );
 select is(
@@ -192,17 +194,17 @@ select pg_temp.as_user('00000000-0000-4000-8000-0000000000d1', true);
 select is(
   (select count(*)::int from public.child_badges
    where child_id = '00000000-0000-4000-8000-0000000000c1'),
-  13,
+  14,
   'Léa''s device reads her badges'
 );
 
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000b1');
 select is(
   (select array_agg(badge_code order by badge_code) from public.child_badges),
-  '{bonus-1,perfect-1,sessions-1}',
+  '{bonus-1,first-exercise,perfect-1,sessions-1}',
   'Bob only reads Tom''s badges'
 );
-select is((select count(*)::int from public.badges), 43, 'Everyone signed in reads the catalog');
+select is((select count(*)::int from public.badges), 44, 'Everyone signed in reads the catalog');
 select throws_ok(
   $$select public.child_badge_metrics('00000000-0000-4000-8000-0000000000c1')$$,
   'PT404', 'child_not_found',

@@ -10,8 +10,10 @@ import {
   type Slot,
 } from '@math-genius/exercise-engine';
 import { getSkill } from '@math-genius/curriculum';
+import type { Avatar } from '@math-genius/shared';
 import { fireEvent, screen } from '@testing-library/react-native';
 
+import { HeroProvider } from '@/components/hero/hero-context';
 import { strings } from '@/i18n';
 import { exerciseOfType } from '@/test-utils/exercises';
 import { rightAnswerText } from '@/utils/exercise-text';
@@ -34,6 +36,8 @@ async function renderPractice(
     combo?: number;
     count?: SessionCount;
     slot?: Slot;
+    /** The child's hero, and maybe a companion (the default hero without). */
+    avatar?: Avatar;
   } = {},
 ) {
   const handlers = {
@@ -42,7 +46,7 @@ async function renderPractice(
     onShowHint: jest.fn(),
     onPause: jest.fn(),
   };
-  await renderWithTheme(
+  const screenOf = (
     <PracticeScreen
       exercise={exercise}
       slot={options.slot ?? 'current'}
@@ -56,7 +60,10 @@ async function renderPractice(
       notice={options.notice ?? null}
       feedback={options.feedback ?? null}
       {...handlers}
-    />,
+    />
+  );
+  await renderWithTheme(
+    options.avatar ? <HeroProvider avatar={options.avatar}>{screenOf}</HeroProvider> : screenOf,
   );
   return handlers;
 }
@@ -249,5 +256,62 @@ describe('after an answer', () => {
     await renderPractice(exercise, { reminder: true });
     expect(screen.getByText(`${t.reminder}\u00a0: ${exercise.hint}`)).toBeOnTheScreen();
     expect(screen.queryByLabelText(t.hint)).toBeNull();
+  });
+});
+
+describe('with a companion', () => {
+  const talk = strings.companions.talk;
+  const pick = (lines: readonly string[], seed: number) => lines[seed % lines.length] ?? '';
+  const withCompanion = (companion: 'dragon' | 'phenix' | 'chat'): Avatar => ({
+    hero: 'kai',
+    wear: { companion },
+  });
+
+  it('offers the hint, gives it and encourages, in its own name', async () => {
+    const exercise = exerciseOfType('numeric');
+    const { onShowHint } = await renderPractice(exercise, { avatar: withCompanion('chat') });
+    expect(screen.getByText('Chaton Cosmique')).toBeOnTheScreen();
+    expect(screen.getByText(pick(talk.chat.ask, exercise.seed))).toBeOnTheScreen();
+    await press(t.hint);
+    expect(onShowHint).toHaveBeenCalled();
+
+    await renderPractice(exercise, { avatar: withCompanion('chat'), reminder: true });
+    expect(screen.getByText(`${t.reminder}\u00a0: ${exercise.hint}`)).toBeOnTheScreen();
+
+    await renderPractice(exercise, {
+      avatar: withCompanion('chat'),
+      feedback: { response: wrongResponse(exercise), correct: false, fast: false, finished: false },
+    });
+    expect(screen.getByText(pick(talk.chat.encourage, exercise.seed))).toBeOnTheScreen();
+    expect(screen.queryByText(pick(strings.heroes.encourage, exercise.seed))).toBeNull();
+  });
+
+  it('talks of its specialty: Draco on geometry', async () => {
+    const exercise = { ...exerciseOfType('numeric'), skill: 'cm1.perimetre' as const };
+    await renderPractice(exercise, { avatar: withCompanion('dragon') });
+    expect(screen.getByText(pick(talk.dragon.special.ask, exercise.seed))).toBeOnTheScreen();
+  });
+
+  it('lets the hero cheer, except Phénix on fire from 3 in a row', async () => {
+    const exercise = exerciseOfType('choice');
+    const feedback = {
+      response: { type: 'choice' as const, index: exercise.answer },
+      correct: true,
+      fast: false,
+      finished: false,
+    };
+    await renderPractice(exercise, { avatar: withCompanion('phenix'), combo: 2, feedback });
+    expect(screen.getByText(pick(t.correct, exercise.seed))).toBeOnTheScreen();
+    expect(screen.queryByText('Phénix')).toBeNull();
+
+    await renderPractice(exercise, { avatar: withCompanion('phenix'), combo: 3, feedback });
+    expect(screen.getByText('Phénix')).toBeOnTheScreen();
+    expect(screen.getByText(pick(talk.phenix.fire, exercise.seed))).toBeOnTheScreen();
+  });
+
+  it('changes nothing without one', async () => {
+    const exercise = exerciseOfType('numeric');
+    await renderPractice(exercise, { avatar: { hero: 'kai', wear: { frame: 'frame-neon' } } });
+    expect(screen.getByText(t.hintAsk)).toBeOnTheScreen();
   });
 });

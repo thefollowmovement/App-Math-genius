@@ -5,8 +5,15 @@ import type { ComponentProps } from 'react';
 import { useChildHero } from './hero-context';
 import { HeroView } from './hero-view';
 
+type SpeechBubbleProps = {
+  children: string;
+  /** Who talks, when it is not the hero (its companion): named above the text. */
+  speaker?: string;
+  className?: string;
+};
+
 /** What the hero says, in a speech bubble whose sharp corner points at the hero (bottom left). */
-export function SpeechBubble({ children, className }: { children: string; className?: string }) {
+export function SpeechBubble({ children, speaker, className }: SpeechBubbleProps) {
   return (
     <View
       className={cx(
@@ -14,6 +21,11 @@ export function SpeechBubble({ children, className }: { children: string; classN
         className,
       )}
     >
+      {speaker ? (
+        <ThemedText variant="label" tone="secondary">
+          {speaker}
+        </ThemedText>
+      ) : null}
       <ThemedText>{children}</ThemedText>
     </View>
   );

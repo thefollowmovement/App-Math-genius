@@ -1,12 +1,14 @@
+import type { ShopItem } from '@math-genius/shared';
 import { Button, ThemedText, View, cx } from '@math-genius/ui';
 
-import type { ShopItemView } from '@/data/rewards-model';
+import type { ItemView } from '@/data/rewards-model';
 import { strings } from '@/i18n';
 
 const t = strings.shop;
 
 type ItemCardProps = {
-  item: ShopItemView;
+  /** Companions have cards of their own (CompanionShelf). */
+  item: ItemView<Extract<ShopItem, { kind: 'accessory' | 'effect' }>>;
   gems: number;
   pending: boolean;
   onBuy: () => void;

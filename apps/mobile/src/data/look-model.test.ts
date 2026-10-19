@@ -12,7 +12,7 @@ const nothing = { badges: new Set<string>(), owned: new Set<string>() };
 describe('look', () => {
   it('reads the stored theme and avatar, or the defaults of the profile', () => {
     expect(lookOf(lea)).toEqual({ theme: 'space', avatar: DEFAULT_LOOKS.girl.avatar });
-    const avatar = { hero: 'taro', wear: { companion: 'kitten' } };
+    const avatar = { hero: 'taro', wear: { companion: 'lapin' } };
     expect(lookOf({ theme_id: 'pirates', avatar, gender: 'boy' })).toEqual({
       theme: 'neon',
       avatar,
@@ -40,12 +40,12 @@ describe('look', () => {
     expect(pickCosmetic(look, 'aura', 'aura-gold', nothing)).toEqual({
       locked: { cosmetic: 'aura-gold', missing: { kind: 'badge', badge: 'streak-7' } },
     });
-    expect(pickCosmetic(look, 'companion', 'kitten', nothing)).toEqual({
-      locked: { cosmetic: 'kitten', missing: { kind: 'shop', item: 'kitten' } },
+    expect(pickCosmetic(look, 'companion', 'lapin', nothing)).toEqual({
+      locked: { cosmetic: 'lapin', missing: { kind: 'shop', item: 'lapin' } },
     });
-    const bought = { ...nothing, owned: new Set(['kitten']) };
-    expect(pickCosmetic(look, 'companion', 'kitten', bought)).toMatchObject({
-      look: { avatar: { wear: { companion: 'kitten' } } },
+    const bought = { ...nothing, owned: new Set(['lapin']) };
+    expect(pickCosmetic(look, 'companion', 'lapin', bought)).toMatchObject({
+      look: { avatar: { wear: { companion: 'lapin' } } },
     });
     // The slot can be emptied, and a cosmetic only goes in its own slot.
     expect(pickCosmetic(look, 'frame', null, nothing)).toEqual({

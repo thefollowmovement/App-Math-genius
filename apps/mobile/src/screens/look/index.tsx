@@ -74,7 +74,12 @@ export function LookEditor({
         <ThemedText variant="label" accessibilityRole="header">
           {t.style}
         </ThemedText>
-        <CosmeticPicker avatar={look.avatar} unlocked={unlocked} onPick={onCosmetic} />
+        <CosmeticPicker
+          avatar={look.avatar}
+          unlocked={unlocked}
+          tried={hint?.cosmetic ?? null}
+          onPick={onCosmetic}
+        />
         {hint ? (
           <ThemedText className="text-center" accessibilityLiveRegion="polite">
             {lockedText(hint.cosmetic, hint.missing)}

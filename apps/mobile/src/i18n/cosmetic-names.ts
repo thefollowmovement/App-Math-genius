@@ -1,26 +1,32 @@
 import {
   SHOP_ITEMS,
-  cosmeticOf,
+  isCompanionId,
+  isShopItemCode,
   type Avatar,
-  type Cosmetic,
   type CosmeticId,
   type CosmeticUnlock,
+  type EarnedCosmeticId,
+  type ShopItemCode,
 } from '@math-genius/shared';
 
 import { strings } from './index';
 
 const t = strings.look;
 
-type ShopCosmetic = Extract<Cosmetic, { unlock: { kind: 'shop' } }>;
-const isSold = (cosmetic: Cosmetic): cosmetic is ShopCosmetic => cosmetic.unlock.kind === 'shop';
+const isEarned = (id: string): id is EarnedCosmeticId => id in t.cosmetics;
 
-/** A cosmetic's name: the shop's for what it sells, the editor's for the others. */
+/** A shop item's name, a companion's included. */
+export const shopItemName = (code: ShopItemCode): string =>
+  isCompanionId(code) ? strings.companions.items[code].name : strings.shop.items[code].name;
+
+/**
+ * A cosmetic's name: a companion's short name, the shop's for what it sells (a shop cosmetic has
+ * the code of its item), the editor's for the others.
+ */
 export function cosmeticName(id: CosmeticId): string {
-  const cosmetic = cosmeticOf(id);
-  if (!cosmetic) return id;
-  return isSold(cosmetic)
-    ? strings.shop.items[cosmetic.unlock.item].name
-    : t.cosmetics[cosmetic.id];
+  if (isCompanionId(id)) return strings.companions.items[id].name;
+  if (isEarned(id)) return t.cosmetics[id];
+  return isShopItemCode(id) ? shopItemName(id) : id;
 }
 
 /** Why a cosmetic cannot be worn yet. */
