@@ -1,8 +1,8 @@
 import { Bangers_400Regular } from '@expo-google-fonts/bangers/400Regular';
 import { Bungee_400Regular } from '@expo-google-fonts/bungee/400Regular';
 import { Fredoka_600SemiBold } from '@expo-google-fonts/fredoka/600SemiBold';
-import { Nunito_400Regular } from '@expo-google-fonts/nunito/400Regular';
-import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
+import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
+import { Nunito_800ExtraBold } from '@expo-google-fonts/nunito/800ExtraBold';
 import { Orbitron_700Bold } from '@expo-google-fonts/orbitron/700Bold';
 import { useFonts } from 'expo-font';
 
@@ -12,8 +12,8 @@ import { useFonts } from 'expo-font';
  */
 export const THEME_FONTS = {
   Bungee_400Regular,
-  Nunito_400Regular,
-  Nunito_600SemiBold,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
   Fredoka_600SemiBold,
   Bangers_400Regular,
   Orbitron_700Bold,

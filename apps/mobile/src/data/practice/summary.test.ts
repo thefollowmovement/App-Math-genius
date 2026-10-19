@@ -1,7 +1,7 @@
 import { playSession } from '@/test-utils/play-session';
 
 import { childPractice, openSession, usePracticeStore } from './practice-store';
-import { practiceStatus, summarize } from './summary';
+import { comboOf, practiceStatus, sessionCount, starsOf, summarize } from './summary';
 
 const CHILD = 'child-1';
 const today = '2026-10-15';
@@ -54,5 +54,44 @@ describe('session summary', () => {
       expect(mastery).toBeGreaterThan(0);
       expect(mastery).toBeLessThanOrEqual(100);
     }
+  });
+});
+
+describe('session header', () => {
+  it('counts exercises, or whole minutes of active time', () => {
+    expect(sessionCount({ type: 'count', count: 15 }, { answered: 6, activeMs: 200_000 })).toEqual({
+      done: 6,
+      total: 15,
+      unit: 'exercises',
+    });
+    expect(
+      sessionCount({ type: 'duration', minutes: 15 }, { answered: 6, activeMs: 359_000 }),
+    ).toEqual({ done: 5, total: 15, unit: 'minutes' });
+  });
+
+  it('counts the right answers in a row at the end', () => {
+    expect(comboOf([])).toBe(0);
+    const right = { correct: true };
+    const wrong = { correct: false };
+    expect(comboOf([right, right, right])).toBe(3);
+    expect(comboOf([right, right, wrong, right, right])).toBe(2);
+    expect(comboOf([right, wrong])).toBe(0);
+  });
+});
+
+describe('stars', () => {
+  const summary = {
+    kind: 'daily' as const,
+    goalMet: true,
+    answered: 20,
+    minutes: 15,
+    progressed: [],
+  };
+  it('gives up to 3 stars to a validated mission, by its right answers', () => {
+    expect(starsOf({ ...summary, correct: 18 })).toBe(3);
+    expect(starsOf({ ...summary, correct: 15 })).toBe(2);
+    expect(starsOf({ ...summary, correct: 12 })).toBe(1);
+    // No stars to count when the mission is not validated: never a reproach.
+    expect(starsOf({ ...summary, goalMet: false, correct: 10 })).toBe(0);
   });
 });

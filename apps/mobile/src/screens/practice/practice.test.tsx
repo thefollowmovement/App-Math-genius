@@ -7,7 +7,9 @@ import {
   gradeResponse,
   type Exercise,
   type ExerciseResponse,
+  type Slot,
 } from '@math-genius/exercise-engine';
+import { getSkill } from '@math-genius/curriculum';
 import { fireEvent, screen } from '@testing-library/react-native';
 
 import { strings } from '@/i18n';
@@ -18,6 +20,7 @@ import { wrongResponse } from '@/test-utils/responses';
 
 import { PracticeScreen, type PracticeFeedback } from '.';
 import { graduationCount } from './inputs/number-line-input';
+import type { SessionCount } from './session-header';
 
 const t = strings.practice;
 
@@ -28,6 +31,9 @@ async function renderPractice(
     notice?: string;
     reminder?: boolean;
     boss?: { grade: 'CM1'; domain: 'measures' };
+    combo?: number;
+    count?: SessionCount;
+    slot?: Slot;
   } = {},
 ) {
   const handlers = {
@@ -39,11 +45,13 @@ async function renderPractice(
   await renderWithTheme(
     <PracticeScreen
       exercise={exercise}
-      slot="current"
+      slot={options.slot ?? 'current'}
       twin={false}
       boss={options.boss}
       reminder={options.reminder ?? false}
       progress={0.3}
+      count={options.count ?? { done: 6, total: 15, unit: 'exercises' }}
+      combo={options.combo ?? 0}
       hintShown={false}
       notice={options.notice ?? null}
       feedback={options.feedback ?? null}
@@ -66,11 +74,33 @@ const press = (label: string) => fireEvent.press(screen.getByLabelText(label));
 const pressText = (text: string) => fireEvent.press(screen.getByText(text));
 
 describe('the session header', () => {
-  it('names the kind of exercise, or the island of a boss', async () => {
-    await renderPractice(exerciseOfType('numeric'));
-    expect(screen.getByText(t.slots.current)).toBeOnTheScreen();
-    await renderPractice(exerciseOfType('numeric'), { boss: { grade: 'CM1', domain: 'measures' } });
+  it('names the skill, a timed calculation, or the island of a boss', async () => {
+    const exercise = exerciseOfType('numeric');
+    await renderPractice(exercise);
+    expect(screen.getByText(getSkill(exercise.skill).title)).toBeOnTheScreen();
+    expect(screen.queryByText(t.slots.current)).toBeNull();
+    await renderPractice(exercise, { slot: 'automatism' });
+    expect(screen.getByText(t.slots.automatism)).toBeOnTheScreen();
+    await renderPractice(exercise, { boss: { grade: 'CM1', domain: 'measures' } });
     expect(screen.getByText(t.boss(strings.map.islands.measures.name))).toBeOnTheScreen();
+  });
+
+  it('counts exercises or minutes, pauses, and shows the combo from 3 in a row', async () => {
+    const { onPause } = await renderPractice(exerciseOfType('numeric'), { combo: 2 });
+    expect(screen.getByLabelText(t.counter.countLabel(6, 15))).toHaveTextContent(
+      t.counter.count(6, 15),
+    );
+    expect(screen.queryByLabelText(t.comboLabel(2))).toBeNull();
+    await press(t.pauseLabel);
+    expect(onPause).toHaveBeenCalled();
+
+    await renderPractice(exerciseOfType('numeric'), {
+      combo: 3,
+      count: { done: 4, total: 15, unit: 'minutes' },
+    });
+    expect(screen.getByLabelText(t.comboLabel(3))).toBeOnTheScreen();
+    expect(screen.getByText(t.combo(3))).toBeOnTheScreen();
+    expect(screen.getByLabelText(t.counter.minutesLabel(4, 15))).toBeOnTheScreen();
   });
 });
 
@@ -105,17 +135,25 @@ describe('answering each type of exercise by touch', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('picks an option', async () => {
+  it('picks an option, can change its mind, then validates', async () => {
     const exercise = exerciseOfType('choice');
     const { onSubmit } = await renderPractice(exercise);
+    expect(screen.getByLabelText(t.submit)).toBeDisabled();
+    const other = exercise.options.find((_, index) => index !== exercise.answer)?.label ?? '';
+    await press(other);
+    expect(screen.getByLabelText(other)).toBeSelected();
+    expect(onSubmit).not.toHaveBeenCalled();
     await press(exercise.options[exercise.answer]?.label ?? '');
+    expect(screen.getByLabelText(other)).not.toBeSelected();
+    await press(t.submit);
     submitted(onSubmit, exercise);
   });
 
-  it('answers true or false', async () => {
+  it('answers true or false, then validates', async () => {
     const exercise = exerciseOfType('true-false');
     const { onSubmit } = await renderPractice(exercise);
     await press(exercise.answer ? t.trueLabel : t.falseLabel);
+    await press(t.submit);
     submitted(onSubmit, exercise);
   });
 
@@ -176,6 +214,9 @@ describe('after an answer', () => {
     });
     expect(screen.getByText(t.wrong)).toBeOnTheScreen();
     expect(screen.getByText(rightAnswerText(exercise))).toBeOnTheScreen();
+    // The hero encourages, never scolds.
+    const { encourage } = strings.heroes;
+    expect(screen.getByText(encourage[exercise.seed % encourage.length] ?? '')).toBeOnTheScreen();
     for (const step of exercise.explanation) expect(screen.getByText(step)).toBeOnTheScreen();
     expect(screen.queryByLabelText(t.submit)).toBeNull();
     await press(t.continue);
@@ -192,7 +233,8 @@ describe('after an answer', () => {
         finished: true,
       },
     });
-    expect(screen.getByText(t.fast)).toBeOnTheScreen();
+    const praise = t.correct[exercise.seed % t.correct.length] ?? '';
+    expect(screen.getByText(`${praise} ${t.fast}`)).toBeOnTheScreen();
     expect(screen.queryByText(t.wrong)).toBeNull();
     expect(screen.getByLabelText(t.finish)).toBeOnTheScreen();
   });
@@ -205,7 +247,7 @@ describe('after an answer', () => {
     expect(screen.getByText(t.unreadable)).toBeOnTheScreen();
 
     await renderPractice(exercise, { reminder: true });
-    expect(screen.getByText(t.reminder)).toBeOnTheScreen();
-    expect(screen.getByText(exercise.hint)).toBeOnTheScreen();
+    expect(screen.getByText(`${t.reminder}\u00a0: ${exercise.hint}`)).toBeOnTheScreen();
+    expect(screen.queryByLabelText(t.hint)).toBeNull();
   });
 });

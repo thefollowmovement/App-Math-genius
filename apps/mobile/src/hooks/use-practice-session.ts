@@ -16,6 +16,7 @@ import {
   recordAnswer,
   usePracticeStore,
 } from '@/data/practice/practice-store';
+import { comboOf, sessionCount } from '@/data/practice/summary';
 import { syncNow } from '@/data/practice/sync';
 import { haptics } from '@/lib/haptics';
 import type { PracticeFeedback } from '@/screens/practice';
@@ -101,9 +102,9 @@ export function usePracticeSession(childId: string, onFinished: () => void) {
     setHintShown(false);
   };
 
-  const progress = session
-    ? sessionProgress(session.goal, session.startedAt, session.attempts).progress
-    : 0;
+  const status = session
+    ? sessionProgress(session.goal, session.startedAt, session.attempts)
+    : null;
 
   return {
     session,
@@ -111,7 +112,11 @@ export function usePracticeSession(childId: string, onFinished: () => void) {
     finished,
     step,
     exercise,
-    progress,
+    progress: status?.progress ?? 0,
+    /** Exercises or minutes done, toward the goal. */
+    count: session && status ? sessionCount(session.goal, status) : null,
+    /** Right answers in a row; the answer on screen is already saved, so it counts. */
+    combo: comboOf(session?.attempts ?? []),
     feedback: answered?.feedback ?? null,
     notice,
     hintShown,

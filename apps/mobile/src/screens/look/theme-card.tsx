@@ -29,8 +29,8 @@ export function ThemeCard({ id, chosen, onPress }: ThemeCardProps) {
         accessibilityLabel={t.themeLabel(text.name, text.description)}
         onPress={onPress}
         className={cx(
-          'gap-3 rounded-lg border-2 bg-background p-4 active:opacity-80',
-          chosen ? 'border-primary' : 'border-border',
+          'gap-3 rounded-lg border-3 bg-background p-4 active:opacity-80',
+          chosen ? 'border-primary glow-primary' : 'border-border',
         )}
       >
         <View className="flex-row items-center gap-3">

@@ -73,7 +73,8 @@ const introProps = {
   onCustomize: jest.fn(),
 } as const;
 
-const screens: { name: string; render: () => ReactElement }[] = [
+// `tall`: a page longer than a screen by design (a map's path is as long as its island).
+const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = [
   {
     name: 'SignUp',
     render: () => (
@@ -185,7 +186,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
       <ChildHome
         child={lea}
         practice={{ status: 'in-progress', percent: 40 }}
-        plan="planned"
+        plan={{ kind: 'planned', start: 17 * 60, deadline: 18 * 60 }}
         goal={{ type: 'duration', minutes: 15 }}
         rewards={rewards([{ id: 'chest-1', kind: 'common' }])}
         challenge={{ code: 'combo-10', threshold: 10, progress: 4, gems: 15, completed: false }}
@@ -260,6 +261,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
   },
   {
     name: 'WorldMap',
+    tall: true,
     render: () => (
       <WorldMap
         islands={worldMap({ grade: 'CE2', mastery: {}, at: '2026-10-18T17:00:00Z', defeated: [] })}
@@ -344,6 +346,8 @@ const screens: { name: string; render: () => ReactElement }[] = [
         twin
         reminder={feedback === 'none'}
         progress={0.4}
+        count={{ done: 6, total: 15, unit: 'exercises' }}
+        combo={feedback === 'right' ? 3 : 0}
         hintShown={false}
         notice={feedback === 'none' ? strings.practice.unreadable : null}
         feedback={
@@ -370,7 +374,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
   }),
 ];
 
-describe.each(screens)('$name with native styles', ({ render }) => {
+describe.each(screens)('$name with native styles', ({ render, tall }) => {
   beforeEach(() => {
     registerCSS(globalCss, nativeCssOptions);
   });
@@ -380,7 +384,7 @@ describe.each(screens)('$name with native styles', ({ render }) => {
     const styles = hostStyles(toJSON());
 
     expect(styles.length).toBeGreaterThan(0);
-    expect(unreasonableLayoutValues(styles)).toEqual([]);
+    expect(unreasonableLayoutValues(styles, tall ? 2500 : 500)).toEqual([]);
     expect(badLineHeights(styles)).toEqual([]);
   });
 });

@@ -41,15 +41,18 @@ export function hostStyles(node: unknown): { type: string; style: NativeStyle }[
 const LAYOUT_KEYS =
   /^(gap|rowGap|columnGap|padding\w*|margin\w*|maxWidth|minWidth|width|height|borderRadius)$/;
 
-/** Layout values that are not finite numbers between 0 and 500 (percentages are allowed). */
-export function unreasonableLayoutValues(styles: { style: NativeStyle }[]): string[] {
+/**
+ * Layout values that are not finite numbers between 0 and `limit` (500 by default; percentages
+ * are allowed).
+ */
+export function unreasonableLayoutValues(styles: { style: NativeStyle }[], limit = 500): string[] {
   return styles.flatMap(({ style }) =>
     Object.entries(style)
       .filter(([key]) => LAYOUT_KEYS.test(key))
       .filter(([, value]) => !(typeof value === 'string' && /^\d+(\.\d+)?%$/.test(value)))
       .filter(([key, value]) => {
-        const limit = key === 'borderRadius' ? 10_000 : 500;
-        return typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > limit;
+        const max = key === 'borderRadius' ? 10_000 : limit;
+        return typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > max;
       })
       .map(([key, value]) => `${key}: ${String(value)}`),
   );

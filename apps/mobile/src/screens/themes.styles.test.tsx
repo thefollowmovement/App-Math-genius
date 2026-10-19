@@ -8,7 +8,13 @@ import { renderWithTheme } from '@/test-utils/render';
 import { compileGlobalCss, hostStyles, nativeCssOptions } from '@/test-utils/native-styles';
 import { award, rewards } from '@/test-utils/rewards';
 
+import { worldMap } from '@math-genius/exercise-engine';
+
+import { exerciseOfType } from '@/test-utils/exercises';
+
 import { ChildHome } from './child-home';
+import { PracticeScreen } from './practice';
+import { WorldMap } from './world-map';
 import { LookEditor } from './look';
 import { HeroIntro } from './hero-intro';
 import { SessionSummary } from './session-summary';
@@ -27,6 +33,14 @@ const lea: Child = {
 
 const COLOR_KEYS = /^(color|backgroundColor|border\w*Color|tintColor)$/;
 
+/** A theme color made translucent (`bg-primary/15`) is still the theme's: its #RRGGBB. */
+function opaque(color: string): string {
+  const rgba = /^rgba\((\d+), (\d+), (\d+), [\d.]+\)$/.exec(color);
+  if (!rgba) return color;
+  const hex = rgba.slice(1).map((channel) => Number(channel).toString(16).padStart(2, '0'));
+  return `#${hex.join('')}`;
+}
+
 /** Colors drawn by the host views that are not among `palette`. */
 function foreignColors(tree: unknown, palette: string[]): string[] {
   // Tailwind writes `transparent` as #0000.
@@ -34,7 +48,7 @@ function foreignColors(tree: unknown, palette: string[]): string[] {
   return hostStyles(tree).flatMap(({ style }) =>
     Object.entries(style)
       .filter(([key]) => COLOR_KEYS.test(key))
-      .map(([, value]) => String(value).toLowerCase())
+      .map(([, value]) => opaque(String(value).toLowerCase()))
       .filter((color) => !known.has(color)),
   );
 }
@@ -49,7 +63,7 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
       <ChildHome
         child={lea}
         practice={{ status: 'ready' }}
-        plan="planned"
+        plan={{ kind: 'planned', start: 17 * 60, deadline: 18 * 60 }}
         goal={{ type: 'count', count: 10 }}
         rewards={rewards([{ id: 'chest-1', kind: 'rare' }])}
         onOpenChest={jest.fn()}
@@ -57,6 +71,37 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
         onOpenLook={jest.fn()}
         sync="offline"
         onStart={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'PracticeScreen',
+    render: () => (
+      <PracticeScreen
+        exercise={exerciseOfType('choice')}
+        slot="automatism"
+        twin
+        reminder={false}
+        progress={0.4}
+        count={{ done: 6, total: 15, unit: 'exercises' }}
+        combo={3}
+        hintShown
+        notice={null}
+        feedback={null}
+        onShowHint={jest.fn()}
+        onSubmit={jest.fn()}
+        onContinue={jest.fn()}
+        onPause={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'WorldMap',
+    render: () => (
+      <WorldMap
+        islands={worldMap({ grade: 'CM1', mastery: {}, at: '2026-10-19T17:00:00Z', defeated: [] })}
+        busy={false}
+        onFightBoss={jest.fn()}
       />
     ),
   },
@@ -129,12 +174,11 @@ describe.each(Object.values(themes))('theme $id with native styles', (theme) => 
     // The semibold file, with the weight it holds.
     expect(headline?.style.fontFamily).toBe(font?.semibold);
     expect(String(headline?.style.fontWeight)).toBe('600');
-    // An exercise's statement: a title's size, never the arcade or comic font of titles.
+    // An exercise's statement: large, never in the arcade or comic font of titles.
     const [statement] = await texts(<ThemedText variant="statement">Place 1/4</ThemedText>);
-    const [title] = await texts(<ThemedText variant="title">Place 1/4</ThemedText>);
     expect(statement?.style.fontFamily).toBe(font?.semibold);
     expect(String(statement?.style.fontWeight)).toBe('600');
-    expect(statement?.style.fontSize).toBe(title?.style.fontSize);
+    expect(statement?.style.fontSize).toBeGreaterThan(Number(body?.style.fontSize));
     expect(body?.style.color).toBe(theme.colors.foreground);
   });
 

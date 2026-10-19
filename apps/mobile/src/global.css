@@ -20,6 +20,7 @@
 @theme inline {
   --color-background: var(--theme-color-background);
   --color-surface: var(--theme-color-surface);
+  --color-raised: var(--theme-color-raised);
   --color-border: var(--theme-color-border);
   --color-foreground: var(--theme-color-foreground);
   --color-muted: var(--theme-color-muted);
@@ -27,9 +28,17 @@
   --color-on-primary: var(--theme-color-on-primary);
   --color-secondary: var(--theme-color-secondary);
   --color-on-secondary: var(--theme-color-on-secondary);
+  --color-accent: var(--theme-color-accent);
+  --color-on-accent: var(--theme-color-on-accent);
   --color-danger: var(--theme-color-danger);
   --color-success: var(--theme-color-success);
   --color-on-success: var(--theme-color-on-success);
+  /* Colored texts (labels, scores), readable on the page and on cards. */
+  --color-primary-ink: var(--theme-color-primary-ink);
+  --color-secondary-ink: var(--theme-color-secondary-ink);
+  --color-accent-ink: var(--theme-color-accent-ink);
+  --color-success-ink: var(--theme-color-success-ink);
+  --color-fire: var(--theme-color-fire);
   /* Under filled buttons (see Button): its height is --theme-relief-depth. */
   --color-relief: var(--theme-relief-color);
 
@@ -44,6 +53,38 @@
   --font-body-semibold: var(--theme-font-body-semibold);
   --text-display--font-weight: var(--theme-font-heading-weight);
   --text-title--font-weight: var(--theme-font-heading-weight);
+  --text-score--font-weight: var(--theme-font-heading-weight);
+  --text-tag--font-weight: var(--theme-font-heading-weight);
+}
+
+/*
+ * Neon halos, in a theme color: `glow-primary` around a view, `halo-primary` around a text (not a
+ * `text-*` class: a text's color comes from ThemedText's tone).
+ * The theme sets their blur and strength; flat themes set both to 0 (no halo).
+ */
+@utility glow-* {
+  box-shadow: 0 0 var(--theme-glow-radius)
+    color-mix(in oklab, --value(--color-*) var(--theme-glow-strength), transparent);
+}
+
+/*
+ * A solid ledge under a tile, like the buttons' relief, out of its box (the gap below holds it):
+ * `ledge` in the relief's color, `ledge-primary` in a deep shade of a color, with its halo.
+ */
+@utility ledge {
+  box-shadow: 0 var(--theme-relief-depth) 0 var(--theme-relief-color);
+}
+
+@utility ledge-* {
+  box-shadow:
+    0 var(--theme-relief-depth) 0 color-mix(in oklab, --value(--color-*) 60%, black),
+    0 0 var(--theme-glow-radius)
+      color-mix(in oklab, --value(--color-*) var(--theme-glow-strength), transparent);
+}
+
+@utility halo-* {
+  text-shadow: 0 0 var(--theme-halo-radius)
+    color-mix(in oklab, --value(--color-*) var(--theme-halo-strength), transparent);
 }
 
 /* Shapes shared by all themes. */
@@ -71,4 +112,17 @@
   --text-caption: 0.875rem;
   --text-caption--line-height: calc(1.25 / 0.875);
   --text-caption--font-weight: 400;
+  /* An exercise's statement, read closely. */
+  --text-statement: 1.5rem;
+  --text-statement--line-height: calc(2 / 1.5);
+  /* Heading font: numbers and big buttons' labels, then short words (names, counters). */
+  --text-score: 1.375rem;
+  --text-score--line-height: calc(1.75 / 1.375);
+  --text-tag: 0.9375rem;
+  --text-tag--line-height: calc(1.25 / 0.9375);
+  /* Small capitals above a card's content. */
+  --text-label: 0.75rem;
+  --text-label--line-height: calc(1 / 0.75);
+  --text-label--font-weight: 600;
+  --text-label--letter-spacing: 0.12em;
 }

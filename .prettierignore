@@ -5,3 +5,5 @@ pnpm-lock.yaml
 supabase/.temp/
 *.md
 supabase/functions/**/engine.js
+# Reference mockups, kept as they were drawn.
+docs/design/maquettes/

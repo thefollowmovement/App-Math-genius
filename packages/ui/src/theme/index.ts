@@ -6,6 +6,7 @@ export type {
   ThemeArt,
   ThemeColors,
   ThemeRadii,
+  ThemeGlow,
   ThemeRelief,
   ThemeTypography,
 } from './types';

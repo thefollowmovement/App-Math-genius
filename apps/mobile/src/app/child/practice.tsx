@@ -12,7 +12,9 @@ export default function PracticeRoute() {
   const home = { pathname: '/child/home', params: { id } } as const;
 
   if (practice.finished) return null;
-  if (!practice.session || !practice.step || !practice.exercise) return <Redirect href={home} />;
+  if (!practice.session || !practice.step || !practice.exercise || !practice.count) {
+    return <Redirect href={home} />;
+  }
 
   return (
     <PracticeScreen
@@ -22,6 +24,8 @@ export default function PracticeRoute() {
       boss={practice.session.boss}
       reminder={practice.step.reminder}
       progress={practice.progress}
+      count={practice.count}
+      combo={practice.combo}
       hintShown={practice.hintShown}
       notice={practice.notice}
       feedback={practice.feedback}

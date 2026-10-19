@@ -7,10 +7,15 @@ import {
   type Unlocked,
 } from '@math-genius/shared';
 import { Pressable, ThemedText, View, cx } from '@math-genius/ui';
-import { useState, type ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 
-import { COSMETIC_ART } from '@/components/hero/cosmetic-art';
-import { HeroBust } from '@/components/hero/hero-bust';
+import { Icon } from '@/components/game/icons';
+import {
+  AuraDrawing,
+  COSMETIC_ART,
+  FrameDrawing,
+  type OverlayArt,
+} from '@/components/hero/cosmetic-art';
 import { strings } from '@/i18n';
 import { cosmeticName } from '@/i18n/cosmetic-names';
 
@@ -27,86 +32,100 @@ type CosmeticPickerProps = {
   onPick: (slot: CosmeticSlot, id: CosmeticId | null) => void;
 };
 
-/** One slot at a time (tabs), its cosmetics below: what is not unlocked yet shows a lock. */
+/**
+ * What surrounds the hero, a card per slot (docs/design/maquettes/Avatars.html): each cosmetic as
+ * a small drawing, a lock on what is not unlocked yet.
+ */
 export function CosmeticPicker({ avatar, unlocked, onPick }: CosmeticPickerProps) {
-  const [slot, setSlot] = useState<CosmeticSlot>('aura');
   return (
     <View className="gap-3">
-      <View className="flex-row flex-wrap gap-2" accessibilityRole="tablist">
-        {SLOTS.map((name) => (
-          <Pressable
-            key={name}
-            accessibilityRole="tab"
-            aria-selected={name === slot}
-            onPress={() => setSlot(name)}
-            className={cx(
-              'rounded-full border px-4 py-2 active:opacity-80',
-              name === slot ? 'border-primary bg-primary' : 'border-border bg-surface',
-            )}
-          >
-            <ThemedText tone={name === slot ? 'onPrimary' : 'default'}>{t.slots[name]}</ThemedText>
-          </Pressable>
-        ))}
-      </View>
-      <View className="flex-row flex-wrap justify-center gap-2" accessibilityRole="radiogroup">
-        <Chip
-          label={t.noneLabel(t.slots[slot])}
-          chosen={avatar.wear[slot] === undefined}
-          locked={false}
-          onPress={() => onPick(slot, null)}
+      {SLOTS.map((slot) => (
+        <View
+          key={slot}
+          accessibilityRole="radiogroup"
+          accessibilityLabel={t.slots[slot]}
+          className="gap-3 rounded-lg border-2 border-border bg-surface p-3"
         >
-          <ThemedText variant="caption">{t.none}</ThemedText>
-        </Chip>
-        {cosmeticsOf(slot).map((cosmetic) => {
-          const locked = missingUnlock(cosmetic, unlocked) !== null;
-          const name = cosmeticName(cosmetic.id);
-          const art = cosmetic.visual.kind === 'overlay' ? COSMETIC_ART[cosmetic.visual.art] : null;
-          return (
-            <Chip
-              key={cosmetic.id}
-              label={locked ? t.lockedLabel(name) : name}
-              chosen={avatar.wear[slot] === cosmetic.id}
-              locked={locked}
-              onPress={() => onPick(slot, cosmetic.id)}
+          <ThemedText variant="label">{t.slots[slot]}</ThemedText>
+          <View className="flex-row flex-wrap gap-2">
+            <Swatch
+              label={t.noneLabel(t.slots[slot])}
+              chosen={avatar.wear[slot] === undefined}
+              locked={false}
+              round={slot === 'aura'}
+              onPress={() => onPick(slot, null)}
             >
-              {art?.kind === 'emoji' ? (
-                <ThemedText variant="title">{art.char}</ThemedText>
-              ) : (
-                // Auras and frames are seen on the hero.
-                <HeroBust avatar={{ hero: avatar.hero, wear: { [slot]: cosmetic.id } }} size="sm" />
-              )}
-            </Chip>
-          );
-        })}
-      </View>
+              <Icon name="close" color="muted" size="sm" />
+            </Swatch>
+            {cosmeticsOf(slot).map((cosmetic) => {
+              const locked = missingUnlock(cosmetic, unlocked) !== null;
+              const name = cosmeticName(cosmetic.id);
+              const art =
+                cosmetic.visual.kind === 'overlay' ? COSMETIC_ART[cosmetic.visual.art] : undefined;
+              return (
+                <Swatch
+                  key={cosmetic.id}
+                  label={locked ? t.lockedLabel(name) : name}
+                  chosen={avatar.wear[slot] === cosmetic.id}
+                  locked={locked}
+                  round={slot === 'aura'}
+                  onPress={() => onPick(slot, cosmetic.id)}
+                >
+                  {art ? <SwatchArt art={art} /> : null}
+                </Swatch>
+              );
+            })}
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
 
-type ChipProps = {
+/** A cosmetic alone, small: a glow, a frame, a sticker. */
+function SwatchArt({ art }: { art: OverlayArt }) {
+  const id = `swatch${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  if (art.kind === 'emoji') return <ThemedText variant="headline">{art.char}</ThemedText>;
+  return (
+    <View className="size-full">
+      {art.kind === 'aura' ? (
+        <AuraDrawing colors={art.colors} id={id} />
+      ) : (
+        <FrameDrawing draw={art.draw} />
+      )}
+    </View>
+  );
+}
+
+type SwatchProps = {
   label: string;
   chosen: boolean;
   locked: boolean;
+  round: boolean;
   onPress: () => void;
   children: ReactNode;
 };
 
-function Chip({ label, chosen, locked, onPress, children }: ChipProps) {
+function Swatch({ label, chosen, locked, round, onPress, children }: SwatchProps) {
   return (
     <Pressable
       accessibilityRole="radio"
       aria-checked={chosen}
       accessibilityLabel={label}
       onPress={onPress}
+      hitSlop={2}
       className={cx(
-        'size-20 items-center justify-center rounded-lg border-2 bg-surface active:opacity-80',
-        chosen ? 'border-primary' : 'border-border',
+        'size-12 items-center justify-center border-3 bg-background p-1 active:opacity-80',
+        round ? 'rounded-full' : 'rounded-md',
+        chosen ? 'border-foreground' : 'border-border',
       )}
     >
-      {children}
+      <View className={cx('size-full items-center justify-center', locked && 'opacity-40')}>
+        {children}
+      </View>
       {locked ? (
-        <View className="absolute -right-1 -top-1 rounded-full border border-border bg-background px-1">
-          <ThemedText variant="caption">{t.lock}</ThemedText>
+        <View className="absolute -right-2 -top-2 size-6 items-center justify-center rounded-full border-2 border-border bg-surface">
+          <Icon name="lock" color="muted" size="sm" />
         </View>
       ) : null}
     </Pressable>

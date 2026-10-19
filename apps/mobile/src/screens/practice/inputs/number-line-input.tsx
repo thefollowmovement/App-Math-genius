@@ -10,7 +10,7 @@ import {
   type NumberLineExercise,
 } from '@math-genius/exercise-engine';
 import { Button, ThemedText, View } from '@math-genius/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -49,7 +49,7 @@ function labelIndexes(exercise: NumberLineExercise, count: number): number[] {
 }
 
 /** Places a number by dragging (or touching) a cursor that snaps to the graduations. */
-export function NumberLineInput({ exercise, answered, onSubmit }: InputProps<NumberLineExercise>) {
+export function NumberLineInput({ exercise, answered, onChange }: InputProps<NumberLineExercise>) {
   const count = graduationCount(exercise);
   const [index, setIndex] = useState(Math.floor(count / 2));
   const [width, setWidth] = useState(0);
@@ -61,6 +61,11 @@ export function NumberLineInput({ exercise, answered, onSubmit }: InputProps<Num
   const answerIndex = Array.from({ length: count + 1 }, (_, i) => i).find((i) =>
     equals(valueAt(exercise, i), exercise.answer),
   );
+
+  // The cursor always points at a graduation: there is always an answer to validate.
+  useEffect(() => {
+    if (!done) onChange({ type: 'number-line', value: valueAt(exercise, index) });
+  }, [done, exercise, index, onChange]);
 
   const place = (next: number) => {
     const clamped = Math.min(count, Math.max(0, next));
@@ -156,7 +161,7 @@ export function NumberLineInput({ exercise, answered, onSubmit }: InputProps<Num
         ))}
       </View>
       {done ? null : (
-        <View className="flex-row gap-3">
+        <View className="flex-row justify-center gap-3">
           <Button
             title="◀"
             accessibilityLabel={t.numberLine.left}
@@ -168,11 +173,6 @@ export function NumberLineInput({ exercise, answered, onSubmit }: InputProps<Num
             accessibilityLabel={t.numberLine.right}
             variant="secondary"
             onPress={() => place(index + 1)}
-          />
-          <Button
-            title={t.submit}
-            className="flex-1"
-            onPress={() => onSubmit({ type: 'number-line', value: valueAt(exercise, index) })}
           />
         </View>
       )}

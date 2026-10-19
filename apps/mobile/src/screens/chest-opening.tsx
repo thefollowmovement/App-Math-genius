@@ -10,7 +10,10 @@ import Animated, {
   type CSSStyle,
 } from 'react-native-reanimated';
 
+import { CenterGlow } from '@/components/decor';
 import { ErrorMessage } from '@/components/error-message';
+import { ChestArt } from '@/components/game/chest-art';
+import { Emblem } from '@/components/game/icons';
 import type { ErrorKind } from '@/data/errors';
 import type { OpenedChest } from '@/data/rewards-model';
 import { strings } from '@/i18n';
@@ -40,19 +43,17 @@ export function ChestOpening({ kind, opened, opening, error, onOpen, onDone }: C
   }, [opened]);
 
   return (
-    <Screen centered>
-      <ThemedText variant="title" className="text-center" accessibilityRole="header">
+    <Screen centered headerless backdrop={<CenterGlow />}>
+      <ThemedText variant="display" className="text-center halo-accent" accessibilityRole="header">
         {kind === 'rare' ? t.rare : t.common}
       </ThemedText>
       {opened ? (
         <Animated.View entering={reduced ? undefined : REVEAL}>
           <View className="items-center gap-4" accessibilityLiveRegion="polite">
             <Animated.View style={reduced ? styles.big : styles.pop}>
-              <ThemedText variant="display" className="text-center">
-                {t.opened}
-              </ThemedText>
+              <Emblem name="gem" size="xl" />
             </Animated.View>
-            <ThemedText variant="title" className="text-center">
+            <ThemedText variant="title" tone="success" className="text-center">
               {t.found(opened.gems)}
             </ThemedText>
             <ThemedText className="text-center">{t.total(opened.total)}</ThemedText>
@@ -66,16 +67,26 @@ export function ChestOpening({ kind, opened, opening, error, onOpen, onDone }: C
             accessibilityLabel={t.open}
             disabled={opening}
             onPress={onOpen}
-            className="items-center justify-center p-8 active:opacity-80"
+            className="items-center justify-center active:opacity-80"
           >
-            <Animated.View style={reduced || opening ? styles.big : styles.wobble}>
-              <ThemedText variant="display">{kind === 'rare' ? t.rareClosed : t.closed}</ThemedText>
+            <Animated.View style={reduced || opening ? styles.still : styles.wobble}>
+              <View className="h-52 w-60">
+                <ChestArt />
+                {kind === 'rare' ? (
+                  <View className="absolute right-0 top-1 rotate-8 rounded-full bg-accent px-3 py-1">
+                    <ThemedText variant="tag" tone="onAccent">
+                      {strings.summary.rare}
+                    </ThemedText>
+                  </View>
+                ) : null}
+              </View>
             </Animated.View>
           </Pressable>
           <ThemedText className="text-center">{t.hint}</ThemedText>
           <ErrorMessage kind={error} />
           <Button
             size="lg"
+            variant="accent"
             title={t.open}
             loading={opening}
             onPress={onOpen}
@@ -89,11 +100,11 @@ export function ChestOpening({ kind, opened, opening, error, onOpen, onDone }: C
 
 // Waits to be opened: a slow wobble, paused every other second.
 const wobble = css.keyframes({
-  '0%': { transform: [{ rotate: '0deg' }, { scale: 2 }] },
-  '15%': { transform: [{ rotate: '-8deg' }, { scale: 2 }] },
-  '30%': { transform: [{ rotate: '8deg' }, { scale: 2 }] },
-  '45%': { transform: [{ rotate: '0deg' }, { scale: 2 }] },
-  '100%': { transform: [{ rotate: '0deg' }, { scale: 2 }] },
+  '0%': { transform: [{ rotate: '0deg' }] },
+  '15%': { transform: [{ rotate: '-4deg' }] },
+  '30%': { transform: [{ rotate: '4deg' }] },
+  '45%': { transform: [{ rotate: '0deg' }] },
+  '100%': { transform: [{ rotate: '0deg' }] },
 });
 
 // The gem arrives slightly too big and settles.
@@ -103,11 +114,11 @@ const pop = css.keyframes({
   '100%': { opacity: 1, transform: [{ scale: 2 }] },
 });
 
-const styles: Record<'big' | 'wobble' | 'pop', CSSStyle<ViewStyle>> = {
-  // Twice the display size: the chest is the whole screen's point.
+const styles: Record<'big' | 'still' | 'wobble' | 'pop', CSSStyle<ViewStyle>> = {
+  // Twice its size: the gem is the whole screen's point.
   big: { transform: [{ scale: 2 }] },
+  still: {},
   wobble: {
-    transform: [{ scale: 2 }],
     animationName: wobble,
     animationDuration: '1600ms',
     animationIterationCount: 'infinite',

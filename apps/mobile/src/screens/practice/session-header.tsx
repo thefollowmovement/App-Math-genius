@@ -1,67 +1,84 @@
-import type { Island, Slot } from '@math-genius/exercise-engine';
-import { Button, ThemedText, useTheme, View } from '@math-genius/ui';
-import Animated from 'react-native-reanimated';
+import { Pressable, ThemedText, View } from '@math-genius/ui';
 import { StyleSheet } from 'react-native';
 
+import { Icon } from '@/components/game/icons';
+import { ProgressBar } from '@/components/game/progress-bar';
 import { strings } from '@/i18n';
 
 const t = strings.practice;
 
+/** Answers in a row from which the combo shows. */
+export const COMBO_FROM = 3;
+
+/** How far the session has gone toward its goal, in exercises or in minutes. */
+export type SessionCount = { done: number; total: number; unit: 'exercises' | 'minutes' };
+
 type SessionHeaderProps = {
   /** Share of the session goal done, 0 to 1. */
   progress: number;
-  slot: Slot;
-  twin: boolean;
-  /** A boss session: its island instead of the kind of exercise. */
-  boss?: Island;
+  count: SessionCount;
+  /** Right answers in a row, the current one included. */
+  combo: number;
   onPause: () => void;
 };
 
-export function SessionHeader({ progress, slot, twin, boss, onPause }: SessionHeaderProps) {
-  const { colors } = useTheme();
+/** Pause, the session's progress and count, and the combo once it is worth a cheer. */
+export function SessionHeader({ progress, count, combo, onPause }: SessionHeaderProps) {
   const percent = Math.round(Math.min(1, Math.max(0, progress)) * 100);
-
+  const minutes = count.unit === 'minutes';
   return (
-    <View className="gap-3">
+    <View className="gap-4">
       <View className="flex-row items-center gap-3">
-        <Button variant="ghost" title={t.pause} onPress={onPause} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t.pauseLabel}
+          onPress={onPause}
+          hitSlop={4}
+          className="size-11 items-center justify-center rounded-md border-2 border-border bg-surface active:opacity-80"
+        >
+          <Icon name="close" color="muted" size="sm" />
+        </Pressable>
+        <ProgressBar
+          value={progress}
+          size="lg"
+          label={t.progress(percent)}
+          fillStyle={styles.fill}
+          className="flex-1"
+        />
+        <ThemedText
+          variant="tag"
+          tone="muted"
+          accessibilityLabel={
+            minutes
+              ? t.counter.minutesLabel(count.done, count.total)
+              : t.counter.countLabel(count.done, count.total)
+          }
+        >
+          {minutes
+            ? t.counter.minutes(count.done, count.total)
+            : t.counter.count(count.done, count.total)}
+        </ThemedText>
+      </View>
+      {combo >= COMBO_FROM ? (
         <View
           accessible
-          accessibilityRole="progressbar"
-          accessibilityLabel={t.progress(percent)}
-          accessibilityValue={{ min: 0, max: 100, now: percent }}
-          className="h-3 flex-1 overflow-hidden rounded-full border border-border bg-surface"
+          accessibilityLabel={t.comboLabel(combo)}
+          accessibilityLiveRegion="polite"
+          className="flex-row items-center gap-2 self-center rounded-full border-2 border-fire bg-background px-4 py-2 glow-fire"
         >
-          {/* Out of the flow and childless, so animating its width costs no layout pass. */}
-          <Animated.View
-            style={[styles.fill, { width: `${percent}%`, backgroundColor: colors.primary }]}
-          />
+          <Icon name="bolt" color="accent" size="sm" />
+          <ThemedText variant="tag" tone="accent">
+            {t.combo(combo)}
+          </ThemedText>
         </View>
-      </View>
-      <View className="flex-row flex-wrap gap-2">
-        <Chip label={boss ? t.boss(strings.map.islands[boss.domain].name) : t.slots[slot]} />
-        {twin ? <Chip label={t.twin} /> : null}
-      </View>
+      ) : null}
     </View>
   );
 }
 
-function Chip({ label }: { label: string }) {
-  return (
-    <View className="rounded-full bg-secondary px-3 py-1">
-      <ThemedText variant="caption" tone="onSecondary">
-        {label}
-      </ThemedText>
-    </View>
-  );
-}
-
+// The fill follows each answer (150 ms): out of the flow, so no layout pass.
 const styles = StyleSheet.create({
   fill: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
     transitionProperty: 'width',
     transitionDuration: 150,
     transitionTimingFunction: 'ease-out',

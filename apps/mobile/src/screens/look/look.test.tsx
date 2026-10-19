@@ -62,20 +62,20 @@ describe('LookEditor', () => {
         onCosmetic={onCosmetic}
       />,
     );
-    // Auras first: the free one, the one of a badge earned, and the locked ones.
-    expect(screen.getByRole('tab', { name: t.slots.aura })).toBeSelected();
+    // A card per slot. Auras: the free one, the one of a badge earned, and the locked ones.
+    for (const slot of ['aura', 'frame', 'companion', 'accessory'] as const) {
+      expect(screen.getByLabelText(t.slots[slot])).toBeOnTheScreen();
+    }
     await user.press(screen.getByRole('radio', { name: t.cosmetics['aura-gold'] }));
     expect(onCosmetic).toHaveBeenCalledWith('aura', 'aura-gold');
     expect(
       screen.getByRole('radio', { name: t.lockedLabel(t.cosmetics['aura-cyan']) }),
     ).toBeOnTheScreen();
 
-    await user.press(screen.getByRole('tab', { name: t.slots.frame }));
     expect(screen.getByRole('radio', { name: t.cosmetics['frame-neon'] })).toBeChecked();
     await user.press(screen.getByRole('radio', { name: t.noneLabel(t.slots.frame) }));
     expect(onCosmetic).toHaveBeenCalledWith('frame', null);
 
-    await user.press(screen.getByRole('tab', { name: t.slots.companion }));
     const kitten = strings.shop.items.kitten.name;
     expect(screen.getByRole('radio', { name: t.lockedLabel(kitten) })).toBeOnTheScreen();
   });

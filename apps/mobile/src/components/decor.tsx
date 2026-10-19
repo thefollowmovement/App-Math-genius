@@ -1,5 +1,16 @@
-import { useTheme, View, type ThemeArt } from '@math-genius/ui';
-import Svg, { Circle, Ellipse, G, Line, Path } from 'react-native-svg';
+import { cx, useTheme, View, type ThemeArt } from '@math-genius/ui';
+import { useId } from 'react';
+import Svg, {
+  Circle,
+  Defs,
+  Ellipse,
+  G,
+  Line,
+  Path,
+  RadialGradient,
+  Rect,
+  Stop,
+} from 'react-native-svg';
 
 // Corner drawings in a 160 × 160 box, drawn top right and again, turned, bottom left. They stay in
 // the corners so that text never sits on them.
@@ -76,21 +87,18 @@ function Stars({ colors: [planet, star] }: { colors: Colors }) {
   );
 }
 
-// Two stage spotlights falling from the corner, and sparkles in their light.
-function Spotlights({ colors: [beam, sparkleColor] }: { colors: Colors }) {
+// Stage light over the night: a soft halo from the corner, pink at the top, cyan at the bottom.
+function Glows({ colors: [top, bottom], turned }: { colors: Colors; turned: boolean }) {
+  const id = `glow${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   return (
     <>
-      <Path d="M150 0 L58 160 L112 160 Z" fill={beam} fillOpacity={0.9} />
-      <Path d="M160 18 L132 160 L160 160 Z" fill={beam} fillOpacity={0.6} />
-      <Circle cx={152} cy={4} r={12} fill={beam} />
-      {[
-        [96, 112],
-        [128, 74],
-        [70, 150],
-      ].map(([x = 0, y = 0]) => (
-        <Path key={`${x}-${y}`} d={sparkle(x, y)} fill={sparkleColor} />
-      ))}
-      <Circle cx={112} cy={136} r={2} fill={sparkleColor} />
+      <Defs>
+        <RadialGradient id={id} cx="50%" cy="50%" r="50%">
+          <Stop offset={0} stopColor={turned ? bottom : top} stopOpacity={1} />
+          <Stop offset={1} stopColor={turned ? bottom : top} stopOpacity={0} />
+        </RadialGradient>
+      </Defs>
+      <Circle cx={160} cy={0} r={160} fill={`url(#${id})`} />
     </>
   );
 }
@@ -99,7 +107,7 @@ const DRAWINGS = {
   bubbles: Bubbles,
   'speed-lines': SpeedLines,
   stars: Stars,
-  spotlights: Spotlights,
+  glows: Glows,
 } as const;
 
 function Corner({ turned }: { turned: boolean }) {
@@ -108,7 +116,7 @@ function Corner({ turned }: { turned: boolean }) {
   return (
     <Svg width="100%" height="100%" viewBox="0 0 160 160">
       <G transform={turned ? 'rotate(180 80 80)' : undefined}>
-        <Drawing colors={art.decorColors} />
+        <Drawing colors={art.decorColors} turned={turned} />
       </G>
     </Svg>
   );
@@ -116,18 +124,43 @@ function Corner({ turned }: { turned: boolean }) {
 
 /** The theme's backdrop (Screen's `backdrop`): a drawing in two corners of the child's screens. */
 export function Decor() {
+  // Halos spread wider than drawings.
+  const size = useTheme().art.decor === 'glows' ? 'size-80' : 'size-40';
   return (
     <View
       className="pointer-events-none absolute inset-0"
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <View className="absolute right-0 top-0 size-40">
+      <View className={cx('absolute right-0 top-0', size)}>
         <Corner turned={false} />
       </View>
-      <View className="absolute bottom-0 left-0 size-40">
+      <View className={cx('absolute bottom-0 left-0', size)}>
         <Corner turned />
       </View>
+    </View>
+  );
+}
+
+/** A soft light behind the middle of the screen (the end of a session). */
+export function CenterGlow() {
+  const { colors } = useTheme();
+  const id = `center${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  return (
+    <View
+      className="pointer-events-none absolute inset-0"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <Svg width="100%" height="100%">
+        <Defs>
+          <RadialGradient id={id} cx="50%" cy="34%" r="60%">
+            <Stop offset={0} stopColor={colors.raised} stopOpacity={1} />
+            <Stop offset={1} stopColor={colors.raised} stopOpacity={0} />
+          </RadialGradient>
+        </Defs>
+        <Rect x={0} y={0} width="100%" height="100%" fill={`url(#${id})`} />
+      </Svg>
     </View>
   );
 }

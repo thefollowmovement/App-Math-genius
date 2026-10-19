@@ -28,7 +28,7 @@ describe('HeroIntro', () => {
       screen.getByRole('radio', { name: strings.heroes.label(juno.name, juno.role) }),
     );
     expect(props.onPickHero).toHaveBeenCalledWith('juno');
-    await user.press(screen.getByRole('button', { name: t.choose.confirm('Nova') }));
+    await user.press(screen.getByRole('button', { name: t.choose.confirmLabel('Nova') }));
     expect(props.onConfirmHero).toHaveBeenCalled();
     // Offline, the child tries again.
     expect(screen.getByText(strings.errors.network)).toBeOnTheScreen();
