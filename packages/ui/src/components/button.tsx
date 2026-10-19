@@ -1,10 +1,16 @@
 import { cx } from '../class-names';
-import { Pressable } from '../primitives';
+import { ActivityIndicator, Pressable } from '../primitives';
 import { ThemedText } from './themed-text';
 
 const variantClassNames = {
-  primary: { container: 'bg-primary', label: 'text-on-primary' },
-  secondary: { container: 'bg-secondary', label: 'text-on-secondary' },
+  primary: { container: 'bg-primary', label: 'text-on-primary', tone: 'onPrimary' },
+  secondary: { container: 'bg-secondary', label: 'text-on-secondary', tone: 'onSecondary' },
+  ghost: { container: 'bg-transparent', label: 'text-foreground', tone: 'default' },
+  danger: {
+    container: 'bg-transparent border border-danger',
+    label: 'text-danger',
+    tone: 'danger',
+  },
 } as const;
 
 const sizeClassNames = {
@@ -21,8 +27,12 @@ type ButtonProps = {
   variant?: ButtonVariant;
   size?: ButtonSize;
   disabled?: boolean;
+  /** Shows a spinner and ignores presses, e.g. while a request runs. */
+  loading?: boolean;
   /** Layout only (width, margins). */
   className?: string;
+  /** Spoken label when the title is a symbol (◀, ▶). */
+  accessibilityLabel?: string;
   testID?: string;
 };
 
@@ -32,25 +42,31 @@ export function Button({
   variant = 'primary',
   size = 'md',
   disabled = false,
+  loading = false,
   className,
+  accessibilityLabel,
   testID,
 }: ButtonProps) {
+  const inactive = disabled || loading;
+
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      disabled={disabled}
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: inactive, busy: loading }}
+      disabled={inactive}
       onPress={onPress}
       testID={testID}
       className={cx(
-        'items-center justify-center rounded-lg active:opacity-80',
+        'flex-row items-center justify-center gap-2 rounded-lg active:opacity-80',
         variantClassNames[variant].container,
         sizeClassNames[size],
         disabled && 'opacity-40',
         className,
       )}
     >
-      <ThemedText variant="headline" className={variantClassNames[variant].label}>
+      {loading && <ActivityIndicator className={variantClassNames[variant].label} />}
+      <ThemedText variant="headline" tone={variantClassNames[variant].tone}>
         {title}
       </ThemedText>
     </Pressable>
