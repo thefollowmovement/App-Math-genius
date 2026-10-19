@@ -193,6 +193,10 @@ const screens: { name: string; render: () => ReactElement }[] = [
     render: () => (
       <LookEditor
         look={{ theme: 'space', avatar: DEFAULT_LOOKS.boy.avatar }}
+        earned={new Set(['streak-7'])}
+        hint={{ part: 'hairColor', option: 'gold', badge: 'combo-10' }}
+        accessory="top-hat"
+        onPart={jest.fn()}
         changed
         saving={false}
         error="avatarLocked"

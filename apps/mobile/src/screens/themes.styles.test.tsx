@@ -121,6 +121,9 @@ describe.each(Object.values(themes))('theme $id with native styles', (theme) => 
     const { toJSON } = await renderWithTheme(
       <LookEditor
         look={look}
+        earned={new Set()}
+        hint={null}
+        onPart={jest.fn()}
         changed={false}
         saving={false}
         error={null}

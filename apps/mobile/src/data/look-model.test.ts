@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { DEFAULT_LOOKS } from '@math-genius/shared';
 import { THEME_IDS } from '@math-genius/ui';
 
-import { lookOf, sameLook } from './look-model';
+import { lookOf, pickOption, sameLook, withPart } from './look-model';
 
 const lea = { theme_id: 'space', avatar: {}, gender: 'girl' } as const;
 
@@ -23,6 +23,26 @@ describe('look', () => {
     expect(sameLook(look, { ...look, avatar: { ...look.avatar } })).toBe(true);
     expect(sameLook(look, { ...look, theme: 'manga' })).toBe(false);
     expect(sameLook(look, { ...look, avatar: { ...look.avatar, eyes: 'wink' } })).toBe(false);
+  });
+
+  it('changes one part at a time, with options that exist', () => {
+    const { avatar } = lookOf(lea);
+    expect(withPart(avatar, 'hair', 'bun')).toEqual({ ...avatar, hair: 'bun' });
+    expect(withPart(avatar, 'hair', 'mohawk')).toBeNull();
+  });
+
+  it('keeps rare options for the children who earned their badge', () => {
+    const look = lookOf(lea);
+    expect(pickOption(look, 'outfit', 'cape', new Set())).toEqual({
+      locked: { part: 'outfit', option: 'cape', badge: 'streak-7' },
+    });
+    expect(pickOption(look, 'outfit', 'cape', new Set(['streak-7']))).toEqual({
+      look: { ...look, avatar: { ...look.avatar, outfit: 'cape' } },
+    });
+    expect(pickOption(look, 'eyes', 'wink', new Set())).toEqual({
+      look: { ...look, avatar: { ...look.avatar, eyes: 'wink' } },
+    });
+    expect(pickOption(look, 'eyes', 'laser', new Set())).toBeNull();
   });
 
   it('only stores themes the database knows (latest private.theme_ids)', () => {

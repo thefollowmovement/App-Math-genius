@@ -345,7 +345,7 @@ describe('ChildHome rewards', () => {
     expect(
       screen.getByLabelText(strings.shop.companionLabel(strings.shop.items.kitten.name)),
     ).toBeOnTheScreen();
-    expect(screen.queryByLabelText(/Ton accessoire/)).toBeNull();
+    expect(screen.getByRole('image', { name: strings.look.avatar })).toBeOnTheScreen();
     // This week's challenge.
     expect(screen.getByText(strings.challenge.items['daily-5'])).toBeOnTheScreen();
     expect(screen.getByLabelText(strings.challenge.progressLabel(3, 5))).toBeOnTheScreen();

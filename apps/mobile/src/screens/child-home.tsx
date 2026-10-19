@@ -1,7 +1,8 @@
 import type { SessionGoal } from '@math-genius/exercise-engine';
-import type { DayPlan } from '@math-genius/shared';
-import { Avatar, Button, Screen, ThemedText, View } from '@math-genius/ui';
+import { avatarOf, type DayPlan } from '@math-genius/shared';
+import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
+import { AvatarPicture } from '@/components/avatar';
 import { Decor } from '@/components/decor';
 import type { Child } from '@/data/children';
 import type { ParentRewardView } from '@/data/parent-rewards-model';
@@ -110,18 +111,12 @@ export function ChildHome({
       {rewards ? <ProgressStrip progress={rewards.progress} /> : null}
       <View className="items-center gap-4">
         <View className="flex-row items-end gap-2">
-          <View>
-            <Avatar name={child.display_name} size="lg" />
-            {accessory ? (
-              <ThemedText
-                variant="title"
-                className="absolute -right-2 -top-2"
-                accessibilityLabel={strings.shop.accessoryLabel(accessory.name)}
-              >
-                {accessory.icon}
-              </ThemedText>
-            ) : null}
-          </View>
+          <AvatarPicture
+            avatar={avatarOf(child.avatar, child.gender)}
+            accessory={worn.accessory}
+            size="lg"
+            label={accessory ? strings.look.avatarWith(accessory.name) : strings.look.avatar}
+          />
           {companion ? (
             <ThemedText
               variant="display"

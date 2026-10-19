@@ -73,6 +73,7 @@ export {
   SHOP_ITEMS,
   SHOP_KINDS,
   isShopItemCode,
+  type AccessoryCode,
   type ShopItem,
   type ShopItemCode,
   type ShopKind,

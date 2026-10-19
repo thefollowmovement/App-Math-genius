@@ -1,4 +1,10 @@
-import type { BadgeCode, ChallengeCode, ShopItemCode } from '@math-genius/shared';
+import type {
+  AVATAR_PARTS,
+  AvatarPart,
+  BadgeCode,
+  ChallengeCode,
+  ShopItemCode,
+} from '@math-genius/shared';
 import type { ThemeId } from '@math-genius/ui';
 
 export const fr = {
@@ -479,7 +485,6 @@ export const fr = {
     worn: 'Porté',
     wearLabel: (name: string) => `Porter ${name}`,
     companionLabel: (name: string) => `Ton compagnon\u00a0: ${name}`,
-    accessoryLabel: (name: string) => `Ton accessoire\u00a0: ${name}`,
     takeOffLabel: (name: string) => `Retirer ${name}`,
     /** One per code of packages/shared/src/shop.ts. */
     items: {
@@ -737,8 +742,75 @@ export const fr = {
   look: {
     title: 'Personnaliser',
     open: 'Personnaliser',
-    intro: 'Choisis ton thème\u00a0: tout l’écran change pour te montrer le résultat.',
+    intro: 'Change ton avatar et ton thème\u00a0: tu vois le résultat avant de l’enregistrer.',
+    avatar: 'Ton avatar',
+    avatarWith: (accessory: string) => `Ton avatar, avec ${accessory}`,
     themes: 'Ton thème',
+    parts: {
+      skin: 'Peau',
+      hair: 'Coiffure',
+      hairColor: 'Cheveux',
+      eyes: 'Yeux',
+      outfit: 'Tenue',
+      outfitColor: 'Couleur',
+    } satisfies Record<AvatarPart, string>,
+    options: {
+      skin: {
+        'skin-1': 'Peau très claire',
+        'skin-2': 'Peau claire',
+        'skin-3': 'Peau dorée',
+        'skin-4': 'Peau mate',
+        'skin-5': 'Peau brune',
+        'skin-6': 'Peau foncée',
+      },
+      hair: {
+        short: 'Cheveux courts',
+        curly: 'Cheveux bouclés',
+        long: 'Cheveux longs',
+        bun: 'Chignon',
+        braids: 'Tresses',
+        spiky: 'Cheveux en pétard',
+        pigtails: 'Couettes',
+        none: 'Sans cheveux',
+      },
+      hairColor: {
+        black: 'Cheveux noirs',
+        'dark-brown': 'Cheveux bruns',
+        brown: 'Cheveux châtains',
+        blond: 'Cheveux blonds',
+        red: 'Cheveux roux',
+        blue: 'Cheveux bleus',
+        pink: 'Cheveux roses',
+        gold: 'Cheveux dorés',
+      },
+      eyes: {
+        round: 'Yeux ronds',
+        happy: 'Yeux rieurs',
+        wink: 'Clin d’œil',
+        glasses: 'Lunettes',
+      },
+      outfit: {
+        tshirt: 'T-shirt',
+        hoodie: 'Sweat à capuche',
+        dress: 'Robe',
+        overalls: 'Salopette',
+        sport: 'Maillot de sport',
+        cape: 'Cape de héros',
+        astronaut: 'Combinaison d’astronaute',
+      },
+      outfitColor: {
+        red: 'Rouge',
+        blue: 'Bleu',
+        green: 'Vert',
+        yellow: 'Jaune',
+        purple: 'Violet',
+        orange: 'Orange',
+      },
+    } satisfies { [P in AvatarPart]: Record<(typeof AVATAR_PARTS)[P][number], string> },
+    lockedLabel: (option: string, badge: string) => `${option}, se gagne avec le badge ${badge}`,
+    locked: (option: string, badge: string) =>
+      `🔒 ${option}\u00a0: se débloque avec le badge «\u00a0${badge}\u00a0».`,
+    lock: '🔒',
     chosen: 'Choisi',
     themeLabel: (name: string, description: string) => `Thème ${name}. ${description}`,
     save: 'Enregistrer',

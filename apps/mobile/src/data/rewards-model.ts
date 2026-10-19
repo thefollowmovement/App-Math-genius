@@ -8,7 +8,6 @@ import {
   type Award,
   type ChallengeCode,
   type ShopItem,
-  type ShopItemCode,
   type ShopKind,
   type Tables,
 } from '@math-genius/shared';
@@ -77,13 +76,19 @@ export function shopGroups(items: readonly ItemRow[]): ShopGroup[] {
 }
 
 /** The item worn of each kind (items this version of the app does not know are left out). */
-export function wornItems(items: readonly ItemRow[]): Partial<Record<ShopKind, ShopItemCode>> {
-  const worn: Partial<Record<ShopKind, ShopItemCode>> = {};
+/** The item worn of each kind. */
+export type WornItems = { [K in ShopKind]?: Extract<ShopItem, { kind: K }>['code'] };
+
+export function wornItems(items: readonly ItemRow[]): WornItems {
+  const worn: WornItems = {};
   for (const { item_code: code, equipped } of items) {
     const item = isShopItemCode(code)
       ? SHOP_ITEMS.find((candidate) => candidate.code === code)
       : null;
-    if (equipped && item) worn[item.kind] = item.code;
+    if (!equipped || !item) continue;
+    if (item.kind === 'companion') worn.companion = item.code;
+    else if (item.kind === 'accessory') worn.accessory = item.code;
+    else worn.effect = item.code;
   }
   return worn;
 }

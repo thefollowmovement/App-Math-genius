@@ -1,5 +1,6 @@
-import { Avatar, Button, Pressable, Screen, ThemedText, View } from '@math-genius/ui';
+import { Button, Pressable, Screen, ThemedText, View } from '@math-genius/ui';
 
+import { ChildAvatar } from '@/components/avatar/child-avatar';
 import { Decor } from '@/components/decor';
 import type { Child } from '@/data/children';
 import { strings } from '@/i18n';
@@ -31,7 +32,7 @@ export function ProfilePicker({ childProfiles, onPick, onPairAnother }: ProfileP
             onPress={() => onPick(child.id)}
             className="w-36 items-center gap-3 rounded-lg border border-border bg-surface p-4 active:opacity-80"
           >
-            <Avatar name={child.display_name} size="lg" />
+            <ChildAvatar child={child} size="lg" />
             <ThemedText variant="headline" className="text-center">
               {child.display_name}
             </ThemedText>
