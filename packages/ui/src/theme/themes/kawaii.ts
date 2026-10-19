@@ -1,6 +1,6 @@
 import type { Theme } from '../types';
 
-/** Provisional kawaii theme: pastels and very round shapes. */
+/** Kawaii: pastels, very round shapes and a round font. */
 export const kawaii: Theme = {
   id: 'kawaii',
   colorScheme: 'light',
@@ -22,5 +22,17 @@ export const kawaii: Theme = {
     sm: 12,
     md: 20,
     lg: 28,
+  },
+  typography: { headingFont: 'Fredoka_600SemiBold', headingWeight: '600' },
+  art: {
+    mascot: {
+      body: '#FFC6DC',
+      belly: '#FFF1F6',
+      accent: '#FF8FB8',
+      cheek: '#FF9EC2',
+      ink: '#46233A',
+    },
+    decor: 'bubbles',
+    decorColors: ['#FFE0EC', '#DDF2FA'],
   },
 };

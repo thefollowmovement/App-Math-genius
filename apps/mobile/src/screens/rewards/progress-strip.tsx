@@ -35,7 +35,7 @@ export function ProgressStrip({ progress }: { progress: ProgressView }) {
         accessibilityRole="progressbar"
         accessibilityLabel={t.levelLabel(progress.level, progress.inLevel, progress.toNext)}
         accessibilityValue={{ min: 0, max: progress.toNext, now: progress.inLevel }}
-        className="h-3 overflow-hidden rounded-full bg-background"
+        className="h-3 overflow-hidden rounded-full border border-border bg-background"
       >
         <View className="h-3 rounded-full bg-primary" style={{ width: `${percent}%` }} />
       </View>

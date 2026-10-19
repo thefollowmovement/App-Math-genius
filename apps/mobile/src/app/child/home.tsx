@@ -57,6 +57,7 @@ export default function ChildHomeRoute() {
       onOpenBadges={() => router.push({ pathname: '/child/badges', params: { id } })}
       onOpenMap={() => router.push({ pathname: '/child/map', params: { id } })}
       onOpenShop={() => router.push({ pathname: '/child/shop', params: { id } })}
+      onOpenLook={() => router.push({ pathname: '/child/look', params: { id } })}
       sync={!online ? 'offline' : unsent ? 'syncing' : 'idle'}
       onStart={() => start()}
       onSwitchProfile={

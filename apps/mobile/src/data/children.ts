@@ -1,4 +1,4 @@
-import type { ChildProfile, Tables } from '@math-genius/shared';
+import { DEFAULT_LOOKS, type ChildProfile, type Tables } from '@math-genius/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from '@/lib/supabase';
@@ -7,10 +7,10 @@ import { useUserId } from './session';
 
 export type Child = Pick<
   Tables<'children'>,
-  'id' | 'display_name' | 'gender' | 'grade' | 'birth_year' | 'theme_id'
+  'id' | 'display_name' | 'gender' | 'grade' | 'birth_year' | 'theme_id' | 'avatar'
 >;
 
-const CHILD_COLUMNS = 'id, display_name, gender, grade, birth_year, theme_id';
+const CHILD_COLUMNS = 'id, display_name, gender, grade, birth_year, theme_id, avatar';
 
 /** A parent gets their family's children; a paired device gets its own (RLS decides). */
 export function useChildren() {
@@ -59,6 +59,8 @@ export function useCreateChild() {
           gender: profile.gender,
           grade: profile.grade,
           birth_year: profile.birthYear,
+          // Preselected from the profile; the child changes it at will (docs/specs.md).
+          theme_id: DEFAULT_LOOKS[profile.gender].theme,
         })
         .select(CHILD_COLUMNS)
         .single();

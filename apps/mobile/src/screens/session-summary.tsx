@@ -2,8 +2,10 @@ import type { ShopItemCode } from '@math-genius/shared';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 import Animated, { Easing, ZoomIn } from 'react-native-reanimated';
 
+import { Decor } from '@/components/decor';
 import type { SessionSummary as Summary } from '@/data/practice/summary';
 import type { AwardState } from '@/data/rewards-model';
+import { useThemeStrings } from '@/hooks/use-theme-strings';
 import { strings } from '@/i18n';
 
 import { AwardPanel } from './rewards/award-panel';
@@ -34,12 +36,13 @@ export function SessionSummary({
   onBonus,
   onHome,
 }: SessionSummaryProps) {
+  const theme = useThemeStrings();
   return (
-    <Screen centered>
+    <Screen centered backdrop={<Decor />}>
       {effect ? <VictoryEffect icon={strings.shop.items[effect].icon} /> : null}
       <View className="gap-2">
         <ThemedText variant="display" className="text-center" accessibilityRole="header">
-          {summary.kind === 'boss' ? t.bossOver : summary.goalMet ? t.goalMet : t.finished}
+          {summary.kind === 'boss' ? t.bossOver : summary.goalMet ? theme.goalMet : t.finished}
         </ThemedText>
         <ThemedText variant="headline" className="text-center">
           {t.score(summary.correct, summary.answered)}

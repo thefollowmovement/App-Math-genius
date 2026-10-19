@@ -1,5 +1,6 @@
 import { Avatar, Button, Pressable, Screen, ThemedText, View } from '@math-genius/ui';
 
+import { Decor } from '@/components/decor';
 import type { Child } from '@/data/children';
 import { strings } from '@/i18n';
 
@@ -14,7 +15,7 @@ type ProfilePickerProps = {
 
 export function ProfilePicker({ childProfiles, onPick, onPairAnother }: ProfilePickerProps) {
   return (
-    <Screen centered>
+    <Screen centered backdrop={<Decor />}>
       <ThemedText variant="title" className="text-center">
         {t.title}
       </ThemedText>

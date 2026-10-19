@@ -1,4 +1,5 @@
 import type { BadgeCode, ChallengeCode, ShopItemCode } from '@math-genius/shared';
+import type { ThemeId } from '@math-genius/ui';
 
 export const fr = {
   common: {
@@ -246,6 +247,7 @@ export const fr = {
     notAvailable: 'Les exercices de ta classe arrivent bientôt.',
     offline: 'Pas de réseau\u00a0: tes réponses restent sur l’appareil et partiront plus tard.',
     syncing: 'Envoi de tes réponses…',
+    shortcutIcons: { map: '🗺️', shop: '🛍️', badges: '🏅', look: '🎨' },
   },
   practice: {
     pause: 'Pause',
@@ -309,7 +311,7 @@ export const fr = {
     },
   },
   summary: {
-    goalMet: 'Mission accomplie\u00a0!',
+    // A validated mission takes the theme's line (themes.*.goalMet).
     bossOver: 'Combat terminé\u00a0!',
     finished: 'Séance terminée, merci pour tes efforts\u00a0!',
     notValidated:
@@ -711,6 +713,36 @@ export const fr = {
       },
     } satisfies Record<BadgeCode, { icon: string; title: string; description: string }>,
   },
+  /** One per theme of packages/ui/src/theme/themes. */
+  themes: {
+    kawaii: {
+      icon: '🌸',
+      name: 'Kawaii',
+      description: 'Des couleurs douces, des formes rondes et de petits animaux.',
+      goalMet: 'Youpi, mission accomplie\u00a0!',
+    },
+    manga: {
+      icon: '⚡',
+      name: 'Manga',
+      description: 'Des couleurs vives, des effets de vitesse et des onomatopées.',
+      goalMet: 'BOUM\u00a0! Mission accomplie\u00a0!',
+    },
+    space: {
+      icon: '🚀',
+      name: 'Espace',
+      description: 'Le bleu de la nuit, des planètes et des étoiles.',
+      goalMet: 'Mission réussie, astronaute\u00a0!',
+    },
+  } satisfies Record<ThemeId, { icon: string; name: string; description: string; goalMet: string }>,
+  look: {
+    title: 'Personnaliser',
+    open: 'Personnaliser',
+    intro: 'Choisis ton thème\u00a0: tout l’écran change pour te montrer le résultat.',
+    themes: 'Ton thème',
+    chosen: 'Choisi',
+    themeLabel: (name: string, description: string) => `Thème ${name}. ${description}`,
+    save: 'Enregistrer',
+  },
   genders: {
     girl: 'Fille',
     boy: 'Garçon',
@@ -741,6 +773,7 @@ export const fr = {
     notEnoughGems: 'Il manque des gemmes pour cet achat.',
     alreadyOwned: 'Cet objet est déjà acheté.',
     tooManyFreezes: 'Le stock de gels est déjà plein.',
+    avatarLocked: 'Cet objet rare se gagne avec un badge.',
     network: 'Pas de connexion. Vérifiez le réseau et réessayez.',
     unknown: 'Une erreur est survenue. Réessayez.',
   },

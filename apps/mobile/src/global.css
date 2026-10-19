@@ -34,6 +34,11 @@
   --radius-sm: var(--theme-radius-sm);
   --radius-md: var(--theme-radius-md);
   --radius-lg: var(--theme-radius-lg);
+
+  /* Display and title texts: the theme's font, with the one weight its file has. */
+  --font-heading: var(--theme-font-heading);
+  --text-display--font-weight: var(--theme-font-heading-weight);
+  --text-title--font-weight: var(--theme-font-heading-weight);
 }
 
 /* Shapes shared by all themes. */
@@ -50,10 +55,8 @@
 @theme {
   --text-display: 2.25rem;
   --text-display--line-height: calc(2.75 / 2.25);
-  --text-display--font-weight: 800;
   --text-title: 1.75rem;
   --text-title--line-height: calc(2.25 / 1.75);
-  --text-title--font-weight: 700;
   --text-headline: 1.25rem;
   --text-headline--line-height: calc(1.75 / 1.25);
   --text-headline--font-weight: 600;

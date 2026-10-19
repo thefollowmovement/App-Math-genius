@@ -24,6 +24,7 @@ describe('errorKind', () => {
     expect(errorKind({ code: 'PT409', message: 'not_enough_gems' })).toBe('notEnoughGems');
     expect(errorKind({ code: 'PT409', message: 'already_owned' })).toBe('alreadyOwned');
     expect(errorKind({ code: 'PT409', message: 'too_many_freezes' })).toBe('tooManyFreezes');
+    expect(errorKind({ code: 'PT403', message: 'avatar_locked' })).toBe('avatarLocked');
   });
 
   it('recognizes network failures and falls back to unknown', () => {

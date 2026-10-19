@@ -1,5 +1,6 @@
 import { Screen, ThemedText, View } from '@math-genius/ui';
 
+import { Decor } from '@/components/decor';
 import { BADGE_COUNT, type BadgeGroup } from '@/data/badges-model';
 import { strings } from '@/i18n';
 
@@ -23,7 +24,7 @@ export function Badges({ groups }: BadgesProps) {
   }
   const earned = groups.flatMap((group) => group.badges).filter((badge) => badge.earnedAt).length;
   return (
-    <Screen>
+    <Screen backdrop={<Decor />}>
       <View className="gap-1">
         <ThemedText variant="title">{t.title}</ThemedText>
         <ThemedText variant="caption">{t.count(earned, BADGE_COUNT)}</ThemedText>

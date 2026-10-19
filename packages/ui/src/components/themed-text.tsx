@@ -3,9 +3,10 @@ import type { ComponentProps } from 'react';
 import { cx } from '../class-names';
 import { Text } from '../primitives';
 
+// Display and title texts take the theme's font (--theme-font-heading).
 const variantClassNames = {
-  display: 'text-display',
-  title: 'text-title',
+  display: 'text-display font-heading',
+  title: 'text-title font-heading',
   headline: 'text-headline',
   body: 'text-body',
   caption: 'text-caption',

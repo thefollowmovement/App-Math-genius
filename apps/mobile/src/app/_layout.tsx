@@ -13,6 +13,7 @@ import { startSyncTriggers } from '@/data/practice/sync';
 import { persistOptions, queryClient } from '@/data/query-client';
 import { startSessionListener } from '@/data/session';
 import { useStackScreenOptions } from '@/hooks/use-stack-screen-options';
+import { useThemeFonts } from '@/lib/fonts';
 import { onNotificationTapped, showNotificationsInForeground } from '@/lib/notifications';
 
 export default function RootLayout() {
@@ -27,6 +28,9 @@ export default function RootLayout() {
     showNotificationsInForeground();
     return onNotificationTapped((route) => router.push(route as Href));
   }, []);
+  // Bundled with the app, they load in a moment: waiting avoids titles changing font.
+  const fontsReady = useThemeFonts();
+  if (!fontsReady) return null;
 
   return (
     <GestureHandlerRootView style={styles.root}>

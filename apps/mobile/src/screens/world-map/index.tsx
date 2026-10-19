@@ -1,6 +1,7 @@
 import type { Island, IslandView } from '@math-genius/exercise-engine';
 import { Screen, ThemedText, View } from '@math-genius/ui';
 
+import { Decor } from '@/components/decor';
 import { strings } from '@/i18n';
 
 import { IslandCard } from './island-card';
@@ -17,7 +18,7 @@ type WorldMapProps = {
 /** One island per domain of the child's grade, with the path of its skills and its boss. */
 export function WorldMap({ islands, busy, onFightBoss }: WorldMapProps) {
   return (
-    <Screen>
+    <Screen backdrop={<Decor />}>
       <View className="gap-1">
         <ThemedText variant="title">{t.title}</ThemedText>
         <ThemedText variant="caption">{t.intro}</ThemedText>

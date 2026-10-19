@@ -20,6 +20,7 @@ const lea: Child = {
   grade: 'CM1',
   birth_year: null,
   theme_id: 'kawaii',
+  avatar: {},
 };
 const tom: Child = { ...lea, id: 'tom', display_name: 'Tom' };
 const zoe: Child = { ...lea, id: 'zoe', display_name: 'Zoé' };
