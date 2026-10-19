@@ -16,7 +16,11 @@ export default function LookRoute() {
   const badges = useBadges(id);
   const rewards = useRewards(id);
   // Until they load, badge and shop cosmetics show as locked (the server checks them anyway).
-  const unlocked = unlockedOf(badges.data?.earned ?? [], rewards.data?.items ?? []);
+  const unlocked = unlockedOf(
+    badges.data?.earned ?? [],
+    rewards.data?.items ?? [],
+    rewards.data?.kept ?? [],
+  );
   const editor = useLookEditor(child.data, unlocked);
 
   if (child.isPending) return <LoadingScreen />;

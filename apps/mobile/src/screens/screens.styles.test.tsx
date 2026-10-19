@@ -218,10 +218,10 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
           theme: 'space',
           avatar: {
             hero: 'juno',
-            wear: { aura: 'aura-gold', accessory: 'crown', companion: 'fox' },
+            wear: { aura: 'aura-gold', accessory: 'crown', companion: 'renard' },
           },
         }}
-        unlocked={{ badges: new Set(['streak-7']), owned: new Set(['crown', 'fox']) }}
+        unlocked={{ badges: new Set(['streak-7']), owned: new Set(['crown', 'renard']) }}
         hint={{ cosmetic: 'frame-gold', missing: { kind: 'badge', badge: 'boss-perfect' } }}
         onHero={jest.fn()}
         onCosmetic={jest.fn()}
@@ -250,7 +250,7 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
       <Shop
         gems={70}
         freezes={1}
-        groups={shopGroups([{ item_code: 'kitten', equipped: false }], { companion: 'kitten' })}
+        groups={shopGroups([{ item_code: 'lapin', equipped: false }], { companion: 'lapin' })}
         pending={null}
         error="notEnoughGems"
         onBuyFreeze={jest.fn()}

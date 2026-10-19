@@ -112,3 +112,20 @@ export {
   type Unlocked,
 } from './cosmetics';
 export { HERO_IDS, HERO_POSES, isHeroId, type HeroId, type HeroPose } from './heroes';
+export {
+  COMPANIONS,
+  COMPANION_SPECIALTIES,
+  COMPANION_STAGES,
+  RARITIES,
+  companionLook,
+  companionOf,
+  companionStage,
+  companionsUnlockedBy,
+  isCompanionId,
+  type Companion,
+  type CompanionId,
+  type CompanionLook,
+  type CompanionSpecialty,
+  type CompanionStage,
+  type Rarity,
+} from './companions';

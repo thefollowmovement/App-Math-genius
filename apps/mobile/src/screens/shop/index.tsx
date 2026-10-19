@@ -6,6 +6,7 @@ import type { ErrorKind } from '@/data/errors';
 import type { ShopGroup } from '@/data/rewards-model';
 import { strings } from '@/i18n';
 
+import { CompanionShelf } from './companion-shelf';
 import { ItemCard } from './item-card';
 
 const t = strings.shop;
@@ -71,16 +72,26 @@ export function Shop({
             </ThemedText>
             <ThemedText variant="caption">{t.kindHints[group.kind]}</ThemedText>
           </View>
-          {group.items.map((item) => (
-            <ItemCard
-              key={item.code}
-              item={item}
+          {group.kind === 'companion' ? (
+            <CompanionShelf
+              items={group.items}
               gems={gems}
-              pending={pending === item.code}
-              onBuy={() => onBuy(item.code)}
-              onWear={(wear) => onWear(item.code, wear)}
+              pending={group.items.find((item) => item.code === pending)?.code ?? null}
+              onBuy={onBuy}
+              onWear={onWear}
             />
-          ))}
+          ) : (
+            group.items.map((item) => (
+              <ItemCard
+                key={item.code}
+                item={item}
+                gems={gems}
+                pending={pending === item.code}
+                onBuy={() => onBuy(item.code)}
+                onWear={(wear) => onWear(item.code, wear)}
+              />
+            ))
+          )}
         </View>
       ))}
     </Screen>

@@ -1,7 +1,8 @@
-import { cosmeticOf, type Avatar, type CosmeticSlot } from '@math-genius/shared';
+import { companionLook, cosmeticOf, type Avatar, type CosmeticSlot } from '@math-genius/shared';
 import { ThemedText, View, cx } from '@math-genius/ui';
 import { useId } from 'react';
 
+import { CompanionPicture } from '../companion/companion-picture';
 import { AuraDrawing, COSMETIC_ART, FrameDrawing, type OverlayArt } from './cosmetic-art';
 import { HeroPicture } from './hero-view';
 
@@ -31,7 +32,8 @@ function overlay(avatar: Avatar, slot: CosmeticSlot): OverlayArt | undefined {
 
 /**
  * The child's hero as a portrait, with what it wears around it: an aura behind, a frame, an
- * accessory sticker and a companion. The hero's drawing itself never changes.
+ * accessory sticker and its companion beside it, floating (except on the smallest portraits).
+ * The hero's drawing itself never changes.
  */
 export function HeroBust({ avatar, size = 'lg', label, className }: HeroBustProps) {
   const gradientId = `aura${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -39,7 +41,7 @@ export function HeroBust({ avatar, size = 'lg', label, className }: HeroBustProp
   const aura = overlay(avatar, 'aura');
   const frame = overlay(avatar, 'frame');
   const accessory = overlay(avatar, 'accessory');
-  const companion = overlay(avatar, 'companion');
+  const companion = companionLook(avatar);
   return (
     <View
       accessible={label !== undefined}
@@ -66,10 +68,10 @@ export function HeroBust({ avatar, size = 'lg', label, className }: HeroBustProp
           {accessory.char}
         </ThemedText>
       ) : null}
-      {companion?.kind === 'emoji' ? (
-        <ThemedText variant={sticker} className="absolute -bottom-[6%] -right-[12%]">
-          {companion.char}
-        </ThemedText>
+      {companion ? (
+        <View className="absolute -bottom-[8%] -right-[22%] size-[55%]">
+          <CompanionPicture companion={companion} float={size !== 'sm'} />
+        </View>
       ) : null}
     </View>
   );

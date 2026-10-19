@@ -3,12 +3,10 @@ import { StyleSheet } from 'react-native';
 
 import { Icon } from '@/components/game/icons';
 import { ProgressBar } from '@/components/game/progress-bar';
+import { COMBO_FROM } from '@/data/practice/summary';
 import { strings } from '@/i18n';
 
 const t = strings.practice;
-
-/** Answers in a row from which the combo shows. */
-export const COMBO_FROM = 3;
 
 /** How far the session has gone toward its goal, in exercises or in minutes. */
 export type SessionCount = { done: number; total: number; unit: 'exercises' | 'minutes' };

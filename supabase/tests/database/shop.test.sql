@@ -34,13 +34,13 @@ language sql as $$
     'sub', id, 'role', 'authenticated', 'is_anonymous', anonymous)::text, true);
 $$;
 
--- Léa opened chests worth 100 gems.
+-- Léa opened chests worth 110 gems.
 create function pg_temp.give_gems(amount int) returns void
 language sql security definer as $$
   insert into public.gem_transactions (child_id, amount, reason, ref_id, local_date)
   values ('00000000-0000-4000-8000-0000000000c1', amount, 'chest', gen_random_uuid(), current_date);
 $$;
-select pg_temp.give_gems(100);
+select pg_temp.give_gems(110);
 
 -- What Léa wears: on her hero (companion, accessory) and at the end of sessions (effect).
 create function pg_temp.worn() returns text[]
@@ -59,46 +59,46 @@ select ok(
    where oid in ('public.shop_items'::regclass, 'public.child_items'::regclass)),
   'RLS is enabled on the shop and the children''s items'
 );
-select is((select count(*)::int from public.shop_items), 16, 'The shop sells 16 items');
+select is((select count(*)::int from public.shop_items), 13, 'The shop sells 13 items');
 
 set local role authenticated;
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000d1', true);
 
 select is(
-  public.buy_item('00000000-0000-4000-8000-0000000000c1', 'kitten'),
-  '{"item_code": "kitten", "total_gems": 40}',
-  'Léa''s device buys the kitten for 60 gems'
+  public.buy_item('00000000-0000-4000-8000-0000000000c1', 'lapin'),
+  '{"item_code": "lapin", "total_gems": 30}',
+  'Léa''s device buys Lapin Street for 80 gems'
 );
-select is(pg_temp.worn(), '{kitten}', 'and she wears it');
+select is(pg_temp.worn(), '{lapin}', 'and she wears it');
 select throws_ok(
-  $$select public.buy_item('00000000-0000-4000-8000-0000000000c1', 'kitten')$$,
+  $$select public.buy_item('00000000-0000-4000-8000-0000000000c1', 'lapin')$$,
   'PT409', 'already_owned', 'An item is bought once'
 );
 select throws_ok(
-  $$select public.buy_item('00000000-0000-4000-8000-0000000000c1', 'panda')$$,
-  'PT409', 'not_enough_gems', 'The panda costs 100 gems: not enough left'
+  $$select public.buy_item('00000000-0000-4000-8000-0000000000c1', 'dragon')$$,
+  'PT409', 'not_enough_gems', 'Draco costs 120 gems: not enough left'
 );
 select is(
   public.buy_item('00000000-0000-4000-8000-0000000000c1', 'bow') ->> 'total_gems',
-  '10',
+  '0',
   'The bow costs 30'
 );
-select is(pg_temp.worn(), '{bow,kitten}', 'One item of each kind is worn');
+select is(pg_temp.worn(), '{bow,lapin}', 'One item of each kind is worn');
 
 select pg_temp.give_gems(50);
 select is(
   public.buy_item('00000000-0000-4000-8000-0000000000c1', 'cap') ->> 'total_gems',
-  '30',
+  '20',
   'With 50 more gems, the cap'
 );
-select is(pg_temp.worn(), '{cap,kitten}', 'The new accessory replaces the bow');
+select is(pg_temp.worn(), '{cap,lapin}', 'The new accessory replaces the bow');
 
 select public.equip_item('00000000-0000-4000-8000-0000000000c1', 'bow', true);
-select is(pg_temp.worn(), '{bow,kitten}', 'She wears the bow again');
+select is(pg_temp.worn(), '{bow,lapin}', 'She wears the bow again');
 select public.equip_item('00000000-0000-4000-8000-0000000000c1', 'bow', false);
-select is(pg_temp.worn(), '{kitten}', 'and takes it off');
+select is(pg_temp.worn(), '{lapin}', 'and takes it off');
 select throws_ok(
-  $$select public.equip_item('00000000-0000-4000-8000-0000000000c1', 'panda', true)$$,
+  $$select public.equip_item('00000000-0000-4000-8000-0000000000c1', 'renard', true)$$,
   'PT404', 'item_not_owned', 'An item not bought cannot be worn'
 );
 select throws_ok(
@@ -115,20 +115,20 @@ select is(
 select is(
   (select sum(amount)::int from public.gem_transactions
    where child_id = '00000000-0000-4000-8000-0000000000c1' and reason = 'shop'),
-  -120,
+  -140,
   'and the gems they cost'
 );
 
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000b1');
 select is((select count(*)::int from public.child_items), 0, 'Bob reads none of them');
 select throws_ok(
-  $$select public.buy_item('00000000-0000-4000-8000-0000000000c1', 'fox')$$,
+  $$select public.buy_item('00000000-0000-4000-8000-0000000000c1', 'renard')$$,
   'PT404', 'child_not_found', 'nor buys for Léa'
 );
 
 set local role anon;
 select throws_ok(
-  $$select public.buy_item('00000000-0000-4000-8000-0000000000c1', 'fox')$$,
+  $$select public.buy_item('00000000-0000-4000-8000-0000000000c1', 'renard')$$,
   '42501', null, 'A signed-out visitor cannot buy'
 );
 

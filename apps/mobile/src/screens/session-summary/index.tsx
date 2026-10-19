@@ -1,4 +1,3 @@
-import type { ShopItemCode } from '@math-genius/shared';
 import { Button, Pressable, Screen, ThemedText, View } from '@math-genius/ui';
 
 import { CenterGlow } from '@/components/decor';
@@ -6,7 +5,7 @@ import { Icon } from '@/components/game/icons';
 import { Stars } from '@/components/game/stars';
 import { StatTile } from '@/components/game/stat-tile';
 import { starsOf, type SessionSummary as Summary } from '@/data/practice/summary';
-import type { AwardState } from '@/data/rewards-model';
+import type { AwardState, EffectCode } from '@/data/rewards-model';
 import { useThemeStrings } from '@/hooks/use-theme-strings';
 import { strings } from '@/i18n';
 
@@ -24,7 +23,7 @@ type SessionSummaryProps = {
   onOpenChest: (chestId: string) => void;
   onOpenBadges: () => void;
   /** The victory effect the child wears (shop). */
-  effect?: ShopItemCode;
+  effect?: EffectCode;
   onBonus: () => void;
   onHome: () => void;
 };

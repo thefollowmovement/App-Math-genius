@@ -31,9 +31,10 @@ export const rewards = (chests: Rewards['chests'] = []): Rewards => ({
   chests,
   badges: 3,
   items: [
-    { item_code: 'kitten', equipped: true },
+    { item_code: 'renard', equipped: false },
     { item_code: 'bow', equipped: false },
   ],
+  kept: [],
 });
 
 /** A cinema trip unlocked by 7 days of streak (4 so far), and a book already given. */

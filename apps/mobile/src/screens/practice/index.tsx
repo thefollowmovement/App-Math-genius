@@ -124,6 +124,8 @@ function ExerciseView({
       <View className="flex-1" />
       <HeroLine
         exercise={exercise}
+        slot={slot}
+        combo={combo}
         feedback={feedback}
         reminder={reminder}
         hintShown={hintShown}

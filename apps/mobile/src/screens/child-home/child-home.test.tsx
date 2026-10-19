@@ -184,7 +184,7 @@ describe('ChildHome rewards', () => {
     await renderWithTheme(
       <ChildHome
         {...today}
-        child={{ ...lea, avatar: { hero: 'nova', wear: { companion: 'kitten' } } }}
+        child={{ ...lea, avatar: { hero: 'nova', wear: { companion: 'renard' } } }}
         practice={{ status: 'ready' }}
         rewards={rewards([
           { id: 'chest-1', kind: 'common' },
@@ -213,13 +213,12 @@ describe('ChildHome rewards', () => {
     expect(screen.getByText(strings.rewards.chestsWaiting(2))).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: strings.rewards.openChest }));
     expect(onOpenChest).toHaveBeenCalledWith('chest-1');
-    // Léa's hero, Nova, with the kitten she wears.
+    // Léa's hero, Nova, with Kitsune beside it.
     expect(
       screen.getAllByRole('image', {
-        name: strings.heroes.portrait('Nova', [strings.shop.items.kitten.name]),
+        name: strings.heroes.portrait('Nova', [strings.companions.items.renard.name]),
       }).length,
     ).toBeGreaterThan(0);
-    expect(screen.getByText('🐱')).toBeOnTheScreen();
     // This week's challenge, by its short name; its whole rule is read out.
     expect(screen.getByText(strings.challenge.names['daily-5'])).toBeOnTheScreen();
     expect(

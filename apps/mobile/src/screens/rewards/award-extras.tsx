@@ -1,5 +1,10 @@
 import { DOMAINS, type Domain } from '@math-genius/curriculum';
-import { BOSS_PASS_RATE, type Award } from '@math-genius/shared';
+import {
+  BOSS_PASS_RATE,
+  companionStage,
+  companionsUnlockedBy,
+  type Award,
+} from '@math-genius/shared';
 import { Button, ThemedText, View } from '@math-genius/ui';
 import type { ViewStyle } from 'react-native';
 import Animated, {
@@ -9,6 +14,7 @@ import Animated, {
   type CSSStyle,
 } from 'react-native-reanimated';
 
+import { CompanionPicture } from '@/components/companion/companion-picture';
 import { Emblem } from '@/components/game/icons';
 import { knownBadges } from '@/data/badges-model';
 import { strings } from '@/i18n';
@@ -23,12 +29,13 @@ type AwardExtrasProps = {
 /**
  * What the session earned beyond its XP, streak, gems and chest (the tiles above), as computed
  * by the server from its own grading: a level, the streak growing, the week's challenge, the
- * parent's rewards, the boss, new badges.
+ * parent's rewards, the boss, new badges and the companions they unlock.
  */
 export function AwardExtras({ award, onOpenBadges }: AwardExtrasProps) {
   const streakUp = award.streak > award.streak_before;
   const levelUp = award.level > award.level_before;
   const badges = knownBadges(award.badges);
+  const companions = companionsUnlockedBy(badges);
   const lines = [
     levelUp ? t.levelUp(award.level) : null,
     ...award.parent_rewards.map((reward) => t.parentReward(reward.title)),
@@ -59,6 +66,16 @@ export function AwardExtras({ award, onOpenBadges }: AwardExtrasProps) {
             <ThemedText key={code} className="text-center">
               {`${strings.badges.items[code].icon} ${strings.badges.items[code].title}`}
             </ThemedText>
+          ))}
+          {companions.map((id) => (
+            <View key={id} className="flex-row items-center gap-3">
+              <View className="size-16">
+                <CompanionPicture companion={{ id, stage: companionStage(id) }} float />
+              </View>
+              <ThemedText variant="headline" className="shrink">
+                {strings.companions.unlocked(strings.companions.items[id].name)}
+              </ThemedText>
+            </View>
           ))}
           <Button variant="outline" title={t.seeBadges} onPress={onOpenBadges} />
         </View>

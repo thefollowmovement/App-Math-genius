@@ -1,13 +1,24 @@
 import type {
   BadgeCode,
   ChallengeCode,
+  CompanionId,
   CosmeticSlot,
   EarnedCosmeticId,
   HeroId,
   ParentRewardGoal,
+  Rarity,
   ShopItemCode,
 } from '@math-genius/shared';
 import type { ThemeId } from '@math-genius/ui';
+
+/** What a companion says in a session (strings.companions.talk). */
+type CompanionLines = { ask: readonly string[]; hint: string; encourage: readonly string[] };
+export type CompanionTalk = CompanionLines & {
+  /** In its specialty, instead of the lines above. */
+  special?: Partial<CompanionLines>;
+  /** On fire: a right answer with 3 or more in a row. */
+  fire?: readonly string[];
+};
 
 export const fr = {
   common: {
@@ -522,7 +533,7 @@ export const fr = {
       effect: 'Effets de victoire',
     },
     kindHints: {
-      companion: 'Il t’accompagne sur ton accueil.',
+      companion: 'Il t’accompagne dans tes missions et t’aide quand tu bloques.',
       accessory: 'Il décore le portrait de ton héros.',
       effect: 'Il fête la fin de tes séances.',
     },
@@ -543,15 +554,9 @@ export const fr = {
     worn: 'Porté',
     wearLabel: (name: string) => `Porter ${name}`,
     takeOffLabel: (name: string) => `Retirer ${name}`,
-    /** One per code of packages/shared/src/shop.ts. */
+    owned: 'À toi',
+    /** One per code of packages/shared/src/shop.ts; companions are named by strings.companions. */
     items: {
-      kitten: { icon: '🐱', name: 'Chaton' },
-      puppy: { icon: '🐶', name: 'Chiot' },
-      fox: { icon: '🦊', name: 'Renard' },
-      panda: { icon: '🐼', name: 'Panda' },
-      octopus: { icon: '🐙', name: 'Pieuvre' },
-      unicorn: { icon: '🦄', name: 'Licorne' },
-      dragon: { icon: '🐲', name: 'Dragon' },
       bow: { icon: '🎀', name: 'Nœud' },
       cap: { icon: '🧢', name: 'Casquette' },
       sunglasses: { icon: '🕶️', name: 'Lunettes de soleil' },
@@ -561,7 +566,7 @@ export const fr = {
       sparkles: { icon: '✨', name: 'Étincelles' },
       rainbow: { icon: '🌈', name: 'Arc-en-ciel' },
       fireworks: { icon: '🎆', name: 'Feu d’artifice' },
-    } satisfies Record<ShopItemCode, { icon: string; name: string }>,
+    } satisfies Record<Exclude<ShopItemCode, CompanionId>, { icon: string; name: string }>,
   },
   map: {
     title: 'Carte du monde',
@@ -779,6 +784,11 @@ export const fr = {
         title: 'Cinq défis',
         description: 'Réussir 5 défis de la semaine',
       },
+      'first-exercise': {
+        icon: '✏️',
+        title: 'Premier exercice',
+        description: 'Terminer son tout premier exercice',
+      },
     } satisfies Record<BadgeCode, { icon: string; title: string; description: string }>,
   },
   /** The six heroes (packages/shared/src/heroes.ts, docs/design/personnages.md). */
@@ -810,6 +820,177 @@ export const fr = {
     ],
     proud: 'Tu as bien travaillé. On réessaie demain\u00a0?',
     hint: 'Réfléchissons ensemble…',
+  },
+  /** The companions beside the hero (packages/shared/src/companions.ts, docs/design/compagnons.md). */
+  companions: {
+    items: {
+      hibou: {
+        name: 'Chouette Galactique',
+        fullName: 'Chouette Galactique des Théorèmes',
+        description:
+          'Une petite chouette au plumage étoilé, avec des lunettes dorées marquées du symbole ∞ et une boussole magique qui flotte près d’elle.',
+        specialty: 'Les indices et les explications. C’est elle qui te guide au début.',
+      },
+      lapin: {
+        name: 'Lapin Street',
+        fullName: 'Lapin Streetwear',
+        description:
+          'Un lapin blanc magique, avec ses lunettes de scène jaune fluo et sa chaîne dorée.',
+        specialty: 'Le calcul rapide et les défis chrono.',
+      },
+      dragon: {
+        name: 'Draco',
+        fullName: 'Draco Géomètre',
+        description:
+          'Un bébé dragon bleu néon qui tient un cristal géométrique lumineux à douze faces.',
+        specialty: 'Les indices de géométrie.',
+      },
+      licorne: {
+        name: 'Licorne de Cristal',
+        fullName: 'Poulain Licorne-Pégase de Cristal',
+        description:
+          'Une petite créature ailée à la crinière menthe et rose, avec une corne prismatique qui brille de toutes les couleurs.',
+        specialty: 'Les fractions et les formes.',
+      },
+      tigre: {
+        name: 'Baekho',
+        fullName: 'Tigreau Blanc Streetwear (Baekho)',
+        description:
+          'Inspiré du tigre blanc des légendes coréennes\u00a0: rayures violettes lumineuses, sweat jaune et collier à pampille traditionnelle (norigae).',
+        specialty: 'Le courage et la régularité, jour après jour.',
+      },
+      renard: {
+        name: 'Kitsune',
+        fullName: 'Kitsune Pastel',
+        description:
+          'Un petit renard à neuf queues violet pastel, avec un micro-casque d’idol doré.',
+        specialty: 'Les encouragements dignes d’une star de la scène.',
+      },
+      chat: {
+        name: 'Chaton Cosmique',
+        fullName: 'Chaton Cosmique',
+        description: 'Un chaton étoilé aux ailes de fée roses lumineuses.',
+        specialty: 'Les encouragements tout doux.',
+      },
+      phenix: {
+        name: 'Phénix',
+        fullName: 'Bébé Phénix Idol',
+        description:
+          'Un oiseau de feu magenta, cyan et or, avec une mini-couronne dorée et un micro-casque étoilé.',
+        specialty:
+          'Les séries de bonnes réponses\u00a0: avec lui, tu passes en mode «\u00a0en feu\u00a0».',
+      },
+    } satisfies Record<
+      CompanionId,
+      { name: string; fullName: string; description: string; specialty: string }
+    >,
+    rarities: {
+      common: 'Commun',
+      rare: 'Rare',
+      epic: 'Épique',
+      legendary: 'Légendaire',
+    } satisfies Record<Rarity, string>,
+    rarityLabel: (rarity: string) => `Rareté\u00a0: ${rarity}`,
+    specialty: 'Sa spécialité',
+    cardLabel: (name: string, rarity: string) => `${name}, ${rarity}`,
+    unlocked: (name: string) => `Nouveau compagnon\u00a0: ${name}\u00a0!`,
+    /**
+     * What each companion says during a session: it offers the hint (`ask`), gives it (`hint`,
+     * before the hint's text) and encourages after a wrong answer. `special` replaces them when
+     * the exercise is its specialty (Draco on geometry, the Licorne on fractions, Lapin Street on a
+     * timed calculation); Phénix catches fire (`fire`) from 3 right answers in a row. Never a
+     * reproach.
+     */
+    talk: {
+      hibou: {
+        ask: [
+          'Hou hou\u00a0! Un indice\u00a0?',
+          'Tu veux que je t’explique\u00a0? Un indice\u00a0?',
+        ],
+        hint: 'Hou hou, écoute bien',
+        encourage: [
+          'Hou hou\u00a0! Lis la correction avec moi, c’est comme ça qu’on comprend.',
+          'Une erreur, c’est une piste. On regarde la correction ensemble\u00a0?',
+        ],
+      },
+      lapin: {
+        ask: ['Un indice\u00a0? Je fais vite\u00a0!', 'Coincé\u00a0? Un indice, hop\u00a0!'],
+        hint: 'Astuce express',
+        encourage: [
+          'Pas grave\u00a0! Même les plus rapides trébuchent.',
+          'Hop, on repart\u00a0! Le prochain, tu le files.',
+        ],
+        special: {
+          ask: ['Un indice éclair\u00a0?'],
+          hint: 'Astuce chrono',
+          encourage: ['Trop vite\u00a0? Respire, le prochain chrono est pour toi\u00a0!'],
+        },
+      },
+      dragon: {
+        ask: ['Un indice\u00a0? Je veille sur toi.', 'Grr… un petit indice\u00a0?'],
+        hint: 'Mon conseil de dragon',
+        encourage: [
+          'Pas grave\u00a0! Même les dragons se trompent.',
+          'On souffle un bon coup et on recommence\u00a0!',
+        ],
+        special: {
+          ask: ['Un indice de géomètre\u00a0?', 'Mon cristal a vu la forme… un indice\u00a0?'],
+          hint: 'Regarde bien la figure',
+          encourage: ['Les formes, ça s’apprivoise. Regarde bien la correction\u00a0!'],
+        },
+      },
+      licorne: {
+        ask: ['Un indice magique\u00a0?', 'Je fais briller un indice\u00a0?'],
+        hint: 'Un peu de magie',
+        encourage: [
+          'Pas grave, ma magie est avec toi\u00a0!',
+          'On regarde la correction, et ça va briller\u00a0!',
+        ],
+        special: {
+          ask: ['Un indice de cristal sur les fractions\u00a0?'],
+          hint: 'Pense aux parts égales',
+          encourage: ['Les fractions, ce sont des parts\u00a0: regarde bien la correction\u00a0!'],
+        },
+      },
+      tigre: {
+        ask: ['Un indice\u00a0? Les tigres aussi demandent de l’aide.'],
+        hint: 'Conseil de tigre',
+        encourage: [
+          'Un vrai tigre ne lâche rien\u00a0! On continue.',
+          'Chaque jour tu deviens plus fort. Courage\u00a0!',
+        ],
+      },
+      renard: {
+        ask: ['Un indice\u00a0? Je te souffle la réplique\u00a0!'],
+        hint: 'Je te souffle',
+        encourage: [
+          'Sur scène aussi on rate une note\u00a0: on reprend le refrain\u00a0!',
+          'Le public est avec toi\u00a0! À la prochaine, tu brilles.',
+        ],
+      },
+      chat: {
+        ask: ['Miaou… un petit indice\u00a0?'],
+        hint: 'Tout doux',
+        encourage: [
+          'Ce n’est rien, tu fais de ton mieux. Je suis là.',
+          'Doucement, on regarde ensemble. Tu vas y arriver.',
+        ],
+      },
+      phenix: {
+        ask: ['Un indice\u00a0? Ça va chauffer\u00a0!'],
+        hint: 'Une étincelle',
+        encourage: [
+          'Un phénix renaît toujours\u00a0: on rallume la série\u00a0!',
+          'La flamme est toujours là. On repart\u00a0!',
+        ],
+        special: { ask: ['Même en feu, un petit indice\u00a0?'] },
+        fire: [
+          'Tu es en feu\u00a0! 🔥',
+          'Série brûlante, continue\u00a0!',
+          'Rien ne t’arrête, tu flambes\u00a0!',
+        ],
+      },
+    } satisfies Record<CompanionId, CompanionTalk>,
   },
   /** The child's first time on a device: they choose their hero, who explains the app. */
   intro: {
@@ -902,8 +1083,6 @@ export const fr = {
       'frame-crown': 'Cadre couronne',
       'frame-lightning': 'Cadre éclair',
       'frame-gold': 'Cadre en or',
-      'pixel-robot': 'Robot pixel',
-      'glitch-cube': 'Petit Glitch',
       'golden-mic': 'Micro doré',
     } satisfies Record<EarnedCosmeticId, string>,
     lockedLabel: (item: string) => `${item}, pas encore débloqué`,

@@ -9,6 +9,7 @@ import {
   unlockedOf,
   wornEffect,
   parseWeeklyChallenge,
+  type ShopItemView,
 } from './rewards-model';
 
 describe('rewards from the server', () => {
@@ -55,25 +56,25 @@ describe('rewards from the server', () => {
 
 describe('shop', () => {
   const items = [
-    { item_code: 'kitten', equipped: true },
+    { item_code: 'dragon', equipped: false },
     { item_code: 'bow', equipped: false },
     { item_code: 'crown', equipped: true },
     { item_code: 'from-the-future', equipped: true },
   ];
 
   it('lists the catalog by kind with what the child owns, and what the hero wears', () => {
-    const groups = shopGroups(items, { companion: 'kitten' });
+    const groups = shopGroups(items, { companion: 'dragon' });
     expect(groups.map((group) => group.kind)).toEqual(['companion', 'accessory', 'effect']);
-    const all = groups.flatMap((group) => group.items);
-    expect(all.find((item) => item.code === 'kitten')).toMatchObject({ owned: true, worn: true });
+    const all = groups.flatMap((group): ShopItemView[] => group.items);
+    expect(all.find((item) => item.code === 'dragon')).toMatchObject({ owned: true, worn: true });
     expect(all.find((item) => item.code === 'bow')).toMatchObject({ owned: true, worn: false });
-    expect(all.find((item) => item.code === 'fox')).toMatchObject({ owned: false, worn: false });
+    expect(all.find((item) => item.code === 'renard')).toMatchObject({ owned: false, worn: false });
   });
 
   it('reads companions and accessories worn on the hero, effects in the items', () => {
     const all = shopGroups([...items, { item_code: 'confetti', equipped: true }], {
       accessory: 'bow',
-    }).flatMap((group) => group.items);
+    }).flatMap((group): ShopItemView[] => group.items);
     // The crown is equipped in the old way: only the hero's wear counts.
     expect(all.find((item) => item.code === 'crown')).toMatchObject({ owned: true, worn: false });
     expect(all.find((item) => item.code === 'bow')).toMatchObject({ owned: true, worn: true });
@@ -86,9 +87,11 @@ describe('shop', () => {
   });
 
   it('unlocks cosmetics with the badges earned and the items bought', () => {
-    const unlocked = unlockedOf([{ badge_code: 'streak-7' }], items);
+    const unlocked = unlockedOf([{ badge_code: 'streak-7' }], items, ['chat']);
     expect([...unlocked.badges]).toEqual(['streak-7']);
     expect(unlocked.owned.has('bow')).toBe(true);
+    // The Chaton Cosmique kept from the kitten bought before the companions.
+    expect(unlocked.owned.has('chat')).toBe(true);
   });
 });
 

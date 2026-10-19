@@ -1,11 +1,13 @@
 import type { BadgeCode } from './badges';
+import { COMPANIONS, type CompanionId } from './companions';
 import type { ShopItemCode } from './shop';
 
 /**
  * Cosmetics: what the child's hero wears or has around it. Data only: one item is an id, a slot,
- * an unlock condition and a visual reference. The migration *_neon_heroes.sql holds the same ids,
- * slots and conditions (cosmetics.test.ts compares them) and checks them when the child wears
- * one. Ids are stored: never rename one.
+ * an unlock condition and a visual reference. The last migration that replaces
+ * private.cosmetics() (*_companions.sql) holds the same ids, slots and conditions
+ * (cosmetics.test.ts compares them) and checks them when the child wears one. Ids are stored:
+ * never rename one.
  */
 export const COSMETIC_SLOTS = [
   'head',
@@ -28,11 +30,16 @@ export type CosmeticUnlock =
  * catalog, the shop or the badges.
  * - overlay: drawn around the hero, the same for every hero (an aura behind, a frame around, a
  *   sticker, a companion beside). `art` names a drawing of apps/mobile/src/components/hero.
+ * - image: a picture of its own, beside the hero (the companions). `art` names it in
+ *   apps/mobile/src/components/companion.
  * - layer: a layer of the hero's own animation (Rive), switched on by name; it changes the hero
  *   drawing. Heroes drawn as still images cannot show these yet: the slots head, top, bottom and
  *   shoes wait for them.
  */
-export type CosmeticVisual = { kind: 'overlay'; art: string } | { kind: 'layer'; layer: string };
+export type CosmeticVisual =
+  | { kind: 'overlay'; art: string }
+  | { kind: 'image'; art: string }
+  | { kind: 'layer'; layer: string };
 
 type CosmeticDefinition = {
   id: string;
@@ -112,26 +119,13 @@ export const COSMETICS = [
     unlock: { kind: 'badge', badge: 'boss-perfect' },
     visual: { kind: 'overlay', art: 'frame-gold' },
   },
-  // Companions: from the shop, or earned.
-  shopItem('kitten', 'companion'),
-  shopItem('puppy', 'companion'),
-  shopItem('fox', 'companion'),
-  shopItem('panda', 'companion'),
-  shopItem('octopus', 'companion'),
-  shopItem('unicorn', 'companion'),
-  shopItem('dragon', 'companion'),
-  {
-    id: 'pixel-robot',
-    slot: 'companion',
-    unlock: { kind: 'badge', badge: 'level-10' },
-    visual: { kind: 'overlay', art: 'emoji-pixel-robot' },
-  },
-  {
-    id: 'glitch-cube',
-    slot: 'companion',
-    unlock: { kind: 'badge', badge: 'island-2' },
-    visual: { kind: 'overlay', art: 'emoji-glitch-cube' },
-  },
+  // Companions (companions.ts): from the shop, or earned.
+  ...COMPANIONS.map(({ id, unlock }) => ({
+    id,
+    slot: 'companion' as const,
+    unlock,
+    visual: { kind: 'image' as const, art: id },
+  })),
   // Accessories, as stickers on the portrait.
   shopItem('bow', 'accessory'),
   shopItem('cap', 'accessory'),
@@ -148,8 +142,11 @@ export const COSMETICS = [
 
 export type Cosmetic = (typeof COSMETICS)[number];
 export type CosmeticId = Cosmetic['id'];
-/** Cosmetics that are not shop items: their names live with the editor's texts. */
-export type EarnedCosmeticId = Exclude<CosmeticId, ShopItemCode>;
+/**
+ * Cosmetics that are neither shop items nor companions: their names live with the editor's texts
+ * (the shop and the companions name the others).
+ */
+export type EarnedCosmeticId = Exclude<CosmeticId, ShopItemCode | CompanionId>;
 
 const BY_ID: ReadonlyMap<string, Cosmetic> = new Map(COSMETICS.map((item) => [item.id, item]));
 
@@ -158,12 +155,16 @@ export const cosmeticOf = (id: string): Cosmetic | undefined => BY_ID.get(id);
 export const cosmeticsOf = (slot: CosmeticSlot): Cosmetic[] =>
   COSMETICS.filter((item) => item.slot === slot);
 
-/** What the child has, against which unlock conditions are checked. */
+/**
+ * What the child has, against which unlock conditions are checked: the badges earned, and what
+ * they own (items bought, and cosmetics kept without their condition, child_cosmetics).
+ */
 export type Unlocked = { badges: ReadonlySet<string>; owned: ReadonlySet<string> };
 
 /** Null when the child can wear it; otherwise the condition still to meet. */
 export function missingUnlock(cosmetic: Cosmetic, unlocked: Unlocked): CosmeticUnlock | null {
   const { unlock } = cosmetic;
+  if (unlocked.owned.has(cosmetic.id)) return null;
   if (unlock.kind === 'badge' && !unlocked.badges.has(unlock.badge)) return unlock;
   if (unlock.kind === 'shop' && !unlocked.owned.has(unlock.item)) return unlock;
   return null;

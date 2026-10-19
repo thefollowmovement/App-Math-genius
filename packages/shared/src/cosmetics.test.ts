@@ -7,11 +7,19 @@ import { COSMETICS, COSMETIC_SLOTS, cosmeticOf, missingUnlock, type Cosmetic } f
 import { HERO_IDS } from './heroes';
 import { SHOP_ITEMS } from './shop';
 
+// Every migration, in order: a function's last definition is the one the database runs.
 const migrations = join(__dirname, '../../../supabase/migrations');
-const file = readdirSync(migrations).find((name) => name.endsWith('_neon_heroes.sql'));
-const sql = readFileSync(join(migrations, file ?? ''), 'utf8');
+const sql = readdirSync(migrations)
+  .filter((name) => name.endsWith('.sql'))
+  .sort()
+  .map((name) => readFileSync(join(migrations, name), 'utf8'))
+  .join('\n');
 const literal = (fn: string, pattern: string) =>
-  new RegExp(`function private\\.${fn}\\(\\)[\\s\\S]*?${pattern}`).exec(sql)?.[1] ?? '';
+  [
+    ...sql.matchAll(
+      new RegExp(`create (?:or replace )?function private\\.${fn}\\(\\)[\\s\\S]*?${pattern}`, 'g'),
+    ),
+  ].at(-1)?.[1] ?? '';
 
 describe('heroes and cosmetics', () => {
   it('has the heroes the database knows', () => {
@@ -57,8 +65,17 @@ describe('heroes and cosmetics', () => {
     expect(
       missingUnlock(cosmetic('aura-gold'), { ...none, badges: new Set(['streak-7']) }),
     ).toBeNull();
-    expect(missingUnlock(cosmetic('kitten'), none)).toEqual({ kind: 'shop', item: 'kitten' });
-    expect(missingUnlock(cosmetic('kitten'), { ...none, owned: new Set(['kitten']) })).toBeNull();
+    expect(missingUnlock(cosmetic('dragon'), none)).toEqual({ kind: 'shop', item: 'dragon' });
+    expect(missingUnlock(cosmetic('dragon'), { ...none, owned: new Set(['dragon']) })).toBeNull();
+    // A cosmetic kept without its condition (the kitten bought before the companions).
+    expect(missingUnlock(cosmetic('chat'), none)).toEqual({ kind: 'badge', badge: 'island-2' });
+    expect(missingUnlock(cosmetic('chat'), { ...none, owned: new Set(['chat']) })).toBeNull();
+  });
+
+  it('draws companions as pictures, the others around the hero', () => {
+    for (const { slot, visual } of COSMETICS) {
+      expect(visual.kind).toBe(slot === 'companion' ? 'image' : 'overlay');
+    }
   });
 });
 
@@ -91,7 +108,7 @@ describe('avatar', () => {
 
   it('falls back on the default look until one is chosen', () => {
     expect(avatarOf({}, 'boy')).toEqual(DEFAULT_LOOKS.boy.avatar);
-    const chosen = { hero: 'leo', wear: { companion: 'kitten' } };
+    const chosen = { hero: 'leo', wear: { companion: 'renard' } };
     expect(avatarOf(chosen, 'girl')).toEqual(chosen);
     // An avatar of phase 6b (drawn parts) reads as the default look.
     expect(avatarOf({ skin: 'skin-2', hair: 'long' }, 'girl')).toEqual(DEFAULT_LOOKS.girl.avatar);

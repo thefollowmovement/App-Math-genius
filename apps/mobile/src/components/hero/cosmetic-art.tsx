@@ -15,7 +15,7 @@ export type OverlayArt =
   | { kind: 'aura'; colors: string[] }
   /** A drawing around the portrait, in a box 15 % larger than it on each side. */
   | { kind: 'frame'; draw: () => ReactElement }
-  /** A sticker on the portrait (accessory) or a buddy beside it (companion). */
+  /** A sticker on the portrait (accessory). Companions are pictures (components/companion). */
   | { kind: 'emoji'; char: string };
 
 // Frames are drawn in a 130 × 130 box whose portrait is the circle of radius 50 at 65, 65.
@@ -103,15 +103,6 @@ export const COSMETIC_ART: Record<string, OverlayArt> = {
       </>
     ),
   },
-  'emoji-kitten': { kind: 'emoji', char: '🐱' },
-  'emoji-puppy': { kind: 'emoji', char: '🐶' },
-  'emoji-fox': { kind: 'emoji', char: '🦊' },
-  'emoji-panda': { kind: 'emoji', char: '🐼' },
-  'emoji-octopus': { kind: 'emoji', char: '🐙' },
-  'emoji-unicorn': { kind: 'emoji', char: '🦄' },
-  'emoji-dragon': { kind: 'emoji', char: '🐲' },
-  'emoji-pixel-robot': { kind: 'emoji', char: '🤖' },
-  'emoji-glitch-cube': { kind: 'emoji', char: '👾' },
   'emoji-bow': { kind: 'emoji', char: '🎀' },
   'emoji-cap': { kind: 'emoji', char: '🧢' },
   'emoji-sunglasses': { kind: 'emoji', char: '🕶️' },

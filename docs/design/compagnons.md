@@ -19,3 +19,18 @@ Images détourées : `docs/design/compagnons/<fichier>.png` (planches d'origine 
 | hibou.png | Chouette Galactique des Théorèmes | Chouette Galactique | Petite chouette au plumage étoilé, lunettes dorées avec le symbole ∞, boussole magique flottante. | Indices et explications (guide de démarrage) |
 
 Le nom court sert sur les cartes et boutons ; le nom complet sur la fiche détaillée du compagnon.
+
+## Dans l'app
+
+| Compagnon | Rareté | Déblocage |
+|---|---|---|
+| Chouette Galactique | Commun | Premier exercice terminé (badge « Premier exercice ») |
+| Lapin Street | Rare | Boutique, 80 gemmes |
+| Draco | Rare | Boutique, 120 gemmes |
+| Licorne de Cristal | Rare | Boutique, 150 gemmes |
+| Baekho | Épique | Série de 7 jours |
+| Kitsune | Épique | Boutique, 250 gemmes |
+| Chaton Cosmique | Épique | Fin de l'île 2 |
+| Phénix | Légendaire | Niveau 10 |
+
+En séance, le compagnon porté propose l'indice, le donne et encourage après une erreur, avec ses phrases à lui ; dans sa spécialité, il en a d'autres (Draco sur la géométrie, la Licorne sur les fractions, Lapin Street sur le calcul éclair, Phénix « en feu » dès 3 bonnes réponses d'affilée). Un seul stade d'évolution pour l'instant : une image de plus par stade viendra plus tard.
