@@ -1,0 +1,139 @@
+import {
+  SHOP_ITEMS,
+  SHOP_KINDS,
+  awardSchema,
+  isChallengeCode,
+  isShopItemCode,
+  levelProgress,
+  type Award,
+  type ChallengeCode,
+  type ShopItem,
+  type ShopItemCode,
+  type ShopKind,
+  type Tables,
+} from '@math-genius/shared';
+
+/** Rewards as stored by the server and as the app shows them, without Supabase (testable). */
+
+export type ProgressRow = Pick<
+  Tables<'progress'>,
+  'xp' | 'gems' | 'streak_current' | 'streak_best' | 'freezes'
+>;
+/** A chest won and not opened yet. */
+export type ChestRow = Pick<Tables<'chests'>, 'id' | 'kind'>;
+
+export type ProgressView = {
+  xp: number;
+  level: number;
+  /** XP earned within the level, out of `toNext`. */
+  inLevel: number;
+  toNext: number;
+  gems: number;
+  streak: number;
+  bestStreak: number;
+  freezes: number;
+};
+
+/** Before any award: level 1 and the week's free freeze. */
+const NO_PROGRESS: ProgressRow = { xp: 0, gems: 0, streak_current: 0, streak_best: 0, freezes: 1 };
+
+export function progressView(row: ProgressRow | null): ProgressView {
+  const { xp, gems, streak_current, streak_best, freezes } = row ?? NO_PROGRESS;
+  return {
+    xp,
+    ...levelProgress(xp),
+    gems,
+    streak: streak_current,
+    bestStreak: streak_best,
+    freezes,
+  };
+}
+
+/** An item bought in the shop. */
+export type ItemRow = Pick<Tables<'child_items'>, 'item_code' | 'equipped'>;
+
+/** Progress, chests to open, how many badges the child has earned and the items bought. */
+export type Rewards = {
+  progress: ProgressView;
+  chests: ChestRow[];
+  badges: number;
+  items: ItemRow[];
+};
+
+export type ShopItemView = ShopItem & { owned: boolean; worn: boolean };
+export type ShopGroup = { kind: ShopKind; items: ShopItemView[] };
+
+/** The shop's catalog by kind, with what the child owns and wears. */
+export function shopGroups(items: readonly ItemRow[]): ShopGroup[] {
+  const owned = new Map(items.map((item) => [item.item_code, item.equipped]));
+  return SHOP_KINDS.map((kind) => ({
+    kind,
+    items: SHOP_ITEMS.filter((item) => item.kind === kind).map((item) => ({
+      ...item,
+      owned: owned.has(item.code),
+      worn: owned.get(item.code) === true,
+    })),
+  }));
+}
+
+/** The item worn of each kind (items this version of the app does not know are left out). */
+export function wornItems(items: readonly ItemRow[]): Partial<Record<ShopKind, ShopItemCode>> {
+  const worn: Partial<Record<ShopKind, ShopItemCode>> = {};
+  for (const { item_code: code, equipped } of items) {
+    const item = isShopItemCode(code)
+      ? SHOP_ITEMS.find((candidate) => candidate.code === code)
+      : null;
+    if (equipped && item) worn[item.kind] = item.code;
+  }
+  return worn;
+}
+
+export const parseAward = (value: unknown): Award | null => {
+  const parsed = awardSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+};
+
+/** The award-session Edge Function answers `{ awards: [...] }`. */
+export function awardsFromResponse(value: unknown): Award[] {
+  if (typeof value !== 'object' || value === null || !('awards' in value)) return [];
+  const { awards } = value;
+  return Array.isArray(awards) ? awards.flatMap((award) => parseAward(award) ?? []) : [];
+}
+
+export type OpenedChest = { kind: 'common' | 'rare'; gems: number; total: number };
+
+/** What open_chest returns. */
+export function parseOpenedChest(value: unknown): OpenedChest | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const { kind, gems, total_gems: total } = value as Record<string, unknown>;
+  if ((kind !== 'common' && kind !== 'rare') || typeof gems !== 'number') return null;
+  return typeof total === 'number' ? { kind, gems, total } : null;
+}
+
+/** What the end-of-session screen shows about rewards. */
+export type AwardState =
+  { status: 'waiting' } | { status: 'computing' } | { status: 'ready'; award: Award };
+
+export function awardState(saved: boolean, award: Award | null | undefined): AwardState {
+  if (award) return { status: 'ready', award };
+  return saved ? { status: 'computing' } : { status: 'waiting' };
+}
+
+/** This week's challenge, as weekly_challenge returns it. */
+export type WeeklyChallenge = {
+  code: ChallengeCode;
+  threshold: number;
+  progress: number;
+  gems: number;
+  completed: boolean;
+};
+
+/** Null for a challenge this version of the app does not know (a newer server). */
+export function parseWeeklyChallenge(value: unknown): WeeklyChallenge | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const { code, threshold, progress, gems, completed } = value as Record<string, unknown>;
+  if (typeof code !== 'string' || !isChallengeCode(code)) return null;
+  if (typeof threshold !== 'number' || typeof progress !== 'number') return null;
+  if (typeof gems !== 'number' || typeof completed !== 'boolean') return null;
+  return { code, threshold, progress, gems, completed };
+}

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { gradeSchema } from './grade';
+import { gradeSchema } from './grade-schema';
 
 /** Version of the privacy policy a parent accepts at sign-up (stored with the consent). */
 export const PRIVACY_POLICY_VERSION = '2026-10';

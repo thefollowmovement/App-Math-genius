@@ -1,8 +1,10 @@
 import {
   DEFAULT_SESSION_GOAL,
+  bossLength,
   finishSession,
   liveMastery,
   type ExerciseResponse,
+  type Island,
   type ItemRatings,
   type MasteryMap,
   type MasteryRecord,
@@ -23,7 +25,8 @@ import { localDate } from '@/utils/local-date';
  * in progress (resumable after the app is closed) and the sessions waiting to be sent.
  */
 
-export type SessionKind = 'daily' | 'bonus';
+/** A boss session evaluates one island of the world map. */
+export type SessionKind = 'daily' | 'bonus' | 'boss';
 
 export type StoredAttempt = SessionAttempt & { response: ExerciseResponse };
 
@@ -31,6 +34,8 @@ export type StoredSession = {
   id: string;
   childId: string;
   kind: SessionKind;
+  /** The island a boss session evaluates. */
+  boss?: Island;
   localDate: string;
   grade: Grade;
   goal: SessionGoal;
@@ -92,6 +97,7 @@ export const plannerContext = (session: StoredSession): PlannerContext => ({
   itemRatings: session.itemRatings,
   startedAt: session.startedAt,
   seed: session.seed,
+  boss: session.boss,
 });
 
 export const childPractice = (childId: string): ChildPractice =>
@@ -113,7 +119,10 @@ function archive(child: ChildPractice, session: StoredSession): ChildPractice {
   return { ...child, mastery, active: null, outbox: [...child.outbox, session] };
 }
 
-/** Today's session in progress, or a new one (daily first, then bonus training). */
+/**
+ * Today's session in progress, or a new one: daily first, then bonus training, or the boss of an
+ * island (as many exercises as bossLength).
+ */
 export function openSession(input: {
   childId: string;
   grade: Grade;
@@ -121,6 +130,7 @@ export function openSession(input: {
   id: string;
   seed: number;
   goal?: SessionGoal;
+  boss?: Island;
 }): StoredSession {
   const today = localDate(input.now);
   let opened: StoredSession | undefined;
@@ -134,13 +144,17 @@ export function openSession(input: {
       opened = child.active;
       return child;
     }
+    const { boss } = input;
     opened = {
       id: input.id,
       childId: input.childId,
-      kind: child.lastDailyDate === today ? 'bonus' : 'daily',
+      kind: boss ? 'boss' : child.lastDailyDate === today ? 'bonus' : 'daily',
+      ...(boss ? { boss } : {}),
       localDate: today,
       grade: input.grade,
-      goal: input.goal ?? DEFAULT_SESSION_GOAL,
+      goal: boss
+        ? { type: 'count', count: bossLength(boss) }
+        : (input.goal ?? DEFAULT_SESSION_GOAL),
       startedAt: input.now.toISOString(),
       seed: input.seed,
       masteryAtStart: child.mastery,

@@ -1,5 +1,5 @@
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, type QueryKey } from '@tanstack/react-query';
 import type { PersistQueryClientOptions } from '@tanstack/react-query-persist-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -13,8 +13,18 @@ export const queryClient = new QueryClient({
   },
 });
 
-/** Only profiles and routines are kept on the device; practice data has its own store. */
-const PERSISTED_QUERIES = new Set(['children', 'routines']);
+/**
+ * Refetches queries after a write that changes their answer. A plain invalidation reuses a fetch
+ * still in flight when the query has no data yet, and that fetch may have read the database before
+ * the write: it is cancelled and started again.
+ */
+export async function refetchAfterWrite(client: QueryClient, queryKey: QueryKey) {
+  await client.cancelQueries({ queryKey });
+  await client.invalidateQueries({ queryKey });
+}
+
+/** Profiles, routines and rewards are kept on the device; practice data has its own store. */
+const PERSISTED_QUERIES = new Set(['children', 'routines', 'rewards']);
 
 export const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
   persister: createAsyncStoragePersister({

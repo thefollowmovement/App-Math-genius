@@ -19,6 +19,7 @@ export default function PracticeRoute() {
       exercise={practice.exercise}
       slot={practice.step.slot}
       twin={practice.step.twinOf !== null}
+      boss={practice.session.boss}
       reminder={practice.step.reminder}
       progress={practice.progress}
       hintShown={practice.hintShown}

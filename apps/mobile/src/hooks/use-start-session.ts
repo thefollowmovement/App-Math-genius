@@ -1,3 +1,4 @@
+import type { Island } from '@math-genius/exercise-engine';
 import * as Crypto from 'expo-crypto';
 import { useRouter } from 'expo-router';
 
@@ -13,7 +14,8 @@ import { useRoutines } from '@/data/routines';
 export function useStartSession(child: Child | undefined) {
   const router = useRouter();
   const routines = useRoutines();
-  return (mode: 'push' | 'replace' = 'push') => {
+  /** With `boss`, the island's boss (the map only offers it when no session is in progress). */
+  return (mode: 'push' | 'replace' = 'push', boss?: Island) => {
     if (!child) return;
     openSession({
       childId: child.id,
@@ -22,6 +24,7 @@ export function useStartSession(child: Child | undefined) {
       id: Crypto.randomUUID(),
       seed: Math.floor(Math.random() * 2 ** 31),
       goal: routineOf(routines.data, child.id)?.goal,
+      boss,
     });
     const href = { pathname: '/child/practice', params: { id: child.id } } as const;
     if (mode === 'replace') router.replace(href);

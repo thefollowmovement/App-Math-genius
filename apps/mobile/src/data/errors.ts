@@ -4,6 +4,9 @@ export type ErrorKind =
   | 'invalidPairingCode'
   | 'deviceInOtherFamily'
   | 'tooManyMessages'
+  | 'notEnoughGems'
+  | 'alreadyOwned'
+  | 'tooManyFreezes'
   | 'network'
   | 'unknown';
 
@@ -22,6 +25,9 @@ export function errorKind(error: unknown): ErrorKind {
   if (text.includes('invalid_pairing_code')) return 'invalidPairingCode';
   if (text.includes('device_in_other_family')) return 'deviceInOtherFamily';
   if (text.includes('too_many_messages')) return 'tooManyMessages';
+  if (text.includes('not_enough_gems')) return 'notEnoughGems';
+  if (text.includes('already_owned')) return 'alreadyOwned';
+  if (text.includes('too_many_freezes')) return 'tooManyFreezes';
   if (/network request failed|failed to fetch|fetch failed/i.test(text)) return 'network';
   return 'unknown';
 }

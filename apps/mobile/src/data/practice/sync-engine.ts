@@ -98,26 +98,29 @@ export type SyncTransport = (payload: SyncPayload) => Promise<void>;
 
 /**
  * Sends every pending session, oldest first. A failure that will never succeed (`isPermanent`)
- * drops the session; any other keeps it for the next attempt.
+ * drops the session; any other keeps it for the next attempt. `finished` lists the children whose
+ * finished sessions just reached the server: their rewards can be computed.
  */
 export async function sendPendingSessions(
   send: SyncTransport,
   isPermanent: (error: unknown) => boolean,
-): Promise<{ sent: number; failed: number }> {
+): Promise<{ sent: number; failed: number; finished: string[] }> {
   let sent = 0;
   let failed = 0;
+  const finished = new Set<string>();
   for (const session of pendingSessions()) {
     const snapshot = { attempts: session.attempts.length, completed: session.completedAt !== null };
     try {
       await send(sessionPayload(session));
       markSynced(session.childId, session.id, snapshot);
       sent += 1;
+      if (snapshot.completed && !session.synced.completed) finished.add(session.childId);
     } catch (error) {
       if (isPermanent(error)) dropSession(session.childId, session.id);
       else failed += 1;
     }
   }
-  return { sent, failed };
+  return { sent, failed, finished: [...finished] };
 }
 
 export type MasteryRow = Pick<

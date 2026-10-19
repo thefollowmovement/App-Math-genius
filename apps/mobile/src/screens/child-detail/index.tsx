@@ -5,15 +5,17 @@ import type { Child } from '@/data/children';
 import type { PairedDevice } from '@/data/devices';
 import type { SessionRow } from '@/data/family-sessions';
 import type { ErrorKind } from '@/data/errors';
+import type { ProgressView } from '@/data/rewards-model';
 import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
 
 import { TodaySessions } from '../today-sessions';
 import { NudgePanel, type NudgeResult } from './nudge-panel';
 import { PairingPanel, type PairingState } from './pairing-panel';
+import { RewardsPanel, type ParentRewardsState } from './rewards-panel';
 import { RoutinePanel } from './routine-panel';
 
-export type { NudgeResult, PairingState };
+export type { NudgeResult, PairingState, ParentRewardsState };
 
 export type NudgeState = {
   onSend: (message: string) => void;
@@ -27,6 +29,10 @@ const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' });
 
 type ChildDetailProps = {
   child: Child;
+  /** Streak, level and gems; missing while loading. */
+  progress?: ProgressView;
+  /** Badges earned. */
+  badges?: number;
   /** The child's sessions today. */
   sessions: readonly SessionRow[];
   onOpenSession: (sessionId: string) => void;
@@ -34,6 +40,8 @@ type ChildDetailProps = {
   /** Current and coming holidays. */
   vacations: readonly VacationRow[];
   onEditRoutine: () => void;
+  /** Real-life rewards set by the parent. */
+  rewards: ParentRewardsState;
   /** Messages to the child, once a device is paired. */
   nudge: NudgeState;
   pairing: PairingState;
@@ -47,11 +55,14 @@ type ChildDetailProps = {
 
 export function ChildDetail({
   child,
+  progress,
+  badges = 0,
   sessions,
   onOpenSession,
   routine,
   vacations,
   onEditRoutine,
+  rewards,
   nudge,
   pairing,
   creatingCode,
@@ -63,9 +74,23 @@ export function ChildDetail({
 }: ChildDetailProps) {
   return (
     <Screen>
-      <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>
+      <View className="gap-1">
+        <ThemedText variant="caption">{strings.grades[child.grade]}</ThemedText>
+        {progress ? (
+          <ThemedText>
+            {strings.rewards.parentLine(
+              progress.streak,
+              progress.bestStreak,
+              progress.level,
+              progress.gems,
+              badges,
+            )}
+          </ThemedText>
+        ) : null}
+      </View>
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
       <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
+      <RewardsPanel {...rewards} />
       {devices.length > 0 ? (
         <NudgePanel
           childName={child.display_name}

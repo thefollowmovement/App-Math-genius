@@ -24,6 +24,7 @@ export type Database = {
           time_ms: number;
           twin_of: number | null;
           updated_at: string;
+          verified: boolean | null;
         };
         ComputedFields: never;
         Insert: {
@@ -46,6 +47,7 @@ export type Database = {
           time_ms: number;
           twin_of?: number | null;
           updated_at?: string;
+          verified?: boolean | null;
         };
         Update: {
           answer?: NonNullable<Json>;
@@ -67,6 +69,7 @@ export type Database = {
           time_ms?: number;
           twin_of?: number | null;
           updated_at?: string;
+          verified?: boolean | null;
         };
         Relationships: [
           {
@@ -88,6 +91,281 @@ export type Database = {
             columns: ['skill_code'];
             isOneToOne: false;
             referencedRelation: 'skills';
+            referencedColumns: ['code'];
+          },
+        ];
+      };
+      badges: {
+        Row: {
+          category: Database['public']['Enums']['badge_category'];
+          code: string;
+          created_at: string;
+          id: string;
+          metric: string;
+          position: number;
+          threshold: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category: Database['public']['Enums']['badge_category'];
+          code: string;
+          created_at?: string;
+          id?: string;
+          metric: string;
+          position: number;
+          threshold: number;
+          updated_at?: string;
+        };
+        Update: {
+          category?: Database['public']['Enums']['badge_category'];
+          code?: string;
+          created_at?: string;
+          id?: string;
+          metric?: string;
+          position?: number;
+          threshold?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      challenge_completions: {
+        Row: {
+          challenge_code: string;
+          child_id: string;
+          completed_at: string;
+          created_at: string;
+          id: string;
+          session_id: string | null;
+          updated_at: string;
+          week_start: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          challenge_code: string;
+          child_id: string;
+          completed_at: string;
+          created_at?: string;
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+          week_start: string;
+        };
+        Update: {
+          challenge_code?: string;
+          child_id?: string;
+          completed_at?: string;
+          created_at?: string;
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+          week_start?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'challenge_completions_challenge_code_fkey';
+            columns: ['challenge_code'];
+            isOneToOne: false;
+            referencedRelation: 'challenges';
+            referencedColumns: ['code'];
+          },
+          {
+            foreignKeyName: 'challenge_completions_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'challenge_completions_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      challenges: {
+        Row: {
+          code: string;
+          created_at: string;
+          gems: number;
+          id: string;
+          metric: string;
+          position: number;
+          threshold: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          created_at?: string;
+          gems: number;
+          id?: string;
+          metric: string;
+          position: number;
+          threshold: number;
+          updated_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          gems?: number;
+          id?: string;
+          metric?: string;
+          position?: number;
+          threshold?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      chests: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          gems: number;
+          id: string;
+          kind: Database['public']['Enums']['chest_kind'];
+          local_date: string;
+          opened_at: string | null;
+          session_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          gems: number;
+          id?: string;
+          kind: Database['public']['Enums']['chest_kind'];
+          local_date: string;
+          opened_at?: string | null;
+          session_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          gems?: number;
+          id?: string;
+          kind?: Database['public']['Enums']['chest_kind'];
+          local_date?: string;
+          opened_at?: string | null;
+          session_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'chests_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'chests_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: true;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      child_badges: {
+        Row: {
+          badge_code: string;
+          child_id: string;
+          created_at: string;
+          earned_at: string;
+          id: string;
+          session_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          badge_code: string;
+          child_id: string;
+          created_at?: string;
+          earned_at: string;
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          badge_code?: string;
+          child_id?: string;
+          created_at?: string;
+          earned_at?: string;
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_badges_badge_code_fkey';
+            columns: ['badge_code'];
+            isOneToOne: false;
+            referencedRelation: 'badges';
+            referencedColumns: ['code'];
+          },
+          {
+            foreignKeyName: 'child_badges_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_badges_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      child_items: {
+        Row: {
+          bought_at: string;
+          child_id: string;
+          created_at: string;
+          equipped: boolean;
+          id: string;
+          item_code: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          bought_at: string;
+          child_id: string;
+          created_at?: string;
+          equipped?: boolean;
+          id?: string;
+          item_code: string;
+          updated_at?: string;
+        };
+        Update: {
+          bought_at?: string;
+          child_id?: string;
+          created_at?: string;
+          equipped?: boolean;
+          id?: string;
+          item_code?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_items_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_items_item_code_fkey';
+            columns: ['item_code'];
+            isOneToOne: false;
+            referencedRelation: 'shop_items';
             referencedColumns: ['code'];
           },
         ];
@@ -311,6 +589,97 @@ export type Database = {
         };
         Relationships: [];
       };
+      gem_transactions: {
+        Row: {
+          amount: number;
+          child_id: string;
+          created_at: string;
+          id: string;
+          local_date: string;
+          reason: Database['public']['Enums']['gem_reason'];
+          ref_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount: number;
+          child_id: string;
+          created_at?: string;
+          id?: string;
+          local_date: string;
+          reason: Database['public']['Enums']['gem_reason'];
+          ref_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          amount?: number;
+          child_id?: string;
+          created_at?: string;
+          id?: string;
+          local_date?: string;
+          reason?: Database['public']['Enums']['gem_reason'];
+          ref_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'gem_transactions_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      island_completions: {
+        Row: {
+          child_id: string;
+          completed_at: string;
+          created_at: string;
+          domain: Database['public']['Enums']['skill_domain'];
+          grade: Database['public']['Enums']['grade'];
+          id: string;
+          session_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          completed_at: string;
+          created_at?: string;
+          domain: Database['public']['Enums']['skill_domain'];
+          grade: Database['public']['Enums']['grade'];
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          completed_at?: string;
+          created_at?: string;
+          domain?: Database['public']['Enums']['skill_domain'];
+          grade?: Database['public']['Enums']['grade'];
+          id?: string;
+          session_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'island_completions_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'island_completions_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       item_ratings: {
         Row: {
           answers_count: number;
@@ -484,6 +853,51 @@ export type Database = {
           },
         ];
       };
+      parent_rewards: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          given_at: string | null;
+          goal: Database['public']['Enums']['parent_reward_goal'];
+          id: string;
+          target: number;
+          title: string;
+          unlocked_at: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          given_at?: string | null;
+          goal: Database['public']['Enums']['parent_reward_goal'];
+          id?: string;
+          target: number;
+          title: string;
+          unlocked_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          given_at?: string | null;
+          goal?: Database['public']['Enums']['parent_reward_goal'];
+          id?: string;
+          target?: number;
+          title?: string;
+          unlocked_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'parent_rewards_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       parents: {
         Row: {
           created_at: string;
@@ -525,6 +939,57 @@ export type Database = {
             columns: ['family_id'];
             isOneToOne: false;
             referencedRelation: 'families';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      progress: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          freezes: number;
+          gems: number;
+          id: string;
+          level: number;
+          streak_best: number;
+          streak_current: number;
+          streak_last_date: string | null;
+          updated_at: string;
+          xp: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          freezes?: number;
+          gems?: number;
+          id?: string;
+          level?: number;
+          streak_best?: number;
+          streak_current?: number;
+          streak_last_date?: string | null;
+          updated_at?: string;
+          xp?: number;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          freezes?: number;
+          gems?: number;
+          id?: string;
+          level?: number;
+          streak_best?: number;
+          streak_current?: number;
+          streak_last_date?: string | null;
+          updated_at?: string;
+          xp?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'progress_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: true;
+            referencedRelation: 'children';
             referencedColumns: ['id'];
           },
         ];
@@ -611,6 +1076,8 @@ export type Database = {
       sessions: {
         Row: {
           answered: number;
+          award: Json | null;
+          awarded_at: string | null;
           child_id: string;
           completed_at: string | null;
           created_at: string;
@@ -626,10 +1093,14 @@ export type Database = {
           score: number;
           started_at: string;
           updated_at: string;
+          verified_correct: number | null;
+          xp_awarded: number | null;
         };
         ComputedFields: never;
         Insert: {
           answered?: number;
+          award?: Json | null;
+          awarded_at?: string | null;
           child_id: string;
           completed_at?: string | null;
           created_at?: string;
@@ -645,9 +1116,13 @@ export type Database = {
           score?: number;
           started_at: string;
           updated_at?: string;
+          verified_correct?: number | null;
+          xp_awarded?: number | null;
         };
         Update: {
           answered?: number;
+          award?: Json | null;
+          awarded_at?: string | null;
           child_id?: string;
           completed_at?: string | null;
           created_at?: string;
@@ -663,6 +1138,8 @@ export type Database = {
           score?: number;
           started_at?: string;
           updated_at?: string;
+          verified_correct?: number | null;
+          xp_awarded?: number | null;
         };
         Relationships: [
           {
@@ -680,6 +1157,37 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      shop_items: {
+        Row: {
+          code: string;
+          created_at: string;
+          id: string;
+          kind: Database['public']['Enums']['shop_item_kind'];
+          position: number;
+          price_gems: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          created_at?: string;
+          id?: string;
+          kind: Database['public']['Enums']['shop_item_kind'];
+          position: number;
+          price_gems: number;
+          updated_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          id?: string;
+          kind?: Database['public']['Enums']['shop_item_kind'];
+          position?: number;
+          price_gems?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       skills: {
         Row: {
@@ -765,6 +1273,34 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      award_session: {
+        Args: { p_now?: string; p_session_id: string; p_verdicts: Json };
+        Returns: Json;
+      };
+      buy_freeze: {
+        Args: { p_child_id: string };
+        Returns: {
+          child_id: string;
+          created_at: string;
+          freezes: number;
+          gems: number;
+          id: string;
+          level: number;
+          streak_best: number;
+          streak_current: number;
+          streak_last_date: string | null;
+          updated_at: string;
+          xp: number;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'progress';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      buy_item: { Args: { p_child_id: string; p_item_code: string }; Returns: Json };
+      child_badge_metrics: { Args: { p_child_id: string }; Returns: Json };
       create_pairing_code: {
         Args: { p_child_id: string };
         Returns: {
@@ -772,6 +1308,12 @@ export type Database = {
           expires_at: string;
         }[];
       };
+      equip_item: {
+        Args: { p_child_id: string; p_equipped: boolean; p_item_code: string };
+        Returns: undefined;
+      };
+      give_parent_reward: { Args: { p_reward_id: string }; Returns: undefined };
+      open_chest: { Args: { p_chest_id: string }; Returns: Json };
       redeem_pairing_code: {
         Args: { p_code: string; p_platform: Database['public']['Enums']['device_platform'] };
         Returns: {
@@ -793,6 +1335,8 @@ export type Database = {
         Args: { p_session: Json };
         Returns: {
           answered: number;
+          award: Json | null;
+          awarded_at: string | null;
           child_id: string;
           completed_at: string | null;
           created_at: string;
@@ -808,6 +1352,8 @@ export type Database = {
           score: number;
           started_at: string;
           updated_at: string;
+          verified_correct: number | null;
+          xp_awarded: number | null;
         }[];
         SetofOptions: {
           from: '*';
@@ -817,10 +1363,14 @@ export type Database = {
         };
       };
       unregister_push_token: { Args: { p_token: string }; Returns: undefined };
+      weekly_challenge: { Args: { p_child_id: string; p_now?: string }; Returns: Json };
     };
     Enums: {
+      badge_category: 'regularity' | 'mastery' | 'discovery' | 'progression';
+      chest_kind: 'common' | 'rare';
       child_gender: 'girl' | 'boy';
       device_platform: 'ios' | 'android' | 'web';
+      gem_reason: 'session' | 'chest' | 'freeze' | 'shop' | 'challenge';
       grade: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
       mastery_status: 'to_discover' | 'in_progress' | 'mastered' | 'to_review';
       notification_audience: 'child' | 'parent';
@@ -832,11 +1382,13 @@ export type Database = {
         | 'missed'
         | 'session_done'
         | 'parent_message';
+      parent_reward_goal: 'streak' | 'xp' | 'islands';
       parent_role: 'owner' | 'co_parent';
       push_status: 'enabled' | 'denied' | 'unsupported';
       session_goal_type: 'duration' | 'count';
       session_kind: 'daily' | 'bonus' | 'placement' | 'boss';
       session_slot: 'current' | 'review' | 'automatism' | 'challenge';
+      shop_item_kind: 'companion' | 'accessory' | 'effect';
       skill_domain: 'numbers' | 'measures' | 'geometry' | 'data';
     };
     CompositeTypes: {
@@ -949,8 +1501,11 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      badge_category: ['regularity', 'mastery', 'discovery', 'progression'],
+      chest_kind: ['common', 'rare'],
       child_gender: ['girl', 'boy'],
       device_platform: ['ios', 'android', 'web'],
+      gem_reason: ['session', 'chest', 'freeze', 'shop', 'challenge'],
       grade: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
       mastery_status: ['to_discover', 'in_progress', 'mastered', 'to_review'],
       notification_audience: ['child', 'parent'],
@@ -963,11 +1518,13 @@ export const Constants = {
         'session_done',
         'parent_message',
       ],
+      parent_reward_goal: ['streak', 'xp', 'islands'],
       parent_role: ['owner', 'co_parent'],
       push_status: ['enabled', 'denied', 'unsupported'],
       session_goal_type: ['duration', 'count'],
       session_kind: ['daily', 'bonus', 'placement', 'boss'],
       session_slot: ['current', 'review', 'automatism', 'challenge'],
+      shop_item_kind: ['companion', 'accessory', 'effect'],
       skill_domain: ['numbers', 'measures', 'geometry', 'data'],
     },
   },

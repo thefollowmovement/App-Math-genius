@@ -3,9 +3,15 @@ import type { DayPlan } from '@math-genius/shared';
 import { Avatar, Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import type { Child } from '@/data/children';
+import type { ParentRewardView } from '@/data/parent-rewards-model';
 import type { PracticeStatus } from '@/data/practice/summary';
+import { wornItems, type Rewards, type WeeklyChallenge } from '@/data/rewards-model';
 import { strings } from '@/i18n';
 import { goalText } from '@/utils/routine-text';
+
+import { ChallengeCard } from './rewards/challenge-card';
+import { NextRewardCard } from './rewards/next-reward-card';
+import { ProgressStrip } from './rewards/progress-strip';
 
 const t = strings.childHome;
 
@@ -18,6 +24,16 @@ type ChildHomeProps = {
   plan: DayPlan['kind'];
   /** Goal of a new session. */
   goal: SessionGoal;
+  /** Missing until the first award, or while loading. */
+  rewards?: Rewards;
+  /** This week's challenge, once known. */
+  challenge?: WeeklyChallenge | null;
+  /** The parent's reward to ask for, or the closest one to unlock. */
+  nextReward?: ParentRewardView | null;
+  onOpenChest?: (chestId: string) => void;
+  onOpenBadges?: () => void;
+  onOpenMap?: () => void;
+  onOpenShop?: () => void;
   sync: SyncState;
   onStart: () => void;
   /** Shown when the device holds several profiles or a parent is signed in. */
@@ -46,19 +62,64 @@ export function ChildHome({
   practice,
   plan,
   goal,
+  rewards,
+  challenge,
+  nextReward,
+  onOpenChest,
+  onOpenBadges,
+  onOpenMap,
+  onOpenShop,
   sync,
   onStart,
   onSwitchProfile,
 }: ChildHomeProps) {
+  const [chest] = rewards?.chests ?? [];
+  const worn = wornItems(rewards?.items ?? []);
+  const companion = worn.companion ? strings.shop.items[worn.companion] : null;
+  const accessory = worn.accessory ? strings.shop.items[worn.accessory] : null;
   return (
     <Screen centered>
+      {rewards ? <ProgressStrip progress={rewards.progress} /> : null}
       <View className="items-center gap-4">
-        <Avatar name={child.display_name} size="lg" />
+        <View className="flex-row items-end gap-2">
+          <View>
+            <Avatar name={child.display_name} size="lg" />
+            {accessory ? (
+              <ThemedText
+                variant="title"
+                className="absolute -right-2 -top-2"
+                accessibilityLabel={strings.shop.accessoryLabel(accessory.name)}
+              >
+                {accessory.icon}
+              </ThemedText>
+            ) : null}
+          </View>
+          {companion ? (
+            <ThemedText
+              variant="display"
+              accessibilityLabel={strings.shop.companionLabel(companion.name)}
+            >
+              {companion.icon}
+            </ThemedText>
+          ) : null}
+        </View>
         <ThemedText variant="display" className="text-center">
           {t.greeting(child.display_name)}
         </ThemedText>
         <ThemedText className="text-center">{message(practice, plan, goal)}</ThemedText>
       </View>
+      {chest && onOpenChest ? (
+        <View className="gap-3 rounded-lg border border-primary bg-surface p-4">
+          <ThemedText variant="headline" className="text-center">
+            {strings.rewards.chestsWaiting(rewards?.chests.length ?? 1)}
+          </ThemedText>
+          <Button
+            variant="secondary"
+            title={strings.rewards.openChest}
+            onPress={() => onOpenChest(chest.id)}
+          />
+        </View>
+      ) : null}
       {practice.status === 'unavailable' ? null : (
         <Button
           size="lg"
@@ -67,6 +128,19 @@ export function ChildHome({
           onPress={onStart}
         />
       )}
+      {nextReward ? <NextRewardCard reward={nextReward} /> : null}
+      {challenge ? <ChallengeCard challenge={challenge} /> : null}
+      {onOpenMap ? <Button variant="ghost" title={strings.map.open} onPress={onOpenMap} /> : null}
+      {onOpenShop ? (
+        <Button variant="ghost" title={strings.shop.open} onPress={onOpenShop} />
+      ) : null}
+      {onOpenBadges ? (
+        <Button
+          variant="ghost"
+          title={strings.badges.open(rewards?.badges ?? 0)}
+          onPress={onOpenBadges}
+        />
+      ) : null}
       {sync === 'idle' ? null : (
         <ThemedText variant="caption" className="text-center" accessibilityLiveRegion="polite">
           {sync === 'offline' ? t.offline : t.syncing}

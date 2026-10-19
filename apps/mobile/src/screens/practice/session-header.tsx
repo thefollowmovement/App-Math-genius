@@ -1,4 +1,4 @@
-import type { Slot } from '@math-genius/exercise-engine';
+import type { Island, Slot } from '@math-genius/exercise-engine';
 import { Button, ThemedText, useTheme, View } from '@math-genius/ui';
 import Animated from 'react-native-reanimated';
 import { StyleSheet } from 'react-native';
@@ -12,10 +12,12 @@ type SessionHeaderProps = {
   progress: number;
   slot: Slot;
   twin: boolean;
+  /** A boss session: its island instead of the kind of exercise. */
+  boss?: Island;
   onPause: () => void;
 };
 
-export function SessionHeader({ progress, slot, twin, onPause }: SessionHeaderProps) {
+export function SessionHeader({ progress, slot, twin, boss, onPause }: SessionHeaderProps) {
   const { colors } = useTheme();
   const percent = Math.round(Math.min(1, Math.max(0, progress)) * 100);
 
@@ -37,7 +39,7 @@ export function SessionHeader({ progress, slot, twin, onPause }: SessionHeaderPr
         </View>
       </View>
       <View className="flex-row flex-wrap gap-2">
-        <Chip label={t.slots[slot]} />
+        <Chip label={boss ? t.boss(strings.map.islands[boss.domain].name) : t.slots[slot]} />
         {twin ? <Chip label={t.twin} /> : null}
       </View>
     </View>

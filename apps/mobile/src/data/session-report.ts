@@ -1,12 +1,6 @@
 import { getSkill, isSkillCode } from '@math-genius/curriculum';
-import {
-  DIFFICULTIES,
-  buildExercise,
-  rational,
-  type Exercise,
-  type ExerciseResponse,
-} from '@math-genius/exercise-engine';
-import type { DayPlan, Json } from '@math-genius/shared';
+import { parseStoredResponse, rebuildExercise } from '@math-genius/exercise-engine';
+import type { DayPlan } from '@math-genius/shared';
 
 import { responseText, rightAnswerText } from '@/utils/exercise-text';
 
@@ -81,35 +75,6 @@ export function familyDay(
   );
 }
 
-const isObject = (value: Json): value is { [key: string]: Json | undefined } =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
-const isNumberList = (value: Json | undefined): value is number[] =>
-  Array.isArray(value) && value.every((item) => typeof item === 'number');
-
-/** The answer stored with an attempt, if it has a known shape (data from the server). */
-export function parseResponse(value: Json): ExerciseResponse | null {
-  if (!isObject(value)) return null;
-  const { type } = value;
-  if (type === 'numeric' && typeof value.text === 'string') return { type, text: value.text };
-  if (type === 'choice' && typeof value.index === 'number') return { type, index: value.index };
-  if (type === 'true-false' && typeof value.value === 'boolean') {
-    return { type, value: value.value };
-  }
-  const position = value.value;
-  if (type === 'number-line' && position !== undefined && isObject(position)) {
-    const { num, den } = position;
-    if (typeof num === 'number' && typeof den === 'number' && den !== 0) {
-      return { type, value: rational(num, den) };
-    }
-  }
-  if (type === 'order' && isNumberList(value.order)) return { type, order: value.order };
-  if (type === 'match' && isNumberList(value.pairs)) return { type, pairs: value.pairs };
-  if (type === 'fraction-shade' && typeof value.shaded === 'number') {
-    return { type, shaded: value.shaded };
-  }
-  return null;
-}
-
 export type AttemptView = {
   position: number;
   skill: string;
@@ -123,24 +88,14 @@ export type AttemptView = {
   seconds: number;
 };
 
-function rebuild(row: AttemptRow): Exercise | null {
-  const difficulty = DIFFICULTIES.find((level) => level === row.difficulty);
-  if (!difficulty) return null;
-  try {
-    return buildExercise({ generatorId: row.generator_id, difficulty, seed: row.seed });
-  } catch {
-    return null;
-  }
-}
-
 /**
  * What the parent reads for each answer. The exercise is rebuilt by the engine from its
  * generator, difficulty and seed: the database never stores exercise texts.
  */
 export function attemptViews(rows: readonly AttemptRow[]): AttemptView[] {
   return rows.map((row) => {
-    const exercise = rebuild(row);
-    const response = parseResponse(row.answer);
+    const exercise = rebuildExercise(row);
+    const response = parseStoredResponse(row.answer);
     return {
       position: row.position,
       skill: isSkillCode(row.skill_code) ? getSkill(row.skill_code).title : row.skill_code,

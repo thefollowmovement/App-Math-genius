@@ -4,3 +4,4 @@ pnpm-lock.yaml
 **/coverage/
 supabase/.temp/
 *.md
+supabase/functions/**/engine.js

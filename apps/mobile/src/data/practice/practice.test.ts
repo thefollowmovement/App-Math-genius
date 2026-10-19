@@ -1,4 +1,4 @@
-import { planNext } from '@math-genius/exercise-engine';
+import { bossLength, bossSkills, planNext } from '@math-genius/exercise-engine';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { playSession } from '@/test-utils/play-session';
@@ -32,6 +32,35 @@ beforeEach(async () => {
   await AsyncStorage.clear();
 });
 
+describe('a boss session', () => {
+  it("asks the island's skills, ends after bossLength exercises and is not the daily mission", () => {
+    const island = { grade: 'CM1', domain: 'numbers' } as const;
+    const session = openSession({
+      childId: CHILD,
+      grade: 'CM1',
+      now: evening(15),
+      id: 'boss-1',
+      seed: 3,
+      boss: island,
+    });
+    expect(session).toMatchObject({
+      kind: 'boss',
+      boss: island,
+      goal: { type: 'count', count: bossLength(island) },
+    });
+    expect(plannerContext(session).boss).toEqual(island);
+    play(session);
+
+    const child = childPractice(CHILD);
+    const [finished] = child.outbox;
+    expect(finished?.attempts).toHaveLength(bossLength(island));
+    const skills = new Set<string>(bossSkills(island));
+    expect(finished?.attempts.every((attempt) => skills.has(attempt.skill))).toBe(true);
+    expect(child.lastDailyDate).toBeNull();
+    expect(finished && sessionPayload(finished).kind).toBe('boss');
+  });
+});
+
 describe('a session without network', () => {
   it('plays 15 minutes offline, keeps everything, and syncs once online', async () => {
     const session = open(evening(15));
@@ -47,12 +76,18 @@ describe('a session without network', () => {
     expect(Object.keys(child.mastery).length).toBeGreaterThan(2);
 
     // No network: nothing is lost.
-    await expect(sendPendingSessions(offline, never)).resolves.toEqual({ sent: 0, failed: 1 });
+    await expect(sendPendingSessions(offline, never)).resolves.toEqual({
+      sent: 0,
+      failed: 1,
+      finished: [],
+    });
     expect(pendingSessions()).toHaveLength(1);
 
     // Back online: the whole session goes in one call, then leaves the outbox.
     const received: SyncPayload[] = [];
-    await sendPendingSessions(async (payload) => void received.push(payload), never);
+    await expect(
+      sendPendingSessions(async (payload) => void received.push(payload), never),
+    ).resolves.toMatchObject({ sent: 1, finished: [CHILD] });
     expect(pendingSessions()).toHaveLength(0);
     expect(childPractice(CHILD).outbox).toHaveLength(0);
 
@@ -136,7 +171,7 @@ describe('a session without network', () => {
       () => Promise.reject(new Error('child_not_found')),
       () => true,
     );
-    expect(result).toEqual({ sent: 0, failed: 0 });
+    expect(result).toEqual({ sent: 0, failed: 0, finished: [] });
     expect(pendingSessions()).toHaveLength(0);
   });
 

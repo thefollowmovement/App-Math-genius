@@ -1,4 +1,15 @@
 export {
+  bossLength,
+  bossSkills,
+  islandKey,
+  worldMap,
+  type BossState,
+  type Island,
+  type IslandView,
+  type NodeStatus,
+  type SkillNode,
+} from './adaptive/islands';
+export {
   MASTERY_THRESHOLD,
   SESSIONS_TO_MASTER,
   isAcquired,
@@ -67,6 +78,13 @@ export { generators } from './generators';
 export { gradeResponse, type ExerciseResponse, type Verdict } from './grade';
 export { parseTypedNumber, type NumberForm, type TypedNumber } from './parse';
 export { createRng, deriveSeed, type Rng } from './random';
+export {
+  parseStoredResponse,
+  rebuildExercise,
+  regrade,
+  type ServerVerdict,
+  type StoredAnswer,
+} from './regrade';
 export {
   add,
   compare,

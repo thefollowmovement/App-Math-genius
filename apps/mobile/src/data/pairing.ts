@@ -4,6 +4,8 @@ import { Platform } from 'react-native';
 
 import { supabase } from '@/lib/supabase';
 
+import { refetchAfterWrite } from './query-client';
+
 export type PairingCode = { code: string; expiresAt: Date };
 
 export function useCreatePairingCode() {
@@ -40,6 +42,8 @@ export function useRedeemPairingCode() {
       if (error || !child) throw error ?? new Error('redeem_pairing_code returned nothing');
       return { childId: child.child_id, displayName: child.display_name };
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
+    // The new session's profiles query starts as soon as it signs in, alongside the redemption:
+    // its empty answer would send the child back to pairing.
+    onSuccess: () => refetchAfterWrite(queryClient, ['children']),
   });
 }

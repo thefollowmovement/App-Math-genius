@@ -7,6 +7,9 @@ import { useIsOnline } from '@/data/network';
 import { hasUnsentAnswers, usePracticeStore } from '@/data/practice/practice-store';
 import { practiceStatus } from '@/data/practice/summary';
 import { usePracticeSync } from '@/data/practice/sync';
+import { useParentRewards } from '@/data/parent-rewards';
+import { nextReward, rewardViews, standing } from '@/data/parent-rewards-model';
+import { useIslands, useRewards, useWeeklyChallenge } from '@/data/rewards';
 import { childPlan, routineOf } from '@/data/routine-plan';
 import { useRoutines } from '@/data/routines';
 import { useAccountKind } from '@/data/session';
@@ -24,6 +27,10 @@ export default function ChildHomeRoute() {
   const online = useIsOnline();
   const start = useStartSession(child.data);
   const routines = useRoutines();
+  const rewards = useRewards(child.data?.id);
+  const challenge = useWeeklyChallenge(child.data?.id);
+  const parentRewards = useParentRewards(child.data?.id);
+  const islands = useIslands(child.data?.id);
   const { date } = useLocalClock();
   usePracticeSync(child.data?.id);
 
@@ -38,6 +45,18 @@ export default function ChildHomeRoute() {
       practice={practiceStatus(practice, child.data.grade, date)}
       plan={childPlan(routines.data, id, date).kind}
       goal={routineOf(routines.data, id)?.goal ?? DEFAULT_SESSION_GOAL}
+      rewards={rewards.data}
+      challenge={challenge.data}
+      nextReward={nextReward(
+        rewardViews(
+          parentRewards.data ?? [],
+          standing(rewards.data?.progress, islands.data?.length ?? 0),
+        ),
+      )}
+      onOpenChest={(chest) => router.push({ pathname: '/child/chest', params: { id, chest } })}
+      onOpenBadges={() => router.push({ pathname: '/child/badges', params: { id } })}
+      onOpenMap={() => router.push({ pathname: '/child/map', params: { id } })}
+      onOpenShop={() => router.push({ pathname: '/child/shop', params: { id } })}
       sync={!online ? 'offline' : unsent ? 'syncing' : 'idle'}
       onStart={() => start()}
       onSwitchProfile={

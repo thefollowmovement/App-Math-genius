@@ -16,6 +16,7 @@ import {
   masteryStatus,
   startingRecord,
 } from './mastery';
+import { type Island, planBossExercise } from './islands';
 import { type ItemRatings, clampDifficulty, difficultyFor, itemRating } from './ratings';
 import type { SessionAttempt, Slot } from './session';
 
@@ -33,6 +34,8 @@ export type PlannerContext = {
   seed: number;
   /** Defaults to every generator of the engine. */
   generators?: readonly Generator[];
+  /** A boss session: the island it evaluates (planBossExercise). */
+  boss?: Island;
 };
 
 export type PlannedExercise = Pick<
@@ -267,6 +270,7 @@ export function planNext(
   context: PlannerContext,
   attempts: readonly SessionAttempt[],
 ): PlannedExercise | null {
+  if (context.boss) return planBossExercise(context, context.boss, attempts);
   const index = attempts.length;
   const rng = createRng(deriveSeed(context.seed, index));
   const seed = rng.int(0, 2 ** 31 - 1);

@@ -1,4 +1,4 @@
-import type { Exercise, ExerciseResponse, Slot } from '@math-genius/exercise-engine';
+import type { Exercise, ExerciseResponse, Island, Slot } from '@math-genius/exercise-engine';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import { strings } from '@/i18n';
@@ -21,6 +21,8 @@ type PracticeScreenProps = {
   exercise: Exercise;
   slot: Slot;
   twin: boolean;
+  /** A boss session: the island it evaluates. */
+  boss?: Island;
   /** Errors in a row: the hint is shown up front as a reminder. */
   reminder: boolean;
   progress: number;
@@ -38,6 +40,7 @@ export function PracticeScreen({
   exercise,
   slot,
   twin,
+  boss,
   reminder,
   progress,
   hintShown,
@@ -50,7 +53,7 @@ export function PracticeScreen({
 }: PracticeScreenProps) {
   return (
     <Screen>
-      <SessionHeader progress={progress} slot={slot} twin={twin} onPause={onPause} />
+      <SessionHeader progress={progress} slot={slot} twin={twin} boss={boss} onPause={onPause} />
       {reminder && !feedback ? <Card title={t.reminder} text={exercise.hint} /> : null}
       <ThemedText variant="title" accessibilityRole="header">
         {exercise.prompt}

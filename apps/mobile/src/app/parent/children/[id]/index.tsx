@@ -6,9 +6,11 @@ import { useChild } from '@/data/children';
 import { errorKind } from '@/data/errors';
 import { useRevokeDevice } from '@/data/devices';
 import { useTodaySessions } from '@/data/family-sessions';
+import { useRewards } from '@/data/rewards';
 import { routineOf, vacationsOf } from '@/data/routine-plan';
 import { useRoutines } from '@/data/routines';
 import { usePairingPanel } from '@/hooks/use-pairing-panel';
+import { useParentRewardsPanel } from '@/hooks/use-parent-rewards-panel';
 import { ChildDetail } from '@/screens/child-detail';
 
 export default function ChildDetailRoute() {
@@ -19,7 +21,9 @@ export default function ChildDetailRoute() {
   const revokeDevice = useRevokeDevice();
   const sessions = useTodaySessions();
   const routines = useRoutines();
+  const rewards = useRewards(id);
   const message = useSendChildMessage(id);
+  const parentRewards = useParentRewardsPanel(id);
 
   if (!child.data) return <LoadingScreen />;
 
@@ -28,6 +32,8 @@ export default function ChildDetailRoute() {
       <Stack.Title>{child.data.display_name}</Stack.Title>
       <ChildDetail
         child={child.data}
+        progress={rewards.data?.progress}
+        badges={rewards.data?.badges}
         sessions={(sessions.data ?? []).filter((session) => session.child_id === id)}
         onOpenSession={(sessionId) =>
           router.push({ pathname: '/parent/sessions/[id]', params: { id: sessionId } })
@@ -37,6 +43,7 @@ export default function ChildDetailRoute() {
         onEditRoutine={() =>
           router.push({ pathname: '/parent/children/[id]/routine', params: { id } })
         }
+        rewards={parentRewards}
         nudge={{
           onSend: (text) => message.mutate(text),
           sending: message.isPending,

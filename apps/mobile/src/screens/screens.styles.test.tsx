@@ -1,8 +1,11 @@
+import { worldMap } from '@math-genius/exercise-engine';
 import { DEFAULT_ROUTINE } from '@math-genius/shared';
 import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
+import { badgeGroups } from '@/data/badges-model';
 import type { Child } from '@/data/children';
+import { shopGroups } from '@/data/rewards-model';
 import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
@@ -18,7 +21,10 @@ import { attemptViews } from '@/data/session-report';
 import { EXERCISE_TYPES, exerciseOfType } from '@/test-utils/exercises';
 import { attemptRow, sessionRow } from '@/test-utils/family';
 import { rightResponse, wrongResponse } from '@/test-utils/responses';
+import { award, parentReward, parentRewards, rewards } from '@/test-utils/rewards';
 
+import { Badges } from './badges';
+import { ChestOpening } from './chest-opening';
 import { ChildDetail } from './child-detail';
 import { ChildForm } from './child-form';
 import { ChildHome } from './child-home';
@@ -30,7 +36,9 @@ import { RoutineSettings } from './routine-settings';
 import { SignIn } from './sign-in';
 import { SessionDetail } from './session-detail';
 import { SessionSummary } from './session-summary';
+import { Shop } from './shop';
 import { SignUp } from './sign-up';
+import { WorldMap } from './world-map';
 
 const globalCss = compileGlobalCss();
 
@@ -101,6 +109,7 @@ const screens: { name: string; render: () => ReactElement }[] = [
         routine={{ ...DEFAULT_ROUTINE, weekendStartTime: '10:30' }}
         vacations={[vacation]}
         onEditRoutine={jest.fn()}
+        rewards={parentRewards({ error: 'network' })}
         nudge={{ onSend: jest.fn(), sending: false, result: 'no_device', error: 'tooManyMessages' }}
         pairing={{
           status: 'showing',
@@ -163,9 +172,76 @@ const screens: { name: string; render: () => ReactElement }[] = [
         practice={{ status: 'in-progress', percent: 40 }}
         plan="planned"
         goal={{ type: 'duration', minutes: 15 }}
+        rewards={rewards([{ id: 'chest-1', kind: 'common' }])}
+        challenge={{ code: 'combo-10', threshold: 10, progress: 4, gems: 15, completed: false }}
+        nextReward={parentReward({ status: 'unlocked', value: 1, unlocked_at: '2026-10-18' })}
+        onOpenChest={jest.fn()}
+        onOpenBadges={jest.fn()}
         sync="offline"
         onStart={jest.fn()}
         onSwitchProfile={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'Badges',
+    render: () => (
+      <Badges
+        groups={badgeGroups({
+          earned: [{ badge_code: 'streak-3', earned_at: '2026-10-07T16:00:00Z' }],
+          metrics: { streak_best: 4, validated_daily: 4 },
+        })}
+      />
+    ),
+  },
+  {
+    name: 'Shop',
+    render: () => (
+      <Shop
+        gems={70}
+        freezes={1}
+        groups={shopGroups([{ item_code: 'kitten', equipped: true }])}
+        pending={null}
+        error="notEnoughGems"
+        onBuyFreeze={jest.fn()}
+        onBuy={jest.fn()}
+        onWear={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'WorldMap',
+    render: () => (
+      <WorldMap
+        islands={worldMap({ grade: 'CE2', mastery: {}, at: '2026-10-18T17:00:00Z', defeated: [] })}
+        busy={false}
+        onFightBoss={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'ChestOpening (closed)',
+    render: () => (
+      <ChestOpening
+        kind="rare"
+        opened={null}
+        opening={false}
+        error="network"
+        onOpen={jest.fn()}
+        onDone={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'ChestOpening (opened)',
+    render: () => (
+      <ChestOpening
+        kind="common"
+        opened={{ kind: 'common', gems: 12, total: 57 }}
+        opening={false}
+        error={null}
+        onOpen={jest.fn()}
+        onDone={jest.fn()}
       />
     ),
   },
@@ -193,13 +269,18 @@ const screens: { name: string; render: () => ReactElement }[] = [
     render: () => (
       <SessionSummary
         summary={{
+          kind: 'daily',
           goalMet: true,
           answered: 45,
           correct: 37,
           minutes: 15,
           progressed: [{ title: 'Connaître les tables de multiplication de 2 à 10', mastery: 72 }],
         }}
-        saved={false}
+        saved
+        award={{ status: 'ready', award: award({ chest: { id: 'chest-1', kind: 'rare' } }) }}
+        onOpenChest={jest.fn()}
+        onOpenBadges={jest.fn()}
+        effect="confetti"
         onBonus={jest.fn()}
         onHome={jest.fn()}
       />
