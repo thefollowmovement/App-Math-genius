@@ -1,46 +1,52 @@
 import { ThemedText, View, cx } from '@math-genius/ui';
 
+import { ProgressBar } from '@/components/game/progress-bar';
 import type { WeeklyChallenge } from '@/data/rewards-model';
 import { strings } from '@/i18n';
-import { levelPercent } from '@/utils/reward-text';
 
 const t = strings.challenge;
 
 /** This week's challenge, on the child's home. */
-export function ChallengeCard({ challenge }: { challenge: WeeklyChallenge }) {
+export function ChallengeCard({
+  challenge,
+  className,
+}: {
+  challenge: WeeklyChallenge;
+  className?: string;
+}) {
+  const { progress, threshold, completed } = challenge;
   return (
     <View
+      accessible
+      accessibilityLabel={
+        completed
+          ? `${t.title}\u00a0: ${t.done}`
+          : t.cardLabel(t.items[challenge.code], progress, threshold, challenge.gems)
+      }
       className={cx(
-        'gap-2 rounded-lg border bg-surface p-4',
-        challenge.completed ? 'border-success' : 'border-border',
+        'gap-2 rounded-lg border-2 bg-surface p-4',
+        completed ? 'border-success' : 'border-border',
+        className,
       )}
     >
-      <ThemedText variant="headline">{`${t.icon} ${t.title}`}</ThemedText>
-      <ThemedText>{t.items[challenge.code]}</ThemedText>
-      {challenge.completed ? (
-        <ThemedText variant="caption" tone="default">
-          {t.done}
+      <ThemedText variant="label" tone="accent">
+        {t.title}
+      </ThemedText>
+      <ThemedText>{t.names[challenge.code]}</ThemedText>
+      {completed ? (
+        <ThemedText variant="caption" tone="success">
+          {t.doneShort}
         </ThemedText>
       ) : (
         <>
-          <View className="flex-row items-center gap-2">
-            <View
-              accessible
-              accessibilityRole="progressbar"
-              accessibilityLabel={t.progressLabel(challenge.progress, challenge.threshold)}
-              accessibilityValue={{ min: 0, max: challenge.threshold, now: challenge.progress }}
-              className="h-2 flex-1 overflow-hidden rounded-full border border-border bg-background"
-            >
-              <View
-                className="h-2 rounded-full bg-primary"
-                style={{ width: `${levelPercent(challenge.progress, challenge.threshold)}%` }}
-              />
-            </View>
-            <ThemedText variant="caption">
-              {t.progress(challenge.progress, challenge.threshold)}
-            </ThemedText>
-          </View>
-          <ThemedText variant="caption">{t.reward(challenge.gems)}</ThemedText>
+          <ProgressBar
+            value={threshold > 0 ? progress / threshold : 0}
+            fill="accent"
+            size="sm"
+            label={t.title}
+            valueText={t.progressLabel(progress, threshold)}
+          />
+          <ThemedText variant="caption">{t.progress(progress, threshold)}</ThemedText>
         </>
       )}
     </View>

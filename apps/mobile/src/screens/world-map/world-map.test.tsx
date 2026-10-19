@@ -1,6 +1,6 @@
 import { getSkill } from '@math-genius/curriculum';
 import { bossSkills, worldMap, type MasteryRecord } from '@math-genius/exercise-engine';
-import { screen, userEvent } from '@testing-library/react-native';
+import { fireEvent, screen, userEvent } from '@testing-library/react-native';
 
 import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
@@ -23,30 +23,60 @@ const islands = worldMap({
   at,
   defeated: [],
 });
+// Lays the path out, as a phone would.
+const layOut = () =>
+  fireEvent(screen.getByLabelText(t.pathLabel(t.islands.numbers.name)), 'layout', {
+    nativeEvent: { layout: { width: 350, height: 2000 } },
+  });
 
 describe('WorldMap', () => {
-  it('shows each island with its path, and opens a ready boss', async () => {
+  it('opens on the island where the child stands, with the hero on its stop', async () => {
+    await renderWithTheme(<WorldMap islands={islands} busy={false} onFightBoss={jest.fn()} />);
+    expect(screen.getByRole('header', { name: t.islands.numbers.name })).toBeOnTheScreen();
+    expect(screen.getByText(t.island(1, 'CE2'))).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: t.previous })).toBeDisabled();
+    await layOut();
+    expect(screen.getByText(t.here)).toBeOnTheScreen();
+    // Every skill of the island, with its status (locked until a prerequisite is acquired).
+    const labels = screen
+      .getAllByRole('button')
+      .map((button) => String(button.props.accessibilityLabel));
+    for (const node of islands[0]?.skills ?? []) {
+      const label = t.node(getSkill(node.code).title, t.status[node.status], node.mastery);
+      expect(labels.some((spoken) => spoken.endsWith(label))).toBe(true);
+    }
+    expect(labels.some((spoken) => spoken.startsWith(t.hereLabel))).toBe(true);
+    expect(labels.some((spoken) => spoken.endsWith(t.status.locked))).toBe(true);
+  });
+
+  it('goes from island to island, and opens a ready boss', async () => {
     const onFightBoss = jest.fn();
     const user = userEvent.setup();
     await renderWithTheme(<WorldMap islands={islands} busy={false} onFightBoss={onFightBoss} />);
-    for (const domain of ['numbers', 'measures', 'geometry', 'data'] as const) {
-      expect(
-        screen.getByText(`${t.islands[domain].icon} ${t.islands[domain].name}`),
-      ).toBeOnTheScreen();
-    }
+    await user.press(screen.getByRole('button', { name: t.next }));
+    expect(screen.getByRole('header', { name: t.islands.measures.name })).toBeOnTheScreen();
+    // No stop of the child here: the boss is shown, ready since every skill is mastered.
     expect(screen.getByText(t.boss.ready)).toBeOnTheScreen();
-    // Every skill of the island, with its status (locked until a prerequisite is acquired).
-    for (const node of islands[0]?.skills ?? []) {
-      const label = t.node(getSkill(node.code).title, t.status[node.status], node.mastery);
-      expect(screen.getByLabelText(label)).toBeOnTheScreen();
-    }
-    expect(screen.getAllByLabelText(new RegExp(t.status.locked)).length).toBeGreaterThan(0);
     await user.press(screen.getByRole('button', { name: t.boss.fight }));
     expect(onFightBoss).toHaveBeenCalledWith(measures);
   });
 
+  it('tells about a skill touched on the path', async () => {
+    const user = userEvent.setup();
+    await renderWithTheme(<WorldMap islands={islands} busy={false} onFightBoss={jest.fn()} />);
+    await layOut();
+    const locked = islands[0]?.skills.find((node) => node.status === 'locked');
+    if (!locked) throw new Error('No locked skill');
+    const title = getSkill(locked.code).title;
+    await user.press(screen.getByRole('button', { name: t.node(title, t.status.locked, null) }));
+    expect(screen.getAllByText(title).length).toBeGreaterThan(0);
+    expect(screen.getByText(t.masteryLine(t.status.locked, null))).toBeOnTheScreen();
+  });
+
   it('keeps the boss waiting while a session is in progress', async () => {
+    const user = userEvent.setup();
     await renderWithTheme(<WorldMap islands={islands} busy onFightBoss={jest.fn()} />);
+    await user.press(screen.getByRole('button', { name: t.next }));
     expect(screen.getByText(t.boss.busy)).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: t.boss.fight })).toBeNull();
   });

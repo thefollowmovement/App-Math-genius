@@ -15,7 +15,7 @@ const assets = join(__dirname, '../../../assets/heroes');
 
 describe('heroes', () => {
   it.each(HERO_IDS)('has every pose of %s, in three densities (pnpm heroes:images)', (hero) => {
-    for (const pose of HERO_POSES) {
+    for (const pose of [...HERO_POSES, 'card']) {
       for (const suffix of ['', '@2x', '@3x']) {
         expect(existsSync(join(assets, hero, `${pose}${suffix}.webp`))).toBe(true);
       }

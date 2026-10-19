@@ -11,7 +11,7 @@ import { TrueFalseInput } from './true-false-input';
 type ExerciseInputProps = {
   exercise: Exercise;
   answered: ExerciseResponse | null;
-  onSubmit: (response: ExerciseResponse) => void;
+  onChange: (draft: ExerciseResponse | null) => void;
 };
 
 /** The way of answering that fits the exercise type (docs/specs.md, Types d'exercices). */

@@ -3,15 +3,20 @@ import { cx, ThemedText, View } from '@math-genius/ui';
 import { useState } from 'react';
 
 import { strings } from '@/i18n';
-import { applyKey } from '@/utils/keypad';
+import { applyKey, type KeypadKey } from '@/utils/keypad';
 
 import { Keypad } from './keypad';
 import type { InputProps } from './types';
 
 const t = strings.practice;
 
-export function NumericInput({ exercise, answered, onSubmit }: InputProps<NumericExercise>) {
+export function NumericInput({ exercise, answered, onChange }: InputProps<NumericExercise>) {
   const [text, setText] = useState('');
+  const type = (key: KeypadKey) => {
+    const next = applyKey(text, key);
+    setText(next);
+    onChange(next.length > 0 ? { type: 'numeric', text: next } : null);
+  };
   const shown = answered?.type === 'numeric' ? answered.text : text;
   const border = answered
     ? gradeResponse(exercise, answered).correct
@@ -27,7 +32,7 @@ export function NumericInput({ exercise, answered, onSubmit }: InputProps<Numeri
         accessibilityValue={{ text: shown }}
         accessibilityLiveRegion="polite"
         className={cx(
-          'min-h-16 flex-row items-center justify-center gap-2 rounded-md border-2 bg-surface px-4 py-2',
+          'min-h-16 flex-row items-center justify-center gap-2 rounded-lg border-3 bg-surface px-4 py-2',
           border,
         )}
       >
@@ -40,13 +45,7 @@ export function NumericInput({ exercise, answered, onSubmit }: InputProps<Numeri
           </ThemedText>
         ) : null}
       </View>
-      {answered ? null : (
-        <Keypad
-          onKey={(key) => setText((current) => applyKey(current, key))}
-          onSubmit={() => onSubmit({ type: 'numeric', text })}
-          canSubmit={text.length > 0}
-        />
-      )}
+      {answered ? null : <Keypad onKey={type} />}
     </View>
   );
 }

@@ -26,7 +26,7 @@ export function EclairTimer() {
 
   if (reducedMotion) return null;
   return (
-    <View accessible={false} className="h-2 overflow-hidden rounded-full bg-surface">
+    <View accessible={false} className="h-2 overflow-hidden rounded-full bg-background">
       <Animated.View style={[styles.bar, { backgroundColor: colors.secondary }, style]} />
     </View>
   );

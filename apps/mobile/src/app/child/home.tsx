@@ -1,10 +1,11 @@
-import { DEFAULT_SESSION_GOAL } from '@math-genius/exercise-engine';
+import { DEFAULT_SESSION_GOAL, worldMap } from '@math-genius/exercise-engine';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
 import { useChild } from '@/data/children';
 import { useIsOnline } from '@/data/network';
-import { hasUnsentAnswers, usePracticeStore } from '@/data/practice/practice-store';
+import { currentStop } from '@/data/mission-model';
+import { currentMastery, hasUnsentAnswers, usePracticeStore } from '@/data/practice/practice-store';
 import { practiceStatus } from '@/data/practice/summary';
 import { usePracticeSync } from '@/data/practice/sync';
 import { useParentRewards } from '@/data/parent-rewards';
@@ -37,7 +38,7 @@ export default function ChildHomeRoute() {
 
   if (child.isPending) return <LoadingScreen />;
   if (!child.data) return <Redirect href="/child" />;
-  // The first time on this device, the mascot introduces itself.
+  // The first time on this device, the child chooses a hero, who presents the app.
   if (!introSeen) return <Redirect href={{ pathname: '/child/intro', params: { id } }} />;
 
   const profileCount = child.allProfiles.length;
@@ -46,8 +47,16 @@ export default function ChildHomeRoute() {
     <ChildHome
       child={child.data}
       practice={practiceStatus(practice, child.data.grade, date)}
-      plan={childPlan(routines.data, id, date).kind}
+      plan={childPlan(routines.data, id, date)}
       goal={routineOf(routines.data, id)?.goal ?? DEFAULT_SESSION_GOAL}
+      stop={currentStop(
+        worldMap({
+          grade: child.data.grade,
+          mastery: practice ? currentMastery(practice) : {},
+          at: new Date().toISOString(),
+          defeated: islands.data ?? [],
+        }),
+      )}
       rewards={rewards.data}
       challenge={challenge.data}
       nextReward={nextReward(

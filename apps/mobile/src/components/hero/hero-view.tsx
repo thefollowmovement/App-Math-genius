@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { HERO_ART } from './hero-art';
 
 // Poses are portraits (2 × 3), the bust is square.
-const POSE_SIZES = { sm: 'h-24 w-16', md: 'h-40 w-28', lg: 'h-60 w-40' } as const;
+const POSE_SIZES = { sm: 'h-28 w-20', md: 'h-40 w-28', lg: 'h-60 w-40' } as const;
 
 type HeroViewProps = {
   hero: HeroId;
@@ -23,6 +23,20 @@ export function HeroView({ hero, pose, size = 'md', label, className }: HeroView
     <View className={cx(POSE_SIZES[size], className)}>
       <HeroPicture hero={hero} pose={pose} label={label} />
     </View>
+  );
+}
+
+/** The hero on stage (a hero card), filling its box, cropped from the top. */
+export function HeroOnStage({ hero }: { hero: HeroId }) {
+  return (
+    <Image
+      source={HERO_ART[hero].card}
+      contentFit="cover"
+      contentPosition="top"
+      style={{ width: '100%', height: '100%' }}
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
+    />
   );
 }
 

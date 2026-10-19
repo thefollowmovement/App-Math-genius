@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { cx } from '../class-names';
 import { ActivityIndicator, Pressable } from '../primitives';
 import { ThemedText } from './themed-text';
@@ -6,23 +8,33 @@ import { ThemedText } from './themed-text';
 const RELIEF = 'border-b-(length:--theme-relief-depth) border-b-relief';
 
 const variantClassNames = {
-  primary: { container: cx('bg-primary', RELIEF), label: 'text-on-primary', tone: 'onPrimary' },
-  secondary: {
-    container: cx('bg-secondary', RELIEF),
-    label: 'text-on-secondary',
-    tone: 'onSecondary',
-  },
-  ghost: { container: 'bg-transparent', label: 'text-foreground', tone: 'default' },
-  danger: {
-    container: 'bg-transparent border border-danger',
-    label: 'text-danger',
-    tone: 'danger',
-  },
+  // The neon ones glow in their color (no halo on flat themes).
+  primary: { container: cx('bg-primary glow-primary', RELIEF), tone: 'onPrimary' },
+  secondary: { container: cx('bg-secondary', RELIEF), tone: 'onSecondary' },
+  /** Validates an answer. */
+  success: { container: cx('bg-success glow-success', RELIEF), tone: 'onSuccess' },
+  /** Opens a reward. */
+  accent: { container: cx('bg-accent glow-accent', RELIEF), tone: 'onAccent' },
+  /** A second choice next to a filled button. */
+  outline: { container: 'border-2 border-border bg-transparent', tone: 'default' },
+  ghost: { container: 'bg-transparent', tone: 'default' },
+  danger: { container: 'bg-transparent border border-danger', tone: 'danger' },
 } as const;
 
+// A large button's label is a short word in the heading font (« JOUER », « VALIDER »).
 const sizeClassNames = {
-  md: 'px-5 py-3',
-  lg: 'px-6 py-5',
+  md: { container: 'min-h-12 px-5 py-3', label: 'headline' },
+  lg: { container: 'min-h-16 px-6 py-3', label: 'score' },
+} as const;
+
+// The spinner takes the label's color.
+const spinnerClassNames = {
+  onPrimary: 'text-on-primary',
+  onSecondary: 'text-on-secondary',
+  onSuccess: 'text-on-success',
+  onAccent: 'text-on-accent',
+  default: 'text-foreground',
+  danger: 'text-danger',
 } as const;
 
 export type ButtonVariant = keyof typeof variantClassNames;
@@ -38,8 +50,10 @@ type ButtonProps = {
   loading?: boolean;
   /** Layout only (width, margins). */
   className?: string;
-  /** Spoken label when the title is a symbol (◀, ▶). */
+  /** Spoken label when the title is a symbol (◀, ▶), or says less than the context. */
   accessibilityLabel?: string;
+  /** A small drawing before the title, in the label's color. */
+  icon?: ReactNode;
   testID?: string;
 };
 
@@ -52,6 +66,7 @@ export function Button({
   loading = false,
   className,
   accessibilityLabel,
+  icon,
   testID,
 }: ButtonProps) {
   const inactive = disabled || loading;
@@ -67,13 +82,20 @@ export function Button({
       className={cx(
         'flex-row items-center justify-center gap-2 rounded-lg active:opacity-80',
         variantClassNames[variant].container,
-        sizeClassNames[size],
+        sizeClassNames[size].container,
         disabled && 'opacity-40',
         className,
       )}
     >
-      {loading && <ActivityIndicator className={variantClassNames[variant].label} />}
-      <ThemedText variant="headline" tone={variantClassNames[variant].tone}>
+      {icon && !loading ? icon : null}
+      {loading && (
+        <ActivityIndicator className={spinnerClassNames[variantClassNames[variant].tone]} />
+      )}
+      <ThemedText
+        variant={sizeClassNames[size].label}
+        tone={variantClassNames[variant].tone}
+        className="shrink text-center"
+      >
         {title}
       </ThemedText>
     </Pressable>

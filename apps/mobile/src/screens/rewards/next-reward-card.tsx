@@ -1,45 +1,48 @@
 import { ThemedText, View, cx } from '@math-genius/ui';
 
+import { ProgressBar } from '@/components/game/progress-bar';
 import type { ParentRewardView } from '@/data/parent-rewards-model';
 import { strings } from '@/i18n';
-import { levelPercent } from '@/utils/reward-text';
 
 const t = strings.parentRewards;
 
 /** The parent's reward to ask for, or the closest one to unlock, on the child's home. */
-export function NextRewardCard({ reward }: { reward: ParentRewardView }) {
+export function NextRewardCard({
+  reward,
+  className,
+}: {
+  reward: ParentRewardView;
+  className?: string;
+}) {
   const unlocked = reward.status === 'unlocked';
   return (
     <View
       className={cx(
-        'gap-2 rounded-lg border bg-surface p-4',
-        unlocked ? 'border-success' : 'border-border',
+        'gap-2 rounded-lg border-2 bg-surface p-4',
+        unlocked ? 'border-success glow-success' : 'border-border',
+        className,
       )}
     >
-      <ThemedText variant="headline">{`${t.child.icon} ${t.child.title}`}</ThemedText>
+      <ThemedText variant="label" tone="success">
+        {t.child.label}
+      </ThemedText>
       <ThemedText>{reward.title}</ThemedText>
       {unlocked ? (
-        <ThemedText variant="caption" tone="default" accessibilityLiveRegion="polite">
+        <ThemedText variant="caption" tone="success" accessibilityLiveRegion="polite">
           {t.child.unlocked}
         </ThemedText>
       ) : (
         <>
-          <ThemedText variant="caption">{t.goalText[reward.goal](reward.target)}</ThemedText>
-          <View className="flex-row items-center gap-2">
-            <View
-              accessible
-              accessibilityRole="progressbar"
-              accessibilityLabel={t.child.progressLabel(reward.value, reward.target)}
-              accessibilityValue={{ min: 0, max: reward.target, now: reward.value }}
-              className="h-2 flex-1 overflow-hidden rounded-full border border-border bg-background"
-            >
-              <View
-                className="h-2 rounded-full bg-primary"
-                style={{ width: `${levelPercent(reward.value, reward.target)}%` }}
-              />
-            </View>
-            <ThemedText variant="caption">{t.progress(reward.value, reward.target)}</ThemedText>
-          </View>
+          <ProgressBar
+            value={reward.target > 0 ? reward.value / reward.target : 0}
+            fill="success"
+            size="sm"
+            label={t.child.title}
+            valueText={t.child.progressLabel(reward.value, reward.target)}
+          />
+          <ThemedText variant="caption">
+            {t.child.remaining[reward.goal](Math.max(0, reward.target - reward.value))}
+          </ThemedText>
         </>
       )}
     </View>

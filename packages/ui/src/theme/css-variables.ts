@@ -33,5 +33,14 @@ export function themeToCssVariables(theme: Theme, platform: StylePlatform): CssV
     platform === 'web' ? `${theme.relief.depth}px` : theme.relief.depth;
   variables['--theme-relief-color'] = theme.relief.color;
 
+  // The halo's blur, and how much of its color shows (a percentage, for CSS color-mix()).
+  variables['--theme-glow-radius'] =
+    platform === 'web' ? `${theme.glow.radius}px` : theme.glow.radius;
+  variables['--theme-glow-strength'] = `${Math.round(theme.glow.strength * 100)}%`;
+  // A text's halo is tighter and twice as bright: thin letters would lose it otherwise.
+  const { radius, strength } = theme.glow;
+  variables['--theme-halo-radius'] = platform === 'web' ? `${radius * 0.75}px` : radius * 0.75;
+  variables['--theme-halo-strength'] = `${Math.round(Math.min(1, strength * 2) * 100)}%`;
+
   return variables;
 }

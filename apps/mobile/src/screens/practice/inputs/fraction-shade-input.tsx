@@ -1,5 +1,5 @@
 import type { FractionShadeExercise } from '@math-genius/exercise-engine';
-import { Button, cx, Pressable, ThemedText, View } from '@math-genius/ui';
+import { cx, Pressable, ThemedText, View } from '@math-genius/ui';
 import { useState } from 'react';
 
 import { strings } from '@/i18n';
@@ -19,9 +19,15 @@ export function columnsFor(parts: number): number {
 export function FractionShadeInput({
   exercise,
   answered,
-  onSubmit,
+  onChange,
 }: InputProps<FractionShadeExercise>) {
   const [shaded, setShaded] = useState<boolean[]>(() => Array(exercise.parts).fill(false));
+  const toggle = (part: number) => {
+    const next = shaded.map((value, index) => (index === part ? !value : value));
+    const parts = next.filter(Boolean).length;
+    setShaded(next);
+    onChange(parts > 0 ? { type: 'fraction-shade', shaded: parts } : null);
+  };
   const done = answered !== null;
   const count = shaded.filter(Boolean).length;
   const columns = columnsFor(exercise.parts);
@@ -34,7 +40,7 @@ export function FractionShadeInput({
       <ThemedText variant="caption">{t.shade.help}</ThemedText>
       <View
         className={cx(
-          'gap-1 rounded-md border-2 p-1',
+          'gap-1 rounded-md border-3 p-1',
           done
             ? count === exercise.answer
               ? 'border-success'
@@ -51,11 +57,7 @@ export function FractionShadeInput({
                 accessibilityLabel={t.shade.part(part + 1, shaded[part] ?? false)}
                 accessibilityState={{ checked: shaded[part], disabled: done }}
                 disabled={done}
-                onPress={() =>
-                  setShaded((current) =>
-                    current.map((value, index) => (index === part ? !value : value)),
-                  )
-                }
+                onPress={() => toggle(part)}
                 className={cx(
                   'h-12 flex-1 rounded-sm border',
                   shaded[part] ? 'border-primary bg-primary' : 'border-border bg-surface',
@@ -65,13 +67,6 @@ export function FractionShadeInput({
           </View>
         ))}
       </View>
-      {done ? null : (
-        <Button
-          title={t.submit}
-          disabled={count === 0}
-          onPress={() => onSubmit({ type: 'fraction-shade', shaded: count })}
-        />
-      )}
     </View>
   );
 }

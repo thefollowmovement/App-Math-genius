@@ -5,6 +5,8 @@ import {
   practicableSkills,
   sessionProgress,
   startingRecord,
+  type SessionGoal,
+  type SessionProgress,
 } from '@math-genius/exercise-engine';
 import type { Grade } from '@math-genius/shared';
 
@@ -75,4 +77,27 @@ export function practiceStatus(
     return { status: 'in-progress', percent: Math.min(99, Math.round(progress * 100)) };
   }
   return child?.lastDailyDate === today ? { status: 'done' } : { status: 'ready' };
+}
+
+/** How far the session has gone toward its goal: exercises, or whole minutes of active time. */
+export function sessionCount(
+  goal: SessionGoal,
+  progress: Pick<SessionProgress, 'answered' | 'activeMs'>,
+): { done: number; total: number; unit: 'exercises' | 'minutes' } {
+  return goal.type === 'count'
+    ? { done: progress.answered, total: goal.count, unit: 'exercises' }
+    : { done: Math.floor(progress.activeMs / 60_000), total: goal.minutes, unit: 'minutes' };
+}
+
+/** Right answers in a row at the end of the session so far (the combo). */
+export function comboOf(attempts: readonly { correct: boolean }[]): number {
+  const lastWrong = attempts.findLastIndex((attempt) => !attempt.correct);
+  return attempts.length - 1 - lastWrong;
+}
+
+/** Stars of a validated mission, out of 3: 60 %, 75 % and 90 % of right answers. */
+export function starsOf({ goalMet, answered, correct }: SessionSummary): number {
+  if (!goalMet || answered === 0) return 0;
+  const rate = correct / answered;
+  return [0.6, 0.75, 0.9].filter((threshold) => rate >= threshold).length;
 }

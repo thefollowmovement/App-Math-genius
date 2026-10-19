@@ -4,6 +4,7 @@ import type {
   CosmeticSlot,
   EarnedCosmeticId,
   HeroId,
+  ParentRewardGoal,
   ShopItemCode,
 } from '@math-genius/shared';
 import type { ThemeId } from '@math-genius/ui';
@@ -240,25 +241,61 @@ export const fr = {
     pairAnother: 'Ajouter un profil',
   },
   childHome: {
-    greeting: (name: string) => `Bonjour ${name}\u00a0!`,
     switchProfile: 'Changer de profil',
     ready: 'Ta mission du jour t’attend.',
     readyGoal: (goal: string) => `Ta mission du jour t’attend\u00a0: ${goal}.`,
     dayOff: 'Pas de séance prévue aujourd’hui. Tu peux t’entraîner quand même\u00a0!',
     vacation: 'C’est les vacances\u00a0! Tu peux t’entraîner si tu en as envie.',
-    train: 'M’entraîner',
-    start: 'Commencer ma séance',
-    resume: (percent: number) => `Reprendre ma séance (${percent}\u00a0%)`,
     todayDone: 'Séance du jour terminée, bravo\u00a0!',
-    bonus: 'Entraînement bonus',
     notAvailable: 'Les exercices de ta classe arrivent bientôt.',
     offline: 'Pas de réseau\u00a0: tes réponses restent sur l’appareil et partiront plus tard.',
     syncing: 'Envoi de tes réponses…',
-    shortcutIcons: { map: '🗺️', shop: '🛍️', badges: '🏅', look: '🎨' },
+    level: (level: number) => `Niv.\u00a0${level}`,
+    levelLabel: (level: number, title: string) => `Niveau ${level}, ${title}`,
+    xp: (inLevel: number, toNext: number) => `${inLevel} / ${toNext}\u00a0XP`,
+    xpLabel: 'XP du niveau',
+    xpValue: (inLevel: number, toNext: number) => `${inLevel}\u00a0XP sur ${toNext}`,
+    stats: { streak: 'Jours', gems: 'Gemmes', badges: 'Badges' },
+    badgesLabel: (count: number) =>
+      `${count} badge${count > 1 ? 's' : ''} gagné${count > 1 ? 's' : ''}`,
+    mission: {
+      daily: 'Mission du jour',
+      off: 'Jour de repos',
+      vacation: 'Vacances',
+      done: 'Mission accomplie',
+      free: 'Entraînement libre',
+      before: (time: string) => `À finir avant ${time}`,
+      progress: 'Mission du jour',
+      details: (goal: string, skill: string) => `${goal} · ${skill}`,
+    },
+    // Short labels for the big buttons, in capitals in the arcade font.
+    start: 'Jouer',
+    resume: 'Continuer',
+    resumeLabel: (percent: number) => `Reprendre ma séance (${percent}\u00a0%)`,
+    train: 'M’entraîner',
+    bonus: 'Entraînement bonus',
+    nav: {
+      label: 'Mes pages',
+      map: 'Carte',
+      shop: 'Boutique',
+      badges: 'Badges',
+      look: 'Mon héros',
+    },
   },
   practice: {
     pause: 'Pause',
+    pauseLabel: 'Mettre la séance en pause',
     progress: (percent: number) => `Séance faite à ${percent}\u00a0%`,
+    counter: {
+      count: (done: number, total: number) => `${done}/${total}`,
+      minutes: (done: number, total: number) => `${done}/${total}\u00a0min`,
+      countLabel: (done: number, total: number) =>
+        `${done} exercice${done > 1 ? 's' : ''} sur ${total}`,
+      minutesLabel: (done: number, total: number) =>
+        `${done}\u00a0minute${done > 1 ? 's' : ''} sur ${total}`,
+    },
+    combo: (count: number) => `Combo x${count}`,
+    comboLabel: (count: number) => `${count} bonnes réponses d’affilée\u00a0!`,
     slots: {
       current: 'Je découvre',
       review: 'Je révise',
@@ -269,6 +306,7 @@ export const fr = {
     boss: (island: string) => `🐉 Boss · ${island}`,
     reminder: 'Petit rappel',
     hint: 'Un indice\u00a0?',
+    hintAsk: 'Besoin d’un coup de main\u00a0? Touche-moi pour un indice.',
     hintTitle: 'Indice',
     submit: 'Valider',
     continue: 'Continuer',
@@ -320,7 +358,7 @@ export const fr = {
   summary: {
     // A validated mission takes the theme's line (themes.*.goalMet).
     bossOver: 'Combat terminé\u00a0!',
-    finished: 'Séance terminée, merci pour tes efforts\u00a0!',
+    finished: 'Séance terminée\u00a0!',
     notValidated:
       'Pour valider une mission, il faut au moins 6 bonnes réponses sur 10. Tu y arriveras la prochaine fois\u00a0!',
     score: (correct: number, answered: number) =>
@@ -330,19 +368,29 @@ export const fr = {
     mastery: (title: string, value: number) => `${title}\u00a0: ${value}\u00a0/\u00a0100`,
     saved: 'Séance enregistrée.',
     savedOffline: 'Séance gardée sur l’appareil\u00a0: elle partira dès que le réseau revient.',
-    bonus: 'Continuer à m’entraîner',
+    bonus: 'Entraînement bonus',
     home: 'Retour à l’accueil',
+    homeShort: 'Accueil',
+    stars: (count: number) => `${count} étoile${count > 1 ? 's' : ''} sur 3`,
+    tiles: { score: 'Score', streak: 'Série', xp: 'XP gagnés', gems: 'Gemmes' },
+    scoreValue: (correct: number, answered: number) => `${correct}/${answered}`,
+    streakValue: (days: number) => `${days}\u00a0jour${days > 1 ? 's' : ''}`,
+    plus: (count: number) => `+${count}`,
+    pending: '…',
+    xpLabel: (xp: number) => `${xp}\u00a0XP gagnés`,
+    gemsLabel: (gems: number) =>
+      `${gems}\u00a0gemme${gems > 1 ? 's' : ''} gagnée${gems > 1 ? 's' : ''}`,
+    rare: 'Rare\u00a0!',
+    chest: 'Ton coffre',
+    rareChest: 'Ton coffre rare',
+    openChest: 'Ouvrir le coffre',
   },
   rewards: {
-    flame: '🔥',
     gem: '💎',
     streak: (days: number) => `${days}`,
     streakLabel: (days: number) => `Série de ${days} jour${days > 1 ? 's' : ''}`,
     gems: (count: number) => `${count}`,
     gemsLabel: (count: number) => `${count} gemme${count > 1 ? 's' : ''}`,
-    level: (level: number) => `Niveau ${level}`,
-    levelLabel: (level: number, inLevel: number, toNext: number) =>
-      `Niveau ${level}\u00a0: ${inLevel} XP sur ${toNext} avant le niveau suivant`,
     /** Titles by level, from the first level each one starts at. */
     titles: [
       [1, 'Petite graine'],
@@ -355,6 +403,7 @@ export const fr = {
     chestsWaiting: (count: number) =>
       count > 1 ? `${count} coffres t’attendent\u00a0!` : 'Un coffre t’attend\u00a0!',
     openChest: 'Ouvrir mon coffre',
+    open: 'Ouvrir',
     parentLine: (streak: number, best: number, level: number, gems: number, badges: number) =>
       [
         `Série\u00a0: ${streak} jour${streak > 1 ? 's' : ''}${best > streak ? ` (record\u00a0: ${best})` : ''}`,
@@ -366,14 +415,8 @@ export const fr = {
   award: {
     waiting: 'Tes récompenses arriveront dès que ta séance sera envoyée.',
     computing: 'Calcul de tes récompenses…',
-    xp: (xp: number) => `+${xp}\u00a0XP`,
-    streak: (days: number) => `Série de ${days} jour${days > 1 ? 's' : ''}`,
     streakUp: 'Ta série continue\u00a0!',
     levelUp: (level: number) => `Niveau ${level} atteint\u00a0!`,
-    gems: (count: number) => `+${count}\u00a0gemmes pour ta mission`,
-    chest: 'Tu as gagné un coffre\u00a0!',
-    rareChest: 'Tu as gagné un coffre rare\u00a0!',
-    openChest: 'Ouvrir mon coffre',
     newBadges: (count: number) => (count > 1 ? 'Nouveaux badges\u00a0!' : 'Nouveau badge\u00a0!'),
     seeBadges: 'Voir mes badges',
     parentReward: (title: string) =>
@@ -388,9 +431,6 @@ export const fr = {
   chest: {
     common: 'Coffre',
     rare: 'Coffre rare',
-    closed: '🎁',
-    rareClosed: '👑',
-    opened: '💎',
     hint: 'Touche le coffre pour l’ouvrir.',
     open: 'Ouvrir le coffre',
     found: (gems: number) => `+${gems}\u00a0gemmes\u00a0!`,
@@ -431,7 +471,13 @@ export const fr = {
     removeLabel: (title: string) => `Supprimer la récompense « ${title} »`,
     child: {
       title: 'Ta prochaine récompense',
+      label: 'Récompense',
       icon: '🎁',
+      remaining: {
+        streak: (left: number) => `Encore ${left}\u00a0jour${left > 1 ? 's' : ''}`,
+        xp: (left: number) => `Encore ${left.toLocaleString('fr-FR')}\u00a0XP`,
+        islands: (left: number) => `Encore ${left}\u00a0île${left > 1 ? 's' : ''}`,
+      } satisfies Record<ParentRewardGoal, (left: number) => string>,
       unlocked: 'Débloquée\u00a0! Demande-la à ton parent.',
       progressLabel: (value: number, target: number) => `Récompense\u00a0: ${value} sur ${target}`,
     },
@@ -439,6 +485,15 @@ export const fr = {
   challenge: {
     title: 'Défi de la semaine',
     icon: '🏅',
+    /** Short names, for the home's card; `items` says the whole rule. */
+    names: {
+      'daily-5': '5 missions du jour',
+      'correct-150': '150 bonnes réponses',
+      'combo-10': 'Combo de 10',
+      'skills-6': '6 compétences',
+      'perfect-1': 'Une séance sans faute',
+      'minutes-60': '60 minutes d’entraînement',
+    } satisfies Record<ChallengeCode, string>,
     /** One per code of packages/shared/src/challenges.ts. */
     items: {
       'daily-5': 'Réussis 5 missions du jour cette semaine.',
@@ -451,8 +506,10 @@ export const fr = {
     progress: (value: number, threshold: number) => `${value} / ${threshold}`,
     progressLabel: (value: number, threshold: number) =>
       `Défi avancé\u00a0: ${value} sur ${threshold}`,
-    reward: (gems: number) => `À gagner\u00a0: ${gems}\u00a0gemmes`,
     done: 'Défi réussi\u00a0! Un nouveau défi arrive lundi.',
+    doneShort: 'Réussi\u00a0!',
+    cardLabel: (rule: string, value: number, threshold: number, gems: number) =>
+      `Défi de la semaine\u00a0: ${rule} ${value} sur ${threshold}. À gagner\u00a0: ${gems}\u00a0gemmes.`,
   },
   shop: {
     title: 'Boutique',
@@ -509,7 +566,6 @@ export const fr = {
   map: {
     title: 'Carte du monde',
     open: 'Carte du monde',
-    intro: 'Une île par domaine. Maîtrise ses compétences pour affronter son boss\u00a0!',
     islands: {
       numbers: { icon: '🏝️', name: 'Île des Nombres', the: 'l’île des Nombres' },
       measures: { icon: '⛰️', name: 'Île des Mesures', the: 'l’île des Mesures' },
@@ -527,21 +583,28 @@ export const fr = {
       locked: 'Pas encore ouverte',
       coming_soon: 'Bientôt',
     },
-    statusIcon: {
-      to_discover: '⚪',
-      in_progress: '🟡',
-      mastered: '⭐',
-      to_review: '🔁',
-      locked: '🔒',
-      coming_soon: '🚧',
-    },
     node: (title: string, status: string, mastery: number | null) =>
       mastery === null
         ? `${title}\u00a0: ${status}`
         : `${title}\u00a0: ${status}, ${mastery}\u00a0/\u00a0100`,
+    island: (index: number, grade: string) => `Île ${index} · ${grade}`,
+    previous: 'Île précédente',
+    next: 'Île suivante',
+    counter: (mastered: number, playable: number) => `${mastered}/${playable}`,
+    here: 'C’est ici\u00a0!',
+    hereLabel: 'Tu es ici',
+    masteryLine: (status: string, mastery: number | null) =>
+      mastery === null ? status : `Maîtrise ${mastery}\u00a0% · ${status}`,
+    pathLabel: (island: string) => `Le chemin de ${island}`,
     boss: {
       icon: '🐉',
       name: 'Le boss de l’île',
+      title: 'Boss · Le Glitch',
+      short: {
+        locked: 'Maîtrise l’île',
+        ready: 'Il t’attend\u00a0!',
+        defeated: 'Vaincu\u00a0!',
+      },
       locked: 'Maîtrise toutes les compétences de l’île pour l’affronter.',
       ready: 'Le boss t’attend\u00a0!',
       defeated: 'Boss vaincu\u00a0! Tu peux l’affronter de nouveau.',
@@ -752,9 +815,12 @@ export const fr = {
   intro: {
     progress: (step: number, count: number) => `Étape ${step} sur ${count}`,
     choose: {
+      crew: 'Ta crew néon',
       title: 'Choisis ton héros',
-      text: 'Il t’accompagne dans toutes tes missions. Tu pourras en changer quand tu veux.',
-      confirm: (name: string) => `Je choisis ${name}\u00a0!`,
+      text: 'Des stars de la scène qui chassent les monstres de calcul.',
+      later: 'Il t’accompagne dans toutes tes missions. Tu pourras en changer quand tu veux.',
+      confirm: 'C’est moi\u00a0!',
+      confirmLabel: (name: string) => `Je choisis ${name}\u00a0!`,
     },
     steps: [
       {

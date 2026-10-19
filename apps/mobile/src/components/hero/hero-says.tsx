@@ -5,10 +5,15 @@ import type { ComponentProps } from 'react';
 import { useChildHero } from './hero-context';
 import { HeroView } from './hero-view';
 
-/** What the hero says, in a speech bubble. */
+/** What the hero says, in a speech bubble whose sharp corner points at the hero (bottom left). */
 export function SpeechBubble({ children, className }: { children: string; className?: string }) {
   return (
-    <View className={cx('rounded-lg border border-border bg-surface px-4 py-3', className)}>
+    <View
+      className={cx(
+        'rounded-lg rounded-bl-sm border-2 border-border bg-raised px-4 py-3',
+        className,
+      )}
+    >
       <ThemedText>{children}</ThemedText>
     </View>
   );
@@ -26,9 +31,9 @@ type HeroSaysProps = {
 export function HeroSays({ pose, size = 'sm', children, className }: HeroSaysProps) {
   const { hero } = useChildHero();
   return (
-    <View className={cx('flex-row items-center gap-3', className)}>
+    <View className={cx('flex-row items-end gap-3', className)}>
       <HeroView hero={hero} pose={pose} size={size} />
-      <SpeechBubble className="flex-1">{children}</SpeechBubble>
+      <SpeechBubble className="mb-2 flex-1">{children}</SpeechBubble>
     </View>
   );
 }

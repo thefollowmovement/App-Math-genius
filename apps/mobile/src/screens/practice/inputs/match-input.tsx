@@ -1,5 +1,5 @@
 import type { MatchExercise } from '@math-genius/exercise-engine';
-import { Button, ThemedText, View } from '@math-genius/ui';
+import { ThemedText, View } from '@math-genius/ui';
 import { useState } from 'react';
 
 import { strings } from '@/i18n';
@@ -10,20 +10,29 @@ import type { InputProps } from './types';
 const t = strings.practice;
 
 /** Matching by touch: a label on the left, then its partner on the right. Pairs are numbered. */
-export function MatchInput({ exercise, answered, onSubmit }: InputProps<MatchExercise>) {
+export function MatchInput({ exercise, answered, onChange }: InputProps<MatchExercise>) {
   const [pairs, setPairs] = useState<(number | null)[]>(() => exercise.left.map(() => null));
   const [selected, setSelected] = useState<number | null>(null);
   const done = answered !== null;
   const shown: readonly (number | null)[] = answered?.type === 'match' ? answered.pairs : pairs;
   const leftOf = (right: number) => shown.indexOf(right);
 
+  // Complete once every label on the left has a partner.
+  const update = (next: (number | null)[]) => {
+    setPairs(next);
+    onChange(
+      next.every((right) => right !== null)
+        ? { type: 'match', pairs: next.map((right) => right ?? 0) }
+        : null,
+    );
+  };
   const pressLeft = (left: number) => {
-    setPairs((current) => current.map((right, index) => (index === left ? null : right)));
+    update(pairs.map((right, index) => (index === left ? null : right)));
     setSelected((current) => (current === left ? null : left));
   };
   const pressRight = (right: number) => {
-    setPairs((current) =>
-      current.map((paired, index) => {
+    update(
+      pairs.map((paired, index) => {
         if (index === selected) return right;
         return paired === right ? null : paired;
       }),
@@ -75,13 +84,6 @@ export function MatchInput({ exercise, answered, onSubmit }: InputProps<MatchExe
           ))}
         </View>
       </View>
-      {done ? null : (
-        <Button
-          title={t.submit}
-          disabled={pairs.some((right) => right === null)}
-          onPress={() => onSubmit({ type: 'match', pairs: pairs.map((right) => right ?? 0) })}
-        />
-      )}
     </View>
   );
 }

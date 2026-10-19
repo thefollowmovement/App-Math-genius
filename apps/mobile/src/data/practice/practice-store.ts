@@ -65,7 +65,7 @@ export type ChildPractice = {
 type PracticeState = {
   children: Record<string, ChildPractice>;
   itemRatings: ItemRatings;
-  /** Children who met the mascot on this device (its 3-screen intro). */
+  /** Children who saw the intro on this device (« Choisis ton héros », then 3 screens). */
   introSeen: Record<string, true>;
 };
 

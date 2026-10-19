@@ -1,5 +1,5 @@
 import type { OrderExercise } from '@math-genius/exercise-engine';
-import { Button, ThemedText, View } from '@math-genius/ui';
+import { ThemedText, View } from '@math-genius/ui';
 import { useState } from 'react';
 
 import { strings } from '@/i18n';
@@ -10,8 +10,13 @@ import type { InputProps } from './types';
 const t = strings.practice;
 
 /** Ordering by touch: each label touched goes to the end of the child's row. */
-export function OrderInput({ exercise, answered, onSubmit }: InputProps<OrderExercise>) {
+export function OrderInput({ exercise, answered, onChange }: InputProps<OrderExercise>) {
   const [order, setOrder] = useState<number[]>([]);
+  // Complete once every label is placed.
+  const place = (next: number[]) => {
+    setOrder(next);
+    onChange(next.length === exercise.items.length ? { type: 'order', order: next } : null);
+  };
   const done = answered !== null;
   const placed = answered?.type === 'order' ? answered.order : order;
 
@@ -33,7 +38,7 @@ export function OrderInput({ exercise, answered, onSubmit }: InputProps<OrderExe
               state={done ? (right ? 'right' : 'wrong') : 'selected'}
               disabled={done}
               accessibilityLabel={t.order.remove(item)}
-              onPress={() => setOrder((current) => current.filter((index) => index !== itemIndex))}
+              onPress={() => place(order.filter((index) => index !== itemIndex))}
             />
           );
         })}
@@ -45,18 +50,11 @@ export function OrderInput({ exercise, answered, onSubmit }: InputProps<OrderExe
               key={item}
               label={item}
               disabled={done}
-              onPress={() => setOrder((current) => [...current, index])}
+              onPress={() => place([...order, index])}
             />
           ),
         )}
       </View>
-      {done ? null : (
-        <Button
-          title={t.submit}
-          disabled={order.length !== exercise.items.length}
-          onPress={() => onSubmit({ type: 'order', order })}
-        />
-      )}
     </View>
   );
 }

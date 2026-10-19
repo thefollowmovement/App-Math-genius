@@ -18,12 +18,22 @@ function contrast(foreground: string, background: string): number {
 const readablePairs: [keyof Theme['colors'], keyof Theme['colors']][] = [
   ['foreground', 'background'],
   ['foreground', 'surface'],
+  ['foreground', 'raised'],
   ['muted', 'background'],
   ['onPrimary', 'primary'],
   ['onSecondary', 'secondary'],
+  ['onAccent', 'accent'],
   ['danger', 'background'],
   ['danger', 'surface'],
   ['onSuccess', 'success'],
+  // Colored labels and scores, on the page and on cards.
+  ...(['primaryInk', 'secondaryInk', 'accentInk', 'successInk', 'fire'] as const).flatMap(
+    (ink) =>
+      [
+        [ink, 'background'],
+        [ink, 'surface'],
+      ] as [keyof Theme['colors'], keyof Theme['colors']][],
+  ),
 ];
 
 it('makes Neon Stage the default theme', () => {
@@ -39,6 +49,15 @@ describe.each(Object.values(themes))('theme $id', (theme) => {
       expect(color).toMatch(/^#[0-9A-F]{6}$/i);
     }
     expect(theme.relief.color).toMatch(/^#[0-9A-F]{8}$/i);
+  });
+
+  it('glows like neon, or not at all', () => {
+    const { radius, strength } = theme.glow;
+    expect(radius).toBeGreaterThanOrEqual(0);
+    expect(strength).toBeGreaterThanOrEqual(0);
+    expect(strength).toBeLessThanOrEqual(1);
+    // A blur without color, or a color without blur, would be a hidden halo.
+    expect(radius === 0).toBe(strength === 0);
   });
 
   it('is registered under its own id', () => {
