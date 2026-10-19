@@ -1,0 +1,1 @@
+-- Local development data, loaded by `supabase db reset`. Empty until phase 1.

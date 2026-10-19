@@ -1,0 +1,13 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Postinstall only re-checks native bindings already installed through optionalDependencies.
+ignoredBuiltDependencies:
+  - '@swc/core'
+  - unrs-resolver
+
+# react-native-css (NativeWind v5) breaks on `var()` with lightningcss >= 1.30.2: keep the copy it resolves on 1.30.1.
+# Tailwind keeps its own pinned lightningcss.
+overrides:
+  '@expo/metro-config>lightningcss': 1.30.1
