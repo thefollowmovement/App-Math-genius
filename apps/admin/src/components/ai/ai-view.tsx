@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { Button, Card, Loading, Notice, PageHeader } from '@/components/ui';
 import { useAiCosts, useAiSettings, useUpdateAiSettings } from '@/data/ai';
 import { strings } from '@/i18n/fr';
@@ -17,6 +19,7 @@ export function AiView() {
   const settings = useAiSettings();
   const costs = useAiCosts(30);
   const update = useUpdateAiSettings();
+  const [saved, setSaved] = useState(false);
   const superAdmin = auth.status === 'signed-in' && auth.role === 'super_admin';
   const row = settings.data;
 
@@ -53,7 +56,13 @@ export function AiView() {
             {update.error ? <Notice tone="danger">{errorText(update.error)}</Notice> : null}
             {!superAdmin ? <p className="text-sm text-muted">{strings.readOnly}</p> : null}
           </Card>
-          <SettingsForm key={row.updated_at} initial={settingsDraft(row)} editable={superAdmin} />
+          <SettingsForm
+            key={row.updated_at}
+            initial={settingsDraft(row)}
+            editable={superAdmin}
+            saved={saved}
+            onSaved={setSaved}
+          />
           {costs.data ? (
             <CostsCard
               costs={costs.data}

@@ -75,13 +75,15 @@ export function Heatmap({ grid, title }: { grid: RadarGrid; title: string }) {
           </tbody>
         </table>
       </div>
-      <div className="flex items-center gap-2 text-xs text-muted" aria-hidden>
-        <span>1</span>
-        {Array.from({ length: HEAT_STEPS }, (_, index) => (
-          <span key={index} className={`h-3 w-6 rounded-sm ${FILL[index + 1]}`} />
-        ))}
-        <span>{grid.max}</span>
-      </div>
+      {grid.max > 1 ? (
+        <div className="flex items-center gap-2 text-xs text-muted" aria-hidden>
+          <span>1</span>
+          {Array.from({ length: HEAT_STEPS }, (_, index) => (
+            <span key={index} className={`h-3 w-6 rounded-sm ${FILL[index + 1]}`} />
+          ))}
+          <span>{grid.max}</span>
+        </div>
+      ) : null}
     </figure>
   );
 }

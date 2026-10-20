@@ -12,11 +12,13 @@ import { useId } from 'react';
 const join = (...classes: (string | false | null | undefined)[]) =>
   classes.filter(Boolean).join(' ');
 
-type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'selected' | 'danger' | 'ghost';
 
 const BUTTONS: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-on-primary hover:opacity-90',
   secondary: 'border border-border bg-surface text-foreground hover:bg-raised',
+  /** The chosen one of a group of filters. */
+  selected: 'border border-primary bg-primary-soft font-semibold text-primary',
   danger: 'border border-danger bg-danger-soft text-danger hover:opacity-90',
   ghost: 'text-primary hover:bg-primary-soft',
 };

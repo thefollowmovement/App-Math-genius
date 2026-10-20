@@ -63,10 +63,20 @@ export function TrendsView() {
       <Card
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button small onClick={() => setOnlyDue(false)} aria-pressed={!onlyDue}>
+            <Button
+              small
+              variant={onlyDue ? 'secondary' : 'selected'}
+              onClick={() => setOnlyDue(false)}
+              aria-pressed={!onlyDue}
+            >
               {t.filters.all}
             </Button>
-            <Button small onClick={() => setOnlyDue(true)} aria-pressed={onlyDue}>
+            <Button
+              small
+              variant={onlyDue ? 'selected' : 'secondary'}
+              onClick={() => setOnlyDue(true)}
+              aria-pressed={onlyDue}
+            >
               {t.filters.due} ({due.length})
             </Button>
             <Button small variant="primary" onClick={() => setEditing({ row: null })}>

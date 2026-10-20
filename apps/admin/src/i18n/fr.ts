@@ -195,6 +195,7 @@ export const strings = {
     monthlyCap: 'Plafond mensuel ($)',
     nightBatch: 'Explications écrites par nuit, au plus',
     budget: 'Budget',
+    caps: 'Plafonds de dépense',
     spentToday: (spent: string, cap: string) => `Aujourd’hui : ${spent} $ sur ${cap} $`,
     spentMonth: (spent: string, cap: string) => `Ce mois : ${spent} $ sur ${cap} $`,
     costs: 'Coûts des 30 derniers jours',

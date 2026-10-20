@@ -19,8 +19,11 @@ if (!sample) throw new Error('no sample');
 const { exercise, response } = sample;
 const explanation = (what: string): Explanation => ({ what, image: 'Imagine.', tip: 'Astuce.' });
 
+const clients: QueryClient[] = [];
+
 async function renderCoach(answered = true) {
   const client = new QueryClient();
+  clients.push(client);
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
   );
@@ -33,6 +36,11 @@ async function renderCoach(answered = true) {
 beforeEach(() => {
   mockFetch.mockReset();
   mockFeedback.mockClear();
+});
+
+// The cache's garbage-collection timers would keep the worker alive.
+afterEach(() => {
+  for (const client of clients.splice(0)) client.clear();
 });
 
 describe('useCoach', () => {

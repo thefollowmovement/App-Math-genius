@@ -20,13 +20,23 @@ import {
 const t = strings.ai;
 
 /** Providers, moderation, caps and the night's batch; the super-admin edits them. */
-export function SettingsForm({ initial, editable }: { initial: SettingsDraft; editable: boolean }) {
+export function SettingsForm({
+  initial,
+  editable,
+  saved,
+  onSaved,
+}: {
+  initial: SettingsDraft;
+  editable: boolean;
+  /** Kept by the page: saving reloads the settings and starts the form again. */
+  saved: boolean;
+  onSaved: (saved: boolean) => void;
+}) {
   const [draft, setDraft] = useState(initial);
   const [shown, setShown] = useState<SettingsProblem[]>([]);
-  const [done, setDone] = useState(false);
   const update = useUpdateAiSettings();
   const set = (fields: Partial<SettingsDraft>) => {
-    setDone(false);
+    onSaved(false);
     setDraft((current) => ({ ...current, ...fields }));
   };
 
@@ -35,7 +45,7 @@ export function SettingsForm({ initial, editable }: { initial: SettingsDraft; ed
     const problems = settingsProblems(draft);
     setShown(problems);
     if (problems.length === 0) {
-      update.mutate(settingsUpdate(draft), { onSuccess: () => setDone(true) });
+      update.mutate(settingsUpdate(draft), { onSuccess: () => onSaved(true) });
     }
   };
   const problem = (code: SettingsProblem, text: string) => (shown.includes(code) ? text : null);
@@ -91,7 +101,7 @@ export function SettingsForm({ initial, editable }: { initial: SettingsDraft; ed
             onChange={(event) => set({ nightBatch: event.target.value })}
           />
         </Card>
-        <Card title={t.budget}>
+        <Card title={t.caps}>
           <div className="grid gap-4 md:grid-cols-2">
             <TextField
               label={t.dailyCap}
@@ -111,7 +121,7 @@ export function SettingsForm({ initial, editable }: { initial: SettingsDraft; ed
         </Card>
       </fieldset>
       {update.error ? <Notice tone="danger">{errorText(update.error)}</Notice> : null}
-      {done ? <Notice tone="success">{strings.saved}</Notice> : null}
+      {saved ? <Notice tone="success">{strings.saved}</Notice> : null}
       {editable ? (
         <div>
           <Button variant="primary" type="submit" disabled={update.isPending}>
