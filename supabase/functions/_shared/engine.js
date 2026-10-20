@@ -1,8 +1,16 @@
-// Generated from packages/exercise-engine/src/regrade.ts by `pnpm functions:bundle`. Do not edit.
+// Generated from packages/exercise-engine/src/server.ts by `pnpm functions:bundle`. Do not edit.
 
 // ../curriculum/src/types.ts
-function defineGradeSkills(grade, programVersion, skills2) {
-  return skills2.map((skill) => ({ ...skill, subject: "math", grade, programVersion }));
+var STRANDS = [
+  "numeration",
+  "calcul",
+  "fractions",
+  "mesures",
+  "geometrie",
+  "problemes"
+];
+function defineGradeSkills(grade2, programVersion, skills2) {
+  return skills2.map((skill) => ({ ...skill, subject: "math", grade: grade2, programVersion }));
 }
 
 // ../curriculum/src/grades/cinquieme.ts
@@ -1106,6 +1114,12 @@ var ERROR_TYPES = [
 var BY_CODE = new Map(
   ERROR_TYPES.map((item) => [item.code, item])
 );
+var isErrorTypeCode = (code) => BY_CODE.has(code);
+function getErrorType(code) {
+  const type = BY_CODE.get(code);
+  if (!type) throw new Error(`Unknown error type ${code}`);
+  return type;
+}
 
 // ../curriculum/src/index.ts
 var skills = [
@@ -1118,6 +1132,76 @@ var skills = [
 var skillsByCode = new Map(
   skills.map((skill) => [skill.code, skill])
 );
+function isSkillCode(code) {
+  return skillsByCode.has(code);
+}
+function getSkill(code) {
+  const skill = skillsByCode.get(code);
+  if (!skill) throw new Error(`Unknown skill ${code}`);
+  return skill;
+}
+
+// ../shared/src/grade.ts
+var GRADES = ["CP", "CE1", "CE2", "CM1", "CM2", "6e", "5e", "4e", "3e"];
+var gradeRank = (grade2) => GRADES.indexOf(grade2);
+
+// src/exercise.ts
+var DIFFICULTIES = [1, 2, 3, 4, 5];
+
+// src/adaptive/ratings.ts
+var DIFFICULTY_RATINGS = {
+  1: 800,
+  2: 1e3,
+  3: 1200,
+  4: 1400,
+  5: 1600
+};
+var ITEM_K = 4;
+var itemKey = (generatorId2, difficulty2) => `${generatorId2}:${difficulty2}`;
+var itemRating = (ratings, generatorId2, difficulty2) => ratings[itemKey(generatorId2, difficulty2)] ?? DIFFICULTY_RATINGS[difficulty2];
+var expectedSuccess = (learner, item) => 1 / (1 + 10 ** ((item - learner) / 400));
+var learnerK = (attempts) => Math.max(24, 64 - 4 * attempts);
+function updateRatings(input) {
+  const expected = expectedSuccess(input.learner, input.item);
+  const actual = input.correct ? 1 : 0;
+  return {
+    learner: input.learner + learnerK(input.learnerAttempts) * (actual - expected),
+    item: input.item + ITEM_K * (expected - actual)
+  };
+}
+
+// src/adaptive/mastery.ts
+var MASTERY_THRESHOLD = 80;
+var SESSIONS_TO_MASTER = 2;
+var PRESUMED_THRESHOLD = 70;
+var DAY_MS = 864e5;
+var masteryFromElo = (elo) => Math.min(100, Math.max(0, Math.round((elo - 800) / 8)));
+function decayedElo(record, at) {
+  if (!record.practicedAt) return record.elo;
+  const days = (Date.parse(at) - Date.parse(record.practicedAt)) / DAY_MS;
+  return record.elo - Math.min(200, Math.max(0, days - 2) * 4);
+}
+var masteryOf = (record, at) => masteryFromElo(decayedElo(record, at));
+function masteryStatus(record, at) {
+  if (record.attempts === 0 && !record.masteredAt) return "to_discover";
+  if (record.masteredAt)
+    return masteryOf(record, at) >= MASTERY_THRESHOLD ? "mastered" : "to_review";
+  return "in_progress";
+}
+function applyAnswer(record, answer) {
+  const { learner } = updateRatings({
+    learner: decayedElo(record, answer.at),
+    item: answer.item,
+    correct: answer.correct,
+    learnerAttempts: record.attempts
+  });
+  return { ...record, elo: learner, attempts: record.attempts + 1, practicedAt: answer.at };
+}
+function closeSession(record, at) {
+  const streak = masteryOf(record, at) >= MASTERY_THRESHOLD ? record.streak + 1 : 0;
+  const masteredAt = record.masteredAt ?? (streak >= SESSIONS_TO_MASTER ? at : null);
+  return { ...record, streak, masteredAt };
+}
 
 // src/random.ts
 function createRng(seed) {
@@ -1157,12 +1241,12 @@ function createRng(seed) {
 // src/generator.ts
 var defineGenerator = (generator) => generator;
 var generatorId = (generator) => generator.id ?? generator.skill;
-function generateExercise(generator, difficulty, seed) {
+function generateExercise(generator, difficulty2, seed) {
   return {
-    ...generator.generate(createRng(seed), difficulty),
+    ...generator.generate(createRng(seed), difficulty2),
     generatorId: generatorId(generator),
     skill: generator.skill,
-    difficulty,
+    difficulty: difficulty2,
     seed
   };
 }
@@ -1370,8 +1454,8 @@ var RANGES = {
 };
 var addition_posee_default = defineGenerator({
   skill: "ce2.addition-posee",
-  generate(rng, difficulty) {
-    const [aMin, aMax, bMin, bMax] = RANGES[difficulty];
+  generate(rng, difficulty2) {
+    const [aMin, aMax, bMin, bMax] = RANGES[difficulty2];
     const [a, b] = [rng.int(aMin, aMax), rng.int(bMin, bMax)];
     return {
       type: "numeric",
@@ -1392,9 +1476,9 @@ var addition_posee_default = defineGenerator({
 var MAX = { 1: 99, 2: 999, 3: 9999, 4: 999, 5: 999 };
 var comparer_ranger_nombres_default = defineGenerator({
   skill: "ce2.comparer-ranger-nombres",
-  generate(rng, difficulty) {
-    const base = difficulty >= 4 ? rng.int(1, 9) * 1e3 : 0;
-    const values = distinct(difficulty < 3 ? 4 : 5, () => base + rng.int(1, MAX[difficulty]));
+  generate(rng, difficulty2) {
+    const base = difficulty2 >= 4 ? rng.int(1, 9) * 1e3 : 0;
+    const values = distinct(difficulty2 < 3 ? 4 : 5, () => base + rng.int(1, MAX[difficulty2]));
     const direction = rng.pick(["ascending", "descending"]);
     return {
       ...orderFields(
@@ -1413,8 +1497,8 @@ var comparer_ranger_nombres_default = defineGenerator({
 var MAX2 = { 1: 20, 2: 50, 3: 100, 4: 250, 5: 500 };
 var doubles_moities_default = defineGenerator({
   skill: "ce2.doubles-moities",
-  generate(rng, difficulty) {
-    const value = rng.int(3, MAX2[difficulty]);
+  generate(rng, difficulty2) {
+    const value = rng.int(3, MAX2[difficulty2]);
     if (rng.chance(0.5)) {
       return {
         type: "numeric",
@@ -1448,9 +1532,9 @@ var DENOMINATORS = {
 };
 var fractions_unitaires_default = defineGenerator({
   skill: "ce2.fractions-unitaires",
-  generate(rng, difficulty) {
-    const den = rng.pick(DENOMINATORS[difficulty]);
-    const group = rng.int(1, difficulty < 3 ? 2 : 3);
+  generate(rng, difficulty2) {
+    const den = rng.pick(DENOMINATORS[difficulty2]);
+    const group = rng.int(1, difficulty2 < 3 ? 2 : 3);
     return {
       type: "fraction-shade",
       parts: den * group,
@@ -1475,10 +1559,10 @@ var PAIRS = [
 ];
 var longueurs_conversions_default = defineGenerator({
   skill: "ce2.longueurs-conversions",
-  generate(rng, difficulty) {
-    const [big, small, factor] = rng.pick(PAIRS.slice(0, Math.min(difficulty + 1, PAIRS.length)));
-    const count = rng.int(2, difficulty < 3 ? 9 : 25);
-    const reverse = difficulty >= 4 && rng.chance(0.5);
+  generate(rng, difficulty2) {
+    const [big, small, factor] = rng.pick(PAIRS.slice(0, Math.min(difficulty2 + 1, PAIRS.length)));
+    const count = rng.int(2, difficulty2 < 3 ? 9 : 25);
+    const reverse = difficulty2 >= 4 && rng.chance(0.5);
     const [value, answer] = reverse ? [count * factor, count] : [count, count * factor];
     const [from, to] = reverse ? [small, big] : [big, small];
     return {
@@ -1503,10 +1587,10 @@ var longueurs_conversions_default = defineGenerator({
 var RANGES2 = { 1: [11, 30], 2: [12, 99], 3: [100, 499], 4: [100, 999], 5: [1e3, 1999] };
 var multiplication_posee_default = defineGenerator({
   skill: "ce2.multiplication-posee",
-  generate(rng, difficulty) {
-    const [min, max] = RANGES2[difficulty];
+  generate(rng, difficulty2) {
+    const [min, max] = RANGES2[difficulty2];
     const a = rng.int(min, max);
-    const b = rng.int(difficulty === 1 ? 2 : 3, difficulty === 1 ? 5 : 9);
+    const b = rng.int(difficulty2 === 1 ? 2 : 3, difficulty2 === 1 ? 5 : 9);
     return {
       type: "numeric",
       prompt: `${formatNumber(a)} \xD7 ${b} = ?`,
@@ -1526,9 +1610,9 @@ var multiplication_posee_default = defineGenerator({
 var TABLES = { 1: [2, 5, 10], 2: [2, 3, 4, 5, 10], 3: [2, 3, 4, 5, 6, 7, 8, 9], 4: [6, 7, 8, 9] };
 var tables_multiplication_default = defineGenerator({
   skill: "ce2.tables-multiplication",
-  generate(rng, difficulty) {
-    const missing = difficulty === 5;
-    const a = rng.pick(TABLES[missing ? 4 : difficulty]);
+  generate(rng, difficulty2) {
+    const missing = difficulty2 === 5;
+    const a = rng.pick(TABLES[missing ? 4 : difficulty2]);
     const b = rng.pick([2, 3, 4, 5, 6, 7, 8, 9, 10].filter((value) => !missing || value !== a));
     const product = formatNumber(a * b);
     return {
@@ -1549,14 +1633,14 @@ var tables_multiplication_default = defineGenerator({
 // src/generators/cm1/comparer-decimaux.ts
 var comparer_decimaux_default = defineGenerator({
   skill: "cm1.comparer-decimaux",
-  generate(rng, difficulty) {
-    const whole = rng.int(0, difficulty < 3 ? 9 : 99);
+  generate(rng, difficulty2) {
+    const whole = rng.int(0, difficulty2 < 3 ? 9 : 99);
     const draw = () => {
-      const places = rng.int(1, difficulty < 3 ? 2 : 3);
-      const units = difficulty === 1 ? rng.int(0, 9) : whole;
+      const places = rng.int(1, difficulty2 < 3 ? 2 : 3);
+      const units = difficulty2 === 1 ? rng.int(0, 9) : whole;
       return decimal(units * 10 ** places + rng.int(1, 10 ** places - 1), places);
     };
-    const values = distinct(difficulty < 4 ? 4 : 5, draw, formatDecimal);
+    const values = distinct(difficulty2 < 4 ? 4 : 5, draw, formatDecimal);
     const direction = rng.pick(["ascending", "descending"]);
     return {
       ...orderFields(values.map(formatDecimal), values, direction, {
@@ -1571,11 +1655,11 @@ var comparer_decimaux_default = defineGenerator({
 var DIVISORS = { 1: [2, 5], 2: [2, 9], 3: [3, 9], 4: [6, 9], 5: [11, 25] };
 var division_euclidienne_default = defineGenerator({
   skill: "cm1.division-euclidienne",
-  generate(rng, difficulty) {
-    const [min, max] = DIVISORS[difficulty];
+  generate(rng, difficulty2) {
+    const [min, max] = DIVISORS[difficulty2];
     const divisor = rng.int(min, max);
-    const quotient = rng.pick(range(3, difficulty * 8, divisor));
-    const remainder = rng.int(difficulty === 1 ? 0 : 1, divisor - 1);
+    const quotient = rng.pick(range(3, difficulty2 * 8, divisor));
+    const remainder = rng.int(difficulty2 === 1 ? 0 : 1, divisor - 1);
     const dividend = formatNumber(divisor * quotient + remainder);
     const asked = rng.pick(["reste", "quotient"]);
     const answer = asked === "reste" ? remainder : quotient;
@@ -1604,9 +1688,9 @@ var DENS = {
 };
 var fractions_droite_graduee_default = defineGenerator({
   skill: "cm1.fractions-droite-graduee",
-  generate(rng, difficulty) {
-    const units = difficulty >= 4 ? difficulty - 2 : 1;
-    const fractions = DENS[difficulty].flatMap((d) => range(1, d * units - 1).map((k) => [k, d]));
+  generate(rng, difficulty2) {
+    const units = difficulty2 >= 4 ? difficulty2 - 2 : 1;
+    const fractions = DENS[difficulty2].flatMap((d) => range(1, d * units - 1).map((k) => [k, d]));
     const [num = 1, den = 2] = rng.pick(fractions.filter(([k = 0, d = 1]) => k % d !== 0));
     return {
       type: "number-line",
@@ -1626,10 +1710,10 @@ var fractions_droite_graduee_default = defineGenerator({
 // src/generators/cm1/nombres-decimaux.ts
 var nombres_decimaux_default = defineGenerator({
   skill: "cm1.nombres-decimaux",
-  generate(rng, difficulty) {
-    const units = rng.int(difficulty === 1 ? 1 : 0, difficulty < 3 ? 9 : 99);
-    const tenths = rng.int(difficulty >= 4 ? 0 : 1, 9);
-    const hundredths = difficulty === 1 ? 0 : rng.int(1, 9);
+  generate(rng, difficulty2) {
+    const units = rng.int(difficulty2 === 1 ? 1 : 0, difficulty2 < 3 ? 9 : 99);
+    const tenths = rng.int(difficulty2 >= 4 ? 0 : 1, 9);
+    const hundredths = difficulty2 === 1 ? 0 : rng.int(1, 9);
     const parts = [
       [units, "unit\xE9", ""],
       [tenths, "dixi\xE8me", "dixiemes"],
@@ -1661,8 +1745,8 @@ var nombres_decimaux_default = defineGenerator({
 var MAX3 = { 1: 10, 2: 20, 3: 50, 4: 99, 5: 250 };
 var perimetre_default = defineGenerator({
   skill: "cm1.perimetre",
-  generate(rng, difficulty) {
-    const length = rng.int(3, MAX3[difficulty]);
+  generate(rng, difficulty2) {
+    const length = rng.int(3, MAX3[difficulty2]);
     const width = rng.int(2, length - 1);
     const square = rng.chance(0.3);
     const [l, w] = [formatNumber(length), formatNumber(width)];
@@ -1688,11 +1772,11 @@ var perimetre_default = defineGenerator({
 var ITEMS = ["cahier", "croissant", "ballon", "stylo", "livre"];
 var proportionnalite_default = defineGenerator({
   skill: "cm1.proportionnalite",
-  generate(rng, difficulty) {
+  generate(rng, difficulty2) {
     const item = rng.pick(ITEMS);
-    const price = rng.int(2, difficulty < 3 ? 5 : 12);
-    const first = rng.int(2, difficulty < 4 ? 5 : 9);
-    const second = rng.pick(range(2, difficulty < 3 ? 10 : 20, first));
+    const price = rng.int(2, difficulty2 < 3 ? 5 : 12);
+    const first = rng.int(2, difficulty2 < 4 ? 5 : 9);
+    const second = rng.pick(range(2, difficulty2 < 3 ? 10 : 20, first));
     const total = formatNumber(first * price);
     return {
       type: "numeric",
@@ -1717,11 +1801,11 @@ var proportionnalite_default = defineGenerator({
 var PLACES = { 1: [1, 1], 2: [1, 2], 3: [2, 2], 4: [0, 2], 5: [3, 1] };
 var addition_soustraction_decimaux_default = defineGenerator({
   skill: "cm2.addition-soustraction-decimaux",
-  generate(rng, difficulty) {
-    const max = difficulty < 3 ? 99 : 999;
+  generate(rng, difficulty2) {
+    const max = difficulty2 < 3 ? 99 : 999;
     const draw = (places) => decimal(rng.int(10 ** places, max * 10 ** places), places);
-    const [x, y] = PLACES[difficulty].map(draw);
-    const operator = difficulty >= 3 && rng.chance(0.5) ? "\u2212" : "+";
+    const [x, y] = PLACES[difficulty2].map(draw);
+    const operator = difficulty2 >= 3 && rng.chance(0.5) ? "\u2212" : "+";
     const [a, b] = operator === "\u2212" && compare(x, y) < 0 ? [y, x] : [x, y];
     const answer = operator === "\u2212" ? sub(a, b) : add(a, b);
     return {
@@ -1743,8 +1827,8 @@ var addition_soustraction_decimaux_default = defineGenerator({
 var SIDES = { 1: [2, 9], 2: [3, 12], 3: [5, 25], 4: [10, 60], 5: [12, 120] };
 var aire_rectangle_default = defineGenerator({
   skill: "cm2.aire-rectangle",
-  generate(rng, difficulty) {
-    const [min, max] = SIDES[difficulty];
+  generate(rng, difficulty2) {
+    const [min, max] = SIDES[difficulty2];
     const unit = rng.pick(["cm", "m"]);
     const length = rng.int(min + 1, max);
     const width = rng.int(min, length - 1);
@@ -1772,12 +1856,12 @@ var aire_rectangle_default = defineGenerator({
 var OPPOSITE = { "+": "\u2212", "\u2212": "+", "\xD7": "\xF7", "\xF7": "\xD7" };
 var expressions_inconnue_default = defineGenerator({
   skill: "cm2.expressions-inconnue",
-  generate(rng, difficulty) {
+  generate(rng, difficulty2) {
     const operator = rng.pick(
-      difficulty < 3 ? ["+", "\u2212"] : ["+", "\u2212", "\xD7", "\xF7"]
+      difficulty2 < 3 ? ["+", "\u2212"] : ["+", "\u2212", "\xD7", "\xF7"]
     );
     const additive = operator === "+" || operator === "\u2212";
-    const [x, y] = [rng.int(2, additive ? 25 * difficulty : 9 + difficulty), rng.int(2, 12)];
+    const [x, y] = [rng.int(2, additive ? 25 * difficulty2 : 9 + difficulty2), rng.int(2, 12)];
     const combined = additive ? x + y : x * y;
     const [a, b, c] = operator === "\u2212" || operator === "\xF7" ? [combined, y, x] : [x, y, combined];
     const hideA = rng.chance(0.5);
@@ -1802,12 +1886,12 @@ var expressions_inconnue_default = defineGenerator({
 // src/generators/cm2/fractions-addition-meme-denominateur.ts
 var fractions_addition_meme_denominateur_default = defineGenerator({
   skill: "cm2.fractions-addition-meme-denominateur",
-  generate(rng, difficulty) {
-    const den = rng.int(3, difficulty < 3 ? 9 : 12);
-    const limit = difficulty < 3 ? den - 1 : 2 * den;
+  generate(rng, difficulty2) {
+    const den = rng.int(3, difficulty2 < 3 ? 9 : 12);
+    const limit = difficulty2 < 3 ? den - 1 : 2 * den;
     const a = rng.pick(range(1, limit - 1));
     const b = rng.pick(range(1, limit - a));
-    const subtract = difficulty >= 3 && a !== b && rng.chance(0.5);
+    const subtract = difficulty2 >= 3 && a !== b && rng.chance(0.5);
     const [first, second] = subtract && a < b ? [b, a] : [a, b];
     const operator = subtract ? "\u2212" : "+";
     const resultNum = subtract ? first - second : first + second;
@@ -1831,9 +1915,9 @@ var fractions_addition_meme_denominateur_default = defineGenerator({
 var DENS2 = { 1: [10], 2: [10, 100], 3: [10, 100, 2, 4], 4: [100, 4, 5, 20], 5: [1e3, 4, 5, 25] };
 var fractions_decimaux_equivalences_default = defineGenerator({
   skill: "cm2.fractions-decimaux-equivalences",
-  generate(rng, difficulty) {
-    const fractions = DENS2[difficulty].flatMap((den) => range(1, den - 1).map((num) => [num, den]));
-    const count = difficulty < 3 ? 3 : 4;
+  generate(rng, difficulty2) {
+    const fractions = DENS2[difficulty2].flatMap((den) => range(1, den - 1).map((num) => [num, den]));
+    const count = difficulty2 < 3 ? 3 : 4;
     const picked = distinct(
       count,
       () => rng.pick(fractions),
@@ -1872,9 +1956,9 @@ var SENTENCES = [
 ];
 var multiples_diviseurs_default = defineGenerator({
   skill: "cm2.multiples-diviseurs",
-  generate(rng, difficulty) {
-    const divisor = rng.pick(DIVISORS2[difficulty]);
-    const quotient = rng.int(4, difficulty < 3 ? 30 : 300);
+  generate(rng, difficulty2) {
+    const divisor = rng.pick(DIVISORS2[difficulty2]);
+    const quotient = rng.int(4, difficulty2 < 3 ? 30 : 300);
     const remainder = rng.chance(0.5) ? 0 : rng.pick(range(1, divisor - 1));
     const value = formatNumber(divisor * quotient + remainder);
     return {
@@ -1907,21 +1991,21 @@ var PERCENTS = {
 };
 var pourcentages_default = defineGenerator({
   skill: "cm2.pourcentages",
-  generate(rng, difficulty) {
-    const percent = rng.pick(PERCENTS[difficulty]);
-    const quantity = 100 / gcd2(percent, 100) * rng.int(1, difficulty < 3 ? 10 : 30);
-    const answer = percent * quantity / 100;
+  generate(rng, difficulty2) {
+    const percent2 = rng.pick(PERCENTS[difficulty2]);
+    const quantity = 100 / gcd2(percent2, 100) * rng.int(1, difficulty2 < 3 ? 10 : 30);
+    const answer = percent2 * quantity / 100;
     return {
       type: "numeric",
-      prompt: `Combien font ${percent} % de ${formatNumber(quantity)} ?`,
-      check: `${percent} % \xD7 ${formatNumber(quantity)}`,
+      prompt: `Combien font ${percent2} % de ${formatNumber(quantity)} ?`,
+      check: `${percent2} % \xD7 ${formatNumber(quantity)}`,
       answer: rational(answer),
       mistakes: {
-        "percent-subtract": [quantity > percent ? rational(quantity - percent) : void 0],
-        "percent-hundred": [rational(percent * quantity)]
+        "percent-subtract": [quantity > percent2 ? rational(quantity - percent2) : void 0],
+        "percent-hundred": [rational(percent2 * quantity)]
       },
-      hint: percent === 50 ? "Prendre 50 %, c\u2019est prendre la moiti\xE9." : `${percent} %, c\u2019est ${percent} pour 100.`,
-      explanation: [`${formatNumber(quantity)} \xD7 ${percent} \xF7 100 = ${formatNumber(answer)}`]
+      hint: percent2 === 50 ? "Prendre 50 %, c\u2019est prendre la moiti\xE9." : `${percent2} %, c\u2019est ${percent2} pour 100.`,
+      explanation: [`${formatNumber(quantity)} \xD7 ${percent2} \xF7 100 = ${formatNumber(answer)}`]
     };
   }
 });
@@ -1936,10 +2020,10 @@ var REASONS = {
 };
 var angles_degres_default = defineGenerator({
   skill: "6e.angles-degres",
-  generate(rng, difficulty) {
-    const near = Math.min(180, rng.pick([90, 180]) + rng.int(-6 * difficulty, 6));
-    const spread = difficulty === 1 ? rng.pick([30, 45, 60, 90, 120, 135, 150, 180]) : 10 * rng.int(1, 18);
-    const measure = difficulty < 3 ? spread : near;
+  generate(rng, difficulty2) {
+    const near = Math.min(180, rng.pick([90, 180]) + rng.int(-6 * difficulty2, 6));
+    const spread = difficulty2 === 1 ? rng.pick([30, 45, 60, 90, 120, 135, 150, 180]) : 10 * rng.int(1, 18);
+    const measure = difficulty2 < 3 ? spread : near;
     const nature = measure < 90 ? "aigu" : measure === 90 ? "droit" : measure < 180 ? "obtus" : "plat";
     return {
       type: "choice",
@@ -1965,10 +2049,10 @@ var DENS3 = {
 };
 var fraction_d_une_quantite_default = defineGenerator({
   skill: "6e.fraction-d-une-quantite",
-  generate(rng, difficulty) {
-    const den = rng.pick(DENS3[difficulty]);
-    const num = difficulty < 3 ? 1 : rng.int(2, den - 1);
-    const part = rng.int(2, difficulty < 4 ? 10 : 25);
+  generate(rng, difficulty2) {
+    const den = rng.pick(DENS3[difficulty2]);
+    const num = difficulty2 < 3 ? 1 : rng.int(2, den - 1);
+    const part = rng.int(2, difficulty2 < 4 ? 10 : 25);
     const quantity = den * part;
     return {
       type: "numeric",
@@ -1989,9 +2073,9 @@ var fraction_d_une_quantite_default = defineGenerator({
 var MAX4 = { 1: 20, 2: 30, 3: 50, 4: 100, 5: 100 };
 var nombres_premiers_default = defineGenerator({
   skill: "6e.nombres-premiers",
-  generate(rng, difficulty) {
-    const numbers = range(4, MAX4[difficulty]);
-    const composites = numbers.filter((x) => !isPrime(x) && (difficulty < 4 || x % 2 === 1));
+  generate(rng, difficulty2) {
+    const numbers = range(4, MAX4[difficulty2]);
+    const composites = numbers.filter((x) => !isPrime(x) && (difficulty2 < 4 || x % 2 === 1));
     const prime = rng.pick(numbers.filter(isPrime));
     const options = rng.shuffle([prime, ...rng.sample(composites, 3)]);
     const others = options.filter((x) => x !== prime);
@@ -2026,8 +2110,8 @@ var TEMPLATES = [
 ];
 var priorites_operatoires_default = defineGenerator({
   skill: "6e.priorites-operatoires",
-  generate(rng, difficulty) {
-    const template = rng.pick(TEMPLATES.slice(0, difficulty));
+  generate(rng, difficulty2) {
+    const template = rng.pick(TEMPLATES.slice(0, difficulty2));
     const [expression, value, first] = template(rng.int(2, 12), rng.int(2, 9), rng.int(2, 9));
     return {
       type: "numeric",
@@ -2045,9 +2129,9 @@ var priorites_operatoires_default = defineGenerator({
 var COLORS = ["rouges", "bleues", "vertes", "jaunes"];
 var probabilites_default = defineGenerator({
   skill: "6e.probabilites",
-  generate(rng, difficulty) {
-    const colors = rng.sample(COLORS, difficulty < 3 ? 2 : 3);
-    const counts = colors.map(() => rng.int(2, difficulty < 4 ? 6 : 12));
+  generate(rng, difficulty2) {
+    const colors = rng.sample(COLORS, difficulty2 < 3 ? 2 : 3);
+    const counts = colors.map(() => rng.int(2, difficulty2 < 4 ? 6 : 12));
     const target = rng.int(0, colors.length - 1);
     const total = counts.reduce((sum, count) => sum + count, 0);
     const favourable = counts[target] ?? 0;
@@ -2071,11 +2155,11 @@ var probabilites_default = defineGenerator({
 // src/generators/sixieme/proportionnalite.ts
 var proportionnalite_default2 = defineGenerator({
   skill: "6e.proportionnalite",
-  generate(rng, difficulty) {
-    const coefficient = difficulty < 4 ? rational(rng.int(2, 3 + 2 * difficulty)) : decimal(rng.int(1, 9) * 10 + 5, 1);
+  generate(rng, difficulty2) {
+    const coefficient = difficulty2 < 4 ? rational(rng.int(2, 3 + 2 * difficulty2)) : decimal(rng.int(1, 9) * 10 + 5, 1);
     const first = rng.pick(range(2, 12).filter((x) => mul(coefficient, rational(x)).den === 1));
     const second = rng.pick(
-      range(2, difficulty < 3 ? 12 : 30, first).filter((x) => mul(coefficient, rational(x)).den === 1)
+      range(2, difficulty2 < 3 ? 12 : 30, first).filter((x) => mul(coefficient, rational(x)).den === 1)
     );
     const [y1, answer] = [mul(coefficient, rational(first)), mul(coefficient, rational(second))];
     return {
@@ -2096,16 +2180,16 @@ var proportionnalite_default2 = defineGenerator({
 // src/generators/cinquieme/fractions-addition.ts
 var fractions_addition_default = defineGenerator({
   skill: "5e.fractions-addition",
-  generate(rng, difficulty) {
-    const den = rng.int(2, difficulty < 3 ? 5 : 9);
-    const big = den * rng.int(2, difficulty < 3 ? 3 : 4);
+  generate(rng, difficulty2) {
+    const den = rng.int(2, difficulty2 < 3 ? 5 : 9);
+    const big = den * rng.int(2, difficulty2 < 3 ? 3 : 4);
     const [a, b] = [rng.int(1, 2 * den - 1), rng.int(1, 2 * big - 1)];
-    const minus = difficulty >= 3 && a * big > b * den && rng.chance(0.5);
+    const minus = difficulty2 >= 3 && a * big > b * den && rng.chance(0.5);
     const [operator, scaled] = [minus ? "\u2212" : "+", a * big / den];
     const answer = (minus ? sub : add)(rational(a, den), rational(b, big));
     const expression = `${formatFraction(a, den)} ${operator} ${formatFraction(b, big)}`;
     const simplified = answer.den === big ? "" : ` = ${formatFraction(answer.num, answer.den)}`;
-    const ask = difficulty === 5 ? "Donne le r\xE9sultat sous forme irr\xE9ductible : " : "";
+    const ask = difficulty2 === 5 ? "Donne le r\xE9sultat sous forme irr\xE9ductible : " : "";
     return {
       type: "numeric",
       prompt: ask ? `${ask}${expression}` : `${expression} = ?`,
@@ -2116,7 +2200,7 @@ var fractions_addition_default = defineGenerator({
         "same-denominator": [rational(minus ? a - b : a + b, big)]
       },
       display: "fraction",
-      ...difficulty === 5 && { forms: ["fraction", "integer"], irreducible: true },
+      ...difficulty2 === 5 && { forms: ["fraction", "integer"], irreducible: true },
       hint: `\xC9cris ${formatFraction(a, den)} avec le d\xE9nominateur ${big}.`,
       explanation: [
         `${formatFraction(a, den)} = ${formatFraction(scaled, big)}`,
@@ -2129,24 +2213,24 @@ var fractions_addition_default = defineGenerator({
 // src/generators/cinquieme/puissances-de-10.ts
 var puissances_de_10_default = defineGenerator({
   skill: "5e.puissances-de-10",
-  generate(rng, difficulty) {
-    const exponent = rng.int(2, difficulty === 2 ? 4 : 7);
-    const factor = [rational(1), rational(rng.int(2, 9))][difficulty - 1] ?? decimal(rng.int(11, 999), rng.int(1, 3));
-    const shown = difficulty === 1 ? power(10, exponent) : `${formatDecimal(factor)} \xD7 ${power(10, exponent)}`;
+  generate(rng, difficulty2) {
+    const exponent = rng.int(2, difficulty2 === 2 ? 4 : 7);
+    const factor = [rational(1), rational(rng.int(2, 9))][difficulty2 - 1] ?? decimal(rng.int(11, 999), rng.int(1, 3));
+    const shown = difficulty2 === 1 ? power(10, exponent) : `${formatDecimal(factor)} \xD7 ${power(10, exponent)}`;
     const answer = mul(factor, rational(10 ** exponent));
     return {
       type: "numeric",
       prompt: `\xC9cris sans puissance : ${shown}`,
-      check: difficulty === 1 ? `10^${exponent}` : `${formatDecimal(factor)} \xD7 10^${exponent}`,
+      check: difficulty2 === 1 ? `10^${exponent}` : `${formatDecimal(factor)} \xD7 10^${exponent}`,
       answer,
       mistakes: {
         "zeros-count": [mul(factor, rational(10 ** (exponent - 1))), mul(factor, rational(10 ** (exponent + 1)))],
-        "exponent-times-ten": [difficulty === 1 ? rational(10 * exponent) : void 0]
+        "exponent-times-ten": [difficulty2 === 1 ? rational(10 * exponent) : void 0]
       },
       hint: `${power(10, exponent)}, c\u2019est 1 suivi de ${exponent} z\xE9ros.`,
       explanation: [
         `${power(10, exponent)} = ${formatNumber(10 ** exponent)}`,
-        ...difficulty > 1 ? [`${shown} = ${formatNumber(answer)}`] : []
+        ...difficulty2 > 1 ? [`${shown} = ${formatNumber(answer)}`] : []
       ]
     };
   }
@@ -2155,11 +2239,11 @@ var puissances_de_10_default = defineGenerator({
 // src/generators/cinquieme/relatifs-addition-soustraction.ts
 var relatifs_addition_soustraction_default = defineGenerator({
   skill: "5e.relatifs-addition-soustraction",
-  generate(rng, difficulty) {
-    const max = [10, 10, 30, 50, 99][difficulty - 1] ?? 10;
+  generate(rng, difficulty2) {
+    const max = [10, 10, 30, 50, 99][difficulty2 - 1] ?? 10;
     const draw = () => rng.pick([-1, 1]) * rng.int(1, max);
-    const terms = difficulty >= 4 ? [draw(), draw(), draw()] : [draw(), draw()];
-    const operators = terms.slice(1).map(() => difficulty >= 2 && rng.chance(0.5) ? "\u2212" : "+");
+    const terms = difficulty2 >= 4 ? [draw(), draw(), draw()] : [draw(), draw()];
+    const operators = terms.slice(1).map(() => difficulty2 >= 2 && rng.chance(0.5) ? "\u2212" : "+");
     const expression = terms.map((term, i) => i === 0 ? formatOperand(term) : `${operators[i - 1]} ${formatOperand(term)}`).join(" ");
     const value = chain(terms, operators);
     const rule = operators.includes("\u2212") ? "Soustraire, c\u2019est ajouter l\u2019oppos\xE9." : "On additionne en tenant compte des signes.";
@@ -2182,9 +2266,9 @@ var relatifs_addition_soustraction_default = defineGenerator({
 // src/generators/cinquieme/tester-egalite.ts
 var tester_egalite_default = defineGenerator({
   skill: "5e.tester-egalite",
-  generate(rng, difficulty) {
-    const [a, b] = [rng.int(2, 9), rng.int(1, 5 * difficulty)];
-    const x = rng.int(difficulty < 3 ? 1 : -9, 9) || 1;
+  generate(rng, difficulty2) {
+    const [a, b] = [rng.int(2, 9), rng.int(1, 5 * difficulty2)];
+    const x = rng.int(difficulty2 < 3 ? 1 : -9, 9) || 1;
     const value = a * x + b;
     const truth = rng.chance(0.5);
     const right = truth ? value : value + rng.pick([-2, -1, 1, 2]);
@@ -2241,8 +2325,532 @@ var generators = [
   tester_egalite_default
 ];
 
-// src/exercise.ts
-var DIFFICULTIES = [1, 2, 3, 4, 5];
+// src/adaptive/placement.ts
+var AGREE = 2;
+function placementRungs(strand, childGrade, generators2 = generators) {
+  const own = gradeRank(childGrade);
+  const withGenerator = new Set(generators2.map((generator) => generator.skill));
+  const byRank = /* @__PURE__ */ new Map();
+  for (const skill of skills) {
+    const rank = gradeRank(skill.grade);
+    if (skill.strand !== strand || !withGenerator.has(skill.code) || rank > own + 1) continue;
+    byRank.set(rank, [...byRank.get(rank) ?? [], skill]);
+  }
+  const rungs = [...byRank.entries()].sort(([a], [b]) => a - b).map(([rank, list2]) => {
+    const grade2 = list2[0]?.grade ?? childGrade;
+    const difficulty2 = rank === own ? 2 : 3;
+    const codes = list2.map((skill) => skill.code).filter(isSkillCode);
+    return { rank, grade: grade2, difficulty: difficulty2, skills: codes };
+  });
+  const lowest = rungs[0];
+  if (!lowest || lowest.rank > own) return [];
+  if (lowest.rank === own) rungs.unshift({ ...lowest, rank: own - 1, difficulty: 1 });
+  return rungs;
+}
+var rungOf = (rungs, answer) => {
+  const grade2 = isSkillCode(answer.skill) ? getSkill(answer.skill).grade : null;
+  return rungs.findIndex((rung) => rung.grade === grade2 && rung.difficulty === answer.difficulty);
+};
+var verdictOf = (answers = []) => {
+  const right = answers.filter(Boolean).length;
+  if (right >= AGREE) return "passed";
+  if (answers.length - right >= AGREE) return "failed";
+  return "open";
+};
+function currentRung(rungs, answers, own) {
+  if (rungs.length === 0) return null;
+  let index = rungs.reduce((start, rung, i) => rung.rank <= own ? i : start, 0);
+  for (; ; ) {
+    const verdict2 = verdictOf(answers[index]);
+    if (verdict2 === "open") return index;
+    const next = index + (verdict2 === "passed" ? 1 : -1);
+    const nextVerdict = verdictOf(answers[next]);
+    if (next < 0 || next >= rungs.length) return null;
+    if (verdict2 === "passed" ? nextVerdict === "failed" : nextVerdict === "passed") return null;
+    index = next;
+  }
+}
+function placementState(childGrade, attempts, generators2 = generators) {
+  const own = gradeRank(childGrade);
+  return STRANDS.map((strand) => {
+    const rungs = placementRungs(strand, childGrade, generators2);
+    const answers = rungs.map(() => []);
+    for (const attempt of attempts) {
+      if (!isSkillCode(attempt.skill) || getSkill(attempt.skill).strand !== strand) continue;
+      answers[rungOf(rungs, attempt)]?.push(attempt.correct);
+    }
+    return { strand, rungs, answers, current: currentRung(rungs, answers, own) };
+  });
+}
+function levelOf(placedRank, own) {
+  if (placedRank > own) return "ahead";
+  return placedRank >= own - 1 ? "on_track" : "to_consolidate";
+}
+function strandResult(state, own) {
+  const answered = state.answers.flat().length;
+  if (state.rungs.length === 0 || answered === 0) {
+    return { strand: state.strand, level: null, placedRank: null, answered };
+  }
+  const verdicts = state.answers.map(verdictOf);
+  const passed = state.rungs.filter((_, i) => verdicts[i] === "passed").map((rung) => rung.rank);
+  const failed = state.rungs.filter((_, i) => verdicts[i] === "failed").map((rung) => rung.rank);
+  const start = state.rungs.reduce((rank, rung) => rung.rank <= own ? rung.rank : rank, 0);
+  const placedRank = passed.length > 0 ? Math.max(...passed) : Math.min(start, ...failed) - 1;
+  return { strand: state.strand, level: levelOf(placedRank, own), placedRank, answered };
+}
+function skillTallies(attempts) {
+  const tallies = /* @__PURE__ */ new Map();
+  for (const { skill, correct } of attempts) {
+    const tally = tallies.get(skill) ?? { right: 0, wrong: 0 };
+    tallies.set(
+      skill,
+      correct ? { ...tally, right: tally.right + 1 } : { ...tally, wrong: tally.wrong + 1 }
+    );
+  }
+  return tallies;
+}
+function prerequisitesOf(code, into = /* @__PURE__ */ new Set()) {
+  for (const prerequisite of getSkill(code).prerequisites) {
+    if (!isSkillCode(prerequisite) || into.has(prerequisite)) continue;
+    into.add(prerequisite);
+    prerequisitesOf(prerequisite, into);
+  }
+  return into;
+}
+var earlierPrerequisites = (code) => {
+  const rank = gradeRank(getSkill(code).grade);
+  return [...prerequisitesOf(code)].filter((other) => gradeRank(getSkill(other).grade) < rank);
+};
+var PLACED_ELO = { acquired: 1450, next: 1150, beyond: 950 };
+function conclude(context, attempts, at) {
+  const { childGrade } = context;
+  const own = gradeRank(childGrade);
+  const generators2 = context.generators ?? generators;
+  const states = placementState(childGrade, attempts, generators2);
+  const results = states.map((state) => strandResult(state, own));
+  const placedRank = new Map(results.map((result) => [result.strand, result.placedRank]));
+  const tallies = skillTallies(attempts);
+  const failed = (code) => {
+    const tally = tallies.get(code);
+    return tally !== void 0 && tally.wrong > tally.right;
+  };
+  const right = (code) => {
+    const tally = tallies.get(code);
+    return tally !== void 0 && tally.right > tally.wrong;
+  };
+  const required = /* @__PURE__ */ new Set();
+  for (const [code] of tallies) {
+    const skill = getSkill(code);
+    const placed = placedRank.get(skill.strand) ?? null;
+    if (right(code) && placed !== null && gradeRank(skill.grade) <= placed) {
+      for (const prerequisite of earlierPrerequisites(code)) required.add(prerequisite);
+    }
+  }
+  const withGenerator = new Set(generators2.map((generator) => generator.skill));
+  const mastery = { ...context.mastery };
+  const acquired = /* @__PURE__ */ new Set();
+  for (const skill of skills) {
+    if (!isSkillCode(skill.code)) continue;
+    const code = skill.code;
+    const rank = gradeRank(skill.grade);
+    const placed = placedRank.get(skill.strand) ?? null;
+    const tested = tallies.has(code);
+    if (!withGenerator.has(code) || rank > own && !tested || placed === null && !tested) {
+      continue;
+    }
+    const existing = context.mastery[code];
+    const practised = existing !== void 0 && existing.attempts > 0;
+    const guess = placed === null || rank <= placed ? PLACED_ELO.acquired : rank === placed + 1 ? PLACED_ELO.next : PLACED_ELO.beyond;
+    let record = practised && existing ? existing : {
+      elo: guess,
+      attempts: 0,
+      streak: 0,
+      masteredAt: existing?.masteredAt ?? null,
+      practicedAt: null
+    };
+    for (const attempt of attempts.filter((candidate) => candidate.skill === code)) {
+      record = applyAnswer(record, {
+        item: itemRating(context.itemRatings, attempt.generatorId, attempt.difficulty),
+        correct: attempt.correct,
+        at: attempt.answeredAt
+      });
+    }
+    if (tested) record = closeSession(record, at);
+    const known = !failed(code) && rank <= own && (required.has(code) || placed !== null && rank < own && rank <= placed && masteryOf(record, at) >= PRESUMED_THRESHOLD);
+    if (known) {
+      record = {
+        ...record,
+        elo: Math.max(record.elo, PLACED_ELO.acquired),
+        masteredAt: record.masteredAt ?? at
+      };
+    }
+    if (record.masteredAt) acquired.add(code);
+    mastery[code] = record;
+  }
+  return { results, mastery, acquired, failed, own };
+}
+function placementResult(childGrade, attempts, at, generators2 = generators) {
+  const { results, mastery, acquired, failed, own } = conclude(
+    { childGrade, mastery: {}, itemRatings: {}, generators: generators2 },
+    attempts,
+    at
+  );
+  const open = (code) => getSkill(code).prerequisites.every(
+    (prerequisite) => !isSkillCode(prerequisite) || !(prerequisite in mastery) || acquired.has(prerequisite)
+  );
+  const score = (code) => {
+    const record = mastery[code];
+    return record ? masteryOf(record, at) : 0;
+  };
+  const candidates = skills.map((skill) => skill.code).filter(isSkillCode).filter((code) => code in mastery && !acquired.has(code)).filter((code) => gradeRank(getSkill(code).grade) <= own && (failed(code) || open(code))).sort(
+    (a, b) => Number(failed(b)) - Number(failed(a)) || gradeRank(getSkill(a).grade) - gradeRank(getSkill(b).grade) || score(a) - score(b)
+  );
+  const priorities = [];
+  for (const code of candidates) {
+    const strand = getSkill(code).strand;
+    if (priorities.length < 3 && !priorities.some((other) => getSkill(other).strand === strand)) {
+      priorities.push(code);
+    }
+  }
+  for (const code of candidates) {
+    if (priorities.length < 3 && !priorities.includes(code)) priorities.push(code);
+  }
+  return { strands: results, priorities };
+}
+
+// src/adaptive/session.ts
+var MAX_GAP_MS = 12e4;
+
+// src/adaptive/profile.ts
+var PROFILE_WINDOW_DAYS = 30;
+var MENTAL_FAST_MS = 4e3;
+var MENTAL_MIN_ANSWERS = 20;
+var MENTAL_MIN_RATE = 0.75;
+var FLAWLESS_RUN = 30;
+var SOLID_MASTERED = 2;
+var PRACTISED_ANSWERS = 10;
+var BEST_MASTERY = 50;
+var RECURRENT_ERROR = 3;
+var RECURRENT_SHARE = 0.3;
+var STUCK_ANSWERS = 20;
+var STUCK_MASTERY = 50;
+var MAX_ITEMS = 3;
+var ATTENTION_STRETCH = 5;
+var ATTENTION_STRETCHES = 5;
+var ATTENTION_MIN_ANSWERS = 100;
+var ATTENTION_DROP = 0.12;
+var MIN_SESSIONS = 5;
+var TIME_MIN_ANSWERS = 100;
+var TIME_GAP = 0.06;
+var RUSHED_MS = 2e3;
+var MIN_ERRORS = 10;
+var RUSHED_SHARE = 0.3;
+var GIVE_UP_SESSIONS = 2;
+var GIVE_UP_SHARE = 0.25;
+var ABANDONED_AFTER_MS = 864e5;
+var MIN_TWINS = 5;
+var DAY_MS2 = 864e5;
+var MINUTE_MS = 6e4;
+function learnerProfile(input) {
+  const since = Date.parse(input.at) - PROFILE_WINDOW_DAYS * DAY_MS2;
+  const recent = input.sessions.filter((session) => Date.parse(session.startedAt) >= since);
+  const sessions = recent.filter((session) => session.kind !== "placement");
+  const timed = sessions.flatMap((session) => timedAttempts(session, input.itemRatings ?? {}));
+  const all = recent.flatMap((session) => session.attempts);
+  const placement = lastPlacement(input);
+  const records = Object.entries(input.mastery).filter(
+    (entry) => isSkillCode(entry[0]) && entry[1] !== void 0
+  );
+  const status = (code) => {
+    const record = input.mastery[code];
+    return record ? masteryStatus(record, input.at) : "to_discover";
+  };
+  const practice = strandPractice(input, all);
+  return {
+    grade: input.childGrade,
+    answers: all.length,
+    mastered: records.filter(([code]) => status(code) === "mastered").length,
+    inProgress: records.filter(([code]) => status(code) === "in_progress").length,
+    strengths: strengthsOf(input, timed, placement, status, practice),
+    weaknesses: weaknessesOf(input, all, placement, records, practice),
+    style: styleOf(input, sessions, timed),
+    computedAt: input.at
+  };
+}
+function strandPractice(input, attempts) {
+  const answers = /* @__PURE__ */ new Map();
+  for (const { skill } of attempts) answers.set(skill, (answers.get(skill) ?? 0) + 1);
+  const levels = /* @__PURE__ */ new Map();
+  for (const [skill, count] of answers) {
+    const record = input.mastery[skill];
+    if (!record || count < PRACTISED_ANSWERS) continue;
+    const { strand } = getSkill(skill);
+    levels.set(strand, [...levels.get(strand) ?? [], masteryOf(record, input.at)]);
+  }
+  return (strand) => {
+    const values = levels.get(strand);
+    return values ? mean(values) : null;
+  };
+}
+function lastPlacement(input) {
+  const tests = input.sessions.filter((s) => s.kind === "placement" && s.completedAt && s.grade === input.childGrade).sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt));
+  const test = tests[0];
+  if (!test?.completedAt) return null;
+  return placementResult(input.childGrade, test.attempts, test.completedAt);
+}
+function strengthsOf(input, timed, placement, status, practice) {
+  const own = gradeRank(input.childGrade);
+  const ahead = new Set(
+    placement?.strands.filter((s) => s.level === "ahead" && (practice(s.strand) ?? 100) >= PRESUMED_THRESHOLD).map((s) => s.strand) ?? []
+  );
+  const solid = /* @__PURE__ */ new Map();
+  for (const code of Object.keys(input.mastery).filter(isSkillCode)) {
+    if (status(code) !== "mastered") continue;
+    const skill = getSkill(code);
+    const rank = gradeRank(skill.grade);
+    if (rank > own) ahead.add(skill.strand);
+    if (rank === own) solid.set(skill.strand, (solid.get(skill.strand) ?? 0) + 1);
+  }
+  const strengths = [...ahead].slice(0, 2).map((strand) => ({ kind: "ahead", strand }));
+  const mental = timed.filter((attempt) => getSkill(attempt.skill).automatism);
+  const fast = median(mental.filter((a) => a.correct).map((a) => a.timeMs));
+  const rate = share(mental, (attempt) => attempt.correct);
+  if (mental.length >= MENTAL_MIN_ANSWERS && fast !== null && fast <= MENTAL_FAST_MS) {
+    if (rate >= MENTAL_MIN_RATE) strengths.push({ kind: "mental_speed", medianMs: fast, rate });
+  }
+  [...solid].filter(([strand, count]) => count >= SOLID_MASTERED && !ahead.has(strand)).sort((a, b) => b[1] - a[1]).slice(0, 2).forEach(([strand, mastered]) => strengths.push({ kind: "solid", strand, mastered }));
+  const run = longestRun(timed);
+  if (run >= FLAWLESS_RUN) strengths.push({ kind: "flawless", run });
+  if (strengths.length === 0) {
+    const [best] = STRANDS.map((strand) => ({ strand, level: practice(strand) ?? 0 })).filter(({ level }) => level >= BEST_MASTERY).sort((a, b) => b.level - a.level);
+    if (best) strengths.push({ kind: "best", strand: best.strand });
+  }
+  return strengths;
+}
+function weaknessesOf(input, attempts, placement, records, practice) {
+  const weaknesses = recurrentErrors(attempts);
+  for (const strand of placement?.strands ?? []) {
+    if (strand.level === "to_consolidate" && (practice(strand.strand) ?? 0) < MASTERY_THRESHOLD) {
+      weaknesses.push({ kind: "behind", strand: strand.strand });
+    }
+  }
+  const mastery = (record) => masteryOf(record, input.at);
+  records.filter(([, record]) => record.masteredAt && masteryStatus(record, input.at) === "to_review").sort((a, b) => mastery(a[1]) - mastery(b[1])).slice(0, MAX_ITEMS).forEach(
+    ([skill, record]) => weaknesses.push({ kind: "fading", skill, mastery: mastery(record) })
+  );
+  const answered = /* @__PURE__ */ new Map();
+  for (const attempt of attempts) {
+    answered.set(attempt.skill, (answered.get(attempt.skill) ?? 0) + 1);
+  }
+  records.filter(([skill, record]) => !record.masteredAt && (answered.get(skill) ?? 0) > 0).filter(([, record]) => record.attempts >= STUCK_ANSWERS && mastery(record) < STUCK_MASTERY).sort((a, b) => mastery(a[1]) - mastery(b[1])).slice(0, 2).forEach(
+    ([skill, record]) => weaknesses.push({
+      kind: "stuck",
+      skill,
+      mastery: mastery(record),
+      answers: record.attempts
+    })
+  );
+  return weaknesses;
+}
+function recurrentErrors(attempts) {
+  const found = /* @__PURE__ */ new Map();
+  for (const attempt of attempts) {
+    if (attempt.correct || !attempt.error) continue;
+    const seen = found.get(attempt.error);
+    found.set(attempt.error, {
+      count: (seen?.count ?? 0) + 1,
+      lastSeenAt: seen && seen.lastSeenAt > attempt.answeredAt ? seen.lastSeenAt : attempt.answeredAt
+    });
+  }
+  return [...found].filter(([error, { count }]) => {
+    const skills2 = getErrorType(error).skills;
+    const errors = attempts.filter((a) => !a.correct && skills2.includes(a.skill)).length;
+    return count >= RECURRENT_ERROR && count >= RECURRENT_SHARE * errors;
+  }).sort((a, b) => b[1].count - a[1].count || b[1].lastSeenAt.localeCompare(a[1].lastSeenAt)).slice(0, MAX_ITEMS).map(([error, seen]) => ({ kind: "error", error, ...seen }));
+}
+function styleOf(input, practice, timed) {
+  return {
+    attention: attentionOf(practice, timed),
+    bestTime: bestTimeOf(timed, input.timeZone),
+    afterError: afterErrorOf(practice, input.at),
+    twinSuccess: twinSuccessOf(timed)
+  };
+}
+function attentionOf(practice, timed) {
+  const completed = timed.filter((attempt) => attempt.session.completedAt);
+  const lengths = practice.filter((session) => session.completedAt && session.attempts.length > 0).map((session) => activeMinutes(session));
+  const minutes = median(lengths);
+  if (lengths.length < MIN_SESSIONS || minutes === null) return null;
+  const stretches = Array.from(
+    { length: ATTENTION_STRETCHES },
+    (_, index) => completed.filter((attempt) => Math.floor(attempt.minute / ATTENTION_STRETCH) === index).map((attempt) => attempt.surprise)
+  );
+  const [first = [], ...later] = stretches;
+  if (first.length >= ATTENTION_MIN_ANSWERS) {
+    const fading = later.findIndex(
+      (stretch) => stretch.length >= ATTENTION_MIN_ANSWERS && mean(first) - mean(stretch) >= ATTENTION_DROP
+    );
+    if (fading >= 0) return { kind: "drops", after: (fading + 1) * ATTENTION_STRETCH };
+  }
+  return { kind: "steady", minutes: Math.round(minutes) };
+}
+function bestTimeOf(timed, timeZone) {
+  const parts = /* @__PURE__ */ new Map();
+  for (const attempt of timed) {
+    const part = timeOfDay(localHour(attempt.answeredAt, timeZone));
+    parts.set(part, [...parts.get(part) ?? [], attempt.surprise]);
+  }
+  const ranked = [...parts].filter(([, surprises]) => surprises.length >= TIME_MIN_ANSWERS).map(([part, surprises]) => ({ part, score: mean(surprises) })).sort((a, b) => b.score - a.score);
+  const [best, next] = ranked;
+  return best && next && best.score - next.score >= TIME_GAP ? best.part : null;
+}
+function afterErrorOf(practice, at) {
+  let errors = 0;
+  let rushed = 0;
+  for (const session of practice) {
+    session.attempts.forEach((attempt, index) => {
+      const next = session.attempts[index + 1];
+      if (attempt.correct || !next) return;
+      errors += 1;
+      if (next.timeMs < RUSHED_MS) rushed += 1;
+    });
+  }
+  const left = practice.filter((session) => {
+    const last = session.attempts.at(-1);
+    return !session.completedAt && last && !last.correct && Date.parse(at) - Date.parse(last.answeredAt) >= ABANDONED_AFTER_MS;
+  }).length;
+  if (errors < MIN_ERRORS) return null;
+  if (rushed >= RUSHED_SHARE * errors) return "guesses";
+  if (left >= GIVE_UP_SESSIONS && left >= GIVE_UP_SHARE * practice.length) return "gives_up";
+  return "perseveres";
+}
+function twinSuccessOf(timed) {
+  const twins = timed.filter((attempt) => attempt.twinOf !== null);
+  return twins.length >= MIN_TWINS ? share(twins, (attempt) => attempt.correct) : null;
+}
+function timedAttempts(session, ratings) {
+  let previous = Date.parse(session.startedAt);
+  let active = 0;
+  return session.attempts.map((attempt) => {
+    const at = Date.parse(attempt.answeredAt);
+    active += Math.min(MAX_GAP_MS, Math.max(0, at - previous));
+    previous = Math.max(previous, at);
+    const item = itemRating(ratings, attempt.generatorId, attempt.difficulty);
+    const expected = expectedSuccess(attempt.learnerElo, item);
+    return {
+      ...attempt,
+      session,
+      minute: active / MINUTE_MS,
+      surprise: (attempt.correct ? 1 : 0) - expected
+    };
+  });
+}
+var activeMinutes = (session) => timedAttempts(session, {}).at(-1)?.minute ?? 0;
+function longestRun(timed) {
+  let best = 0;
+  let run = 0;
+  let session = null;
+  for (const attempt of timed) {
+    if (attempt.session !== session) run = 0;
+    session = attempt.session;
+    run = attempt.correct ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  return best;
+}
+var formatters = /* @__PURE__ */ new Map();
+function localHour(iso, timeZone) {
+  let format = formatters.get(timeZone);
+  if (!format) {
+    format = new Intl.DateTimeFormat("en-GB", { timeZone, hour: "numeric", hourCycle: "h23" });
+    formatters.set(timeZone, format);
+  }
+  const hour = format.formatToParts(new Date(iso)).find((part) => part.type === "hour");
+  return Number(hour?.value ?? 0) % 24;
+}
+var timeOfDay = (hour) => hour >= 5 && hour < 12 ? "morning" : hour >= 12 && hour < 17 ? "afternoon" : "evening";
+var mean = (values) => values.length === 0 ? 0 : values.reduce((sum, value) => sum + value, 0) / values.length;
+function median(values) {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] ?? 0 : ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2;
+}
+var share = (list2, test) => list2.length === 0 ? 0 : list2.filter(test).length / list2.length;
+
+// src/adaptive/profile-summary.ts
+var STRANDS2 = {
+  numeration: "num\xE9ration",
+  calcul: "calcul",
+  fractions: "fractions",
+  mesures: "mesures",
+  geometrie: "g\xE9om\xE9trie",
+  problemes: "probl\xE8mes"
+};
+var TIMES = {
+  morning: "le matin",
+  afternoon: "l\u2019apr\xE8s-midi",
+  evening: "en fin de journ\xE9e"
+};
+var lowerFirst = (text) => text.charAt(0).toLowerCase() + text.slice(1);
+var seconds = (ms) => `${(Math.round(ms / 100) / 10).toString().replace(".", ",")} s`;
+var percent = (rate) => `${Math.round(rate * 100)} %`;
+function strength(item) {
+  switch (item.kind) {
+    case "ahead":
+      return `en avance en ${STRANDS2[item.strand]}`;
+    case "solid":
+      return `\xE0 l\u2019aise en ${STRANDS2[item.strand]} (${item.mastered} comp\xE9tences de l\u2019ann\xE9e ma\xEEtris\xE9es)`;
+    case "best":
+      return `meilleur domaine en ce moment : ${STRANDS2[item.strand]}`;
+    case "mental_speed":
+      return `calcul mental rapide (${seconds(item.medianMs)} par calcul, ${percent(item.rate)} de r\xE9ussite)`;
+    case "flawless":
+      return `jusqu\u2019\xE0 ${item.run} bonnes r\xE9ponses d\u2019affil\xE9e`;
+  }
+}
+function weakness(item) {
+  switch (item.kind) {
+    case "error":
+      return `${getErrorType(item.error).label} (${item.count} fois)`;
+    case "behind":
+      return `\xE0 consolider en ${STRANDS2[item.strand]}`;
+    case "fading":
+      return `\xE0 revoir : ${lowerFirst(getSkill(item.skill).title)}`;
+    case "stuck":
+      return `bloque sur : ${lowerFirst(getSkill(item.skill).title)}`;
+  }
+}
+function style(learning) {
+  const parts = [];
+  const { attention, bestTime, afterError, twinSuccess } = learning;
+  if (attention?.kind === "steady") {
+    parts.push(`garde sa concentration toute la s\xE9ance (${attention.minutes} min)`);
+  }
+  if (attention?.kind === "drops") {
+    parts.push(`perd sa concentration apr\xE8s ${attention.after} minutes environ`);
+  }
+  if (bestTime) parts.push(`plus efficace ${TIMES[bestTime]}`);
+  if (afterError === "perseveres") parts.push("pers\xE9v\xE8re apr\xE8s une erreur");
+  if (afterError === "gives_up") parts.push("abandonne parfois la s\xE9ance apr\xE8s une erreur");
+  if (afterError === "guesses") parts.push("r\xE9pond vite au hasard apr\xE8s une erreur");
+  if (twinSuccess !== null) {
+    parts.push(`r\xE9ussit ${percent(twinSuccess)} des exercices jumeaux apr\xE8s une correction`);
+  }
+  return parts;
+}
+function profileSummary(profile, interests = []) {
+  const strengths = profile.strengths.map(strength);
+  const weaknesses = profile.weaknesses.slice(0, 5).map(weakness);
+  const learning = style(profile.style);
+  return [
+    `\xC9l\xE8ve de ${profile.grade}, ${profile.mastered} comp\xE9tences ma\xEEtris\xE9es, ${profile.inProgress} en cours.`,
+    `Points forts : ${strengths.length ? strengths.join(" ; ") : "encore \xE0 d\xE9couvrir"}.`,
+    `\xC0 travailler : ${weaknesses.length ? weaknesses.join(" ; ") : "rien de particulier pour l\u2019instant"}.`,
+    `Fa\xE7on d\u2019apprendre : ${learning.length ? learning.join(" ; ") : "encore \xE0 observer"}.`,
+    interests.length ? `Centres d\u2019int\xE9r\xEAt : ${interests.slice(0, 6).join(", ")}.` : "Centres d\u2019int\xE9r\xEAt : non renseign\xE9s, prendre des exemples de la vie courante."
+  ].join("\n");
+}
 
 // src/adaptive/planner.ts
 function buildExercise(step, generators2 = generators) {
@@ -2361,8 +2969,6 @@ function find(mistakes, answer, given, equal) {
 // src/regrade.ts
 var isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 var isNumberList = (value) => Array.isArray(value) && value.every((item) => typeof item === "number");
-var SKIPPED_ANSWER = { type: "skipped" };
-var isSkippedAnswer = (value) => isObject(value) && value.type === SKIPPED_ANSWER.type;
 function parseStoredResponse(value) {
   if (!isObject(value)) return null;
   const { type } = value;
@@ -2385,10 +2991,10 @@ function parseStoredResponse(value) {
   return null;
 }
 function rebuildExercise(stored) {
-  const difficulty = DIFFICULTIES.find((level) => level === stored.difficulty);
-  if (!difficulty) return null;
+  const difficulty2 = DIFFICULTIES.find((level) => level === stored.difficulty);
+  if (!difficulty2) return null;
   try {
-    return buildExercise({ generatorId: stored.generator_id, difficulty, seed: stored.seed });
+    return buildExercise({ generatorId: stored.generator_id, difficulty: difficulty2, seed: stored.seed });
   } catch {
     return null;
   }
@@ -2403,10 +3009,97 @@ function regrade(answers) {
     return { position, correct, error: correct ? null : diagnoseResponse(exercise, response) };
   });
 }
+
+// src/server.ts
+var isRow = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
+var rows = (value) => Array.isArray(value) ? value.filter(isRow) : [];
+var number = (value, fallback = 0) => typeof value === "number" && Number.isFinite(value) ? value : fallback;
+var date = (value) => typeof value === "string" && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : null;
+var grade = (value) => GRADES.find((item) => item === value) ?? null;
+var difficulty = (value) => DIFFICULTIES.find((item) => item === value) ?? null;
+var KINDS = ["daily", "bonus", "boss", "placement"];
+var SLOTS = ["current", "review", "automatism", "challenge"];
+function attemptOf(row) {
+  const skill = row.skill_code;
+  const level = difficulty(row.difficulty);
+  const answeredAt = date(row.answered_at);
+  if (typeof skill !== "string" || !isSkillCode(skill) || !level || !answeredAt) return null;
+  const error = row.error_type;
+  return {
+    generatorId: typeof row.generator_id === "string" ? row.generator_id : skill,
+    skill,
+    difficulty: level,
+    slot: SLOTS.find((slot) => slot === row.slot) ?? "current",
+    twinOf: typeof row.twin_of === "number" ? row.twin_of : null,
+    correct: row.correct === true,
+    timeMs: number(row.time_ms),
+    answeredAt,
+    learnerElo: number(row.learner_elo, 1e3),
+    error: typeof error === "string" && isErrorTypeCode(error) ? error : null
+  };
+}
+function sessionOf(row) {
+  const kind = KINDS.find((item) => item === row.kind);
+  const played = grade(row.grade);
+  const startedAt = date(row.started_at);
+  if (!kind || !played || !startedAt) return null;
+  return {
+    kind,
+    grade: played,
+    startedAt,
+    completedAt: date(row.completed_at),
+    attempts: rows(row.attempts).map(attemptOf).filter((attempt) => attempt !== null)
+  };
+}
+function masteryOf2(list2) {
+  const map = {};
+  for (const row of rows(list2)) {
+    const skill = row.skill_code;
+    if (typeof skill !== "string" || !isSkillCode(skill)) continue;
+    map[skill] = {
+      elo: number(row.elo, 1e3),
+      attempts: number(row.attempts_count),
+      streak: number(row.sessions_streak),
+      masteredAt: date(row.mastered_at),
+      practicedAt: date(row.last_practiced_at)
+    };
+  }
+  return map;
+}
+function ratingsOf(list2) {
+  const ratings = {};
+  for (const row of rows(list2)) {
+    const level = difficulty(row.difficulty);
+    if (typeof row.generator_id !== "string" || !level) continue;
+    ratings[itemKey(row.generator_id, level)] = number(row.rating, 1e3);
+  }
+  return ratings;
+}
+function profileFromInput(input, at) {
+  if (!isRow(input) || !isRow(input.child)) return null;
+  const childGrade = grade(input.child.grade);
+  if (!childGrade) return null;
+  const timeZone = typeof input.child.timezone === "string" ? input.child.timezone : "Europe/Paris";
+  const profile = learnerProfile({
+    childGrade,
+    mastery: masteryOf2(input.mastery),
+    sessions: rows(input.sessions).map(sessionOf).filter((session) => session !== null),
+    itemRatings: ratingsOf(input.item_ratings),
+    timeZone: validTimeZone(timeZone) ? timeZone : "Europe/Paris",
+    at
+  });
+  const interests = Array.isArray(input.interests) ? input.interests.filter((name) => typeof name === "string") : [];
+  return { profile, summary: profileSummary(profile, interests) };
+}
+function validTimeZone(timeZone) {
+  try {
+    new Intl.DateTimeFormat("en-GB", { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
 export {
-  SKIPPED_ANSWER,
-  isSkippedAnswer,
-  parseStoredResponse,
-  rebuildExercise,
+  profileFromInput,
   regrade
 };

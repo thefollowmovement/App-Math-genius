@@ -1,8 +1,11 @@
 // Awards a child's finished sessions. Each answer is graded again here with the exercise engine
-// (engine.js, bundled from packages/exercise-engine); the database then computes XP, gems, streak
-// and chest from these verdicts only (award_session). Called by the app after each sync, with the
-// caller's own token: Row Level Security decides which sessions it may have awarded.
-import { regrade } from './engine.js';
+// (_shared/engine.js, bundled from packages/exercise-engine); the database then computes XP, gems,
+// streak and chest from these verdicts only (award_session). Called by the app after each sync,
+// with the caller's own token: Row Level Security decides which sessions it may have awarded.
+// The engine also names the typical mistake behind each wrong answer (record_answer_errors), and
+// the child's learning profile is computed again once something was awarded (if the parent agreed).
+import { regrade } from '../_shared/engine.js';
+import { refreshProfile } from '../_shared/profiles.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
@@ -67,11 +70,22 @@ async function awardChild(childId: string, caller: Credentials) {
       `attempts?session_id=eq.${id}&select=position,generator_id,difficulty,seed,answer&order=position`,
       caller,
     );
+    const verdicts = regrade(answers);
+    await rest('rpc/record_answer_errors', SERVER, {
+      method: 'POST',
+      body: JSON.stringify({ p_session_id: id, p_verdicts: verdicts }),
+    });
     awards.push(
       await rest('rpc/award_session', SERVER, {
         method: 'POST',
-        body: JSON.stringify({ p_session_id: id, p_verdicts: regrade(answers) }),
+        body: JSON.stringify({ p_session_id: id, p_verdicts: verdicts }),
       }),
+    );
+  }
+  if (awards.length > 0) {
+    // The award is what the child waits for: a profile that fails is computed again tonight.
+    await refreshProfile((path, init) => rest(path, SERVER, init), childId).catch((error) =>
+      console.error('learner profile', childId, error),
     );
   }
   return awards;
