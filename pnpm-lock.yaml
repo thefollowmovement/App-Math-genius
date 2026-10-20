@@ -331,6 +331,43 @@ importers:
         specifier: ~6.0.3
         version: 6.0.3
 
+  services/ai-gateway:
+    dependencies:
+      '@math-genius/curriculum':
+        specifier: workspace:*
+        version: link:../../packages/curriculum
+      '@math-genius/exercise-engine':
+        specifier: workspace:*
+        version: link:../../packages/exercise-engine
+      '@math-genius/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      '@swc/core':
+        specifier: ^1.16.18
+        version: 1.16.18
+      '@swc/jest':
+        specifier: ^0.2.39
+        version: 0.2.39(@swc/core@1.16.18)
+      '@types/jest':
+        specifier: ^29.5.14
+        version: 29.5.14
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      esbuild:
+        specifier: 0.28.2
+        version: 0.28.2
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@22.20.5)
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+
 packages:
 
   '@alloc/quick-lru@5.3.0':
@@ -7438,7 +7475,9 @@ snapshots:
       metro-runtime: 0.84.5
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 

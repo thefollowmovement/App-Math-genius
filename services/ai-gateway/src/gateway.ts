@@ -1,0 +1,339 @@
+import {
+  type ErrorTypeCode,
+  type SkillCode,
+  getErrorType,
+  getSkill,
+} from '@math-genius/curriculum';
+import {
+  type Exercise,
+  type ExerciseResponse,
+  type Explanation,
+  coachFrame,
+  coachSample,
+  diagnoseResponse,
+  gradeResponse,
+  showableExplanation,
+} from '@math-genius/exercise-engine';
+import { type Grade, type GradeBand, gradeBand } from '@math-genius/shared';
+
+import { type CheckProblem, checkExplanation, explanationText, parseExplanation } from './checks';
+import { type PromptTemplate, type Universe, buildPrompt } from './prompt';
+import {
+  type Fetch,
+  type Provider,
+  type ProviderKind,
+  ProviderError,
+  callCost,
+  chat,
+  moderate,
+} from './providers';
+
+/**
+ * The coach's gateway (docs/specs.md, Coach IA : déroulé après une erreur): a validated explanation
+ * from the cache first; otherwise, when the AI is on and the budget allows, a new one from the
+ * model, checked before it is shown and kept for the next children. Whatever fails, the app shows
+ * the generator's own correction: it never depends on the AI.
+ */
+
+export type CacheKey = {
+  skill: SkillCode;
+  error: ErrorTypeCode | null;
+  /** Null: examples from everyday life. */
+  universe: string | null;
+  band: GradeBand;
+};
+
+export type CachedExplanation = { id: string; template: Explanation };
+
+export type Task = 'realtime' | 'night' | 'preview';
+export type Outcome = 'ok' | 'rejected' | 'unreadable' | 'error';
+
+export type Usage = {
+  task: Task;
+  provider: ProviderKind;
+  model: string;
+  tokensIn: number;
+  tokensOut: number;
+  costUsd: number;
+  latencyMs: number;
+  outcome: Outcome;
+  problems: readonly string[];
+  key: CacheKey | null;
+  promptVersion: number;
+};
+
+export interface GatewayStore {
+  /** Explanations of the key that may be shown (approved first), leaving out those already seen. */
+  cached(key: CacheKey, exclude: readonly string[]): Promise<CachedExplanation[]>;
+  /** Keeps a checked explanation, waiting for a reviewer; its id. */
+  save(entry: {
+    key: CacheKey;
+    template: Explanation;
+    model: string;
+    promptVersion: number;
+  }): Promise<string>;
+  logUsage(usage: Usage): Promise<void>;
+}
+
+export type GatewaySettings = {
+  /** Off (the back-office's emergency switch): the generators' corrections only. */
+  enabled: boolean;
+  realtime: Provider | null;
+  /** Our own server for the night's pre-generation; the real-time provider otherwise. */
+  night: Provider | null;
+  /** Mistral, for its moderation model; null without a key. */
+  moderation: Provider | null;
+  dailyCapUsd: number;
+  monthlyCapUsd: number;
+  spentTodayUsd: number;
+  spentMonthUsd: number;
+  banned: readonly string[];
+  prompt: PromptTemplate;
+};
+
+const REALTIME_TIMEOUT_MS = 8000;
+const NIGHT_TIMEOUT_MS = 120_000;
+const MAX_TOKENS = 400;
+
+export type Generated =
+  | { ok: true; template: Explanation; rendered: Explanation; usage: Usage; raw: string }
+  | { ok: false; usage: Usage | null; raw: string | null; problems: readonly CheckProblem[] };
+
+const withinBudget = (settings: GatewaySettings, provider: Provider) =>
+  (provider.price.input === 0 && provider.price.output === 0) ||
+  (settings.spentTodayUsd < settings.dailyCapUsd &&
+    settings.spentMonthUsd < settings.monthlyCapUsd);
+
+/** Asks the model for a template, then checks it on this exercise. */
+export async function generate(
+  input: {
+    exercise: Exercise;
+    response: ExerciseResponse;
+    grade: Grade;
+    universe: Universe | null;
+    key: CacheKey;
+    task: Task;
+    prompt: PromptTemplate;
+  },
+  provider: Provider,
+  settings: Pick<GatewaySettings, 'banned' | 'moderation'>,
+  fetcher: Fetch = fetch,
+): Promise<Generated> {
+  const frame = coachFrame(input.exercise, input.response);
+  const error = input.key.error;
+  const messages = buildPrompt(input.prompt, {
+    frame,
+    grade: input.grade,
+    band: input.key.band,
+    skillTitle: getSkill(input.exercise.skill).title,
+    errorLabel: error ? getErrorType(error).label : null,
+    universe: input.universe,
+  });
+  const usage = (fields: Partial<Usage>): Usage => ({
+    task: input.task,
+    provider: provider.kind,
+    model: provider.model,
+    tokensIn: 0,
+    tokensOut: 0,
+    costUsd: 0,
+    latencyMs: 0,
+    outcome: 'ok',
+    problems: [],
+    key: input.key,
+    promptVersion: input.prompt.version,
+    ...fields,
+  });
+  let result;
+  try {
+    result = await chat(
+      provider,
+      {
+        ...messages,
+        maxTokens: MAX_TOKENS,
+        temperature: 0.7,
+        timeoutMs: input.task === 'night' ? NIGHT_TIMEOUT_MS : REALTIME_TIMEOUT_MS,
+      },
+      fetcher,
+    );
+  } catch (failure) {
+    const latencyMs = failure instanceof ProviderError ? failure.latencyMs : 0;
+    const message = failure instanceof Error ? failure.message : 'error';
+    return {
+      ok: false,
+      usage: usage({ outcome: 'error', latencyMs, problems: [message] }),
+      raw: null,
+      problems: [],
+    };
+  }
+  const spent = {
+    tokensIn: result.tokensIn,
+    tokensOut: result.tokensOut,
+    costUsd: callCost(provider, result.tokensIn, result.tokensOut),
+    latencyMs: result.latencyMs,
+  };
+  const template = parseExplanation(result.text);
+  const checked = checkExplanation(template, frame, settings.banned);
+  let problems: CheckProblem[] = checked.problems;
+  if (problems.length === 0 && checked.rendered && settings.moderation) {
+    try {
+      const flagged = await moderate(
+        settings.moderation,
+        explanationText(checked.rendered),
+        fetcher,
+      );
+      if (flagged.length > 0) problems = ['moderation'];
+    } catch {
+      // Unchecked is not shown.
+      problems = ['moderation'];
+    }
+  }
+  if (!template || !checked.rendered || problems.length > 0) {
+    const outcome: Outcome = template ? 'rejected' : 'unreadable';
+    return { ok: false, usage: usage({ ...spent, outcome, problems }), raw: result.text, problems };
+  }
+  return { ok: true, template, rendered: checked.rendered, usage: usage(spent), raw: result.text };
+}
+
+export type ExplainInput = {
+  exercise: Exercise;
+  response: ExerciseResponse;
+  grade: Grade;
+  /** The child's universes allowed for their grade, with consent; none: everyday life. */
+  universes: readonly Universe[];
+  /** Explanations already shown for this mistake (« Explique autrement »). */
+  exclude: readonly string[];
+};
+
+export type StandardReason = 'correct' | 'off' | 'budget' | 'no-provider' | 'failed' | 'rejected';
+
+export type ExplainResult =
+  | { source: 'cache' | 'ai'; id: string; explanation: Explanation; universe: string | null }
+  | { source: 'standard'; reason: StandardReason };
+
+/** The universe of this explanation: one of the child's, another at each « Explique autrement ». */
+export function pickUniverse(
+  universes: readonly Universe[],
+  seed: number,
+  shown: number,
+): Universe | null {
+  if (universes.length === 0) return null;
+  return universes[(seed + shown) % universes.length] ?? null;
+}
+
+export async function explain(
+  input: ExplainInput,
+  settings: GatewaySettings,
+  store: GatewayStore,
+  fetcher: Fetch = fetch,
+): Promise<ExplainResult> {
+  const { exercise, response } = input;
+  if (gradeResponse(exercise, response).correct) return { source: 'standard', reason: 'correct' };
+  const universe = pickUniverse(input.universes, exercise.seed, input.exclude.length);
+  const key: CacheKey = {
+    skill: exercise.skill,
+    error: diagnoseResponse(exercise, response),
+    universe: universe?.id ?? null,
+    band: gradeBand(input.grade),
+  };
+  const frame = coachFrame(exercise, response);
+
+  // A validated explanation of the same skill, mistake, universe and age group: shown at once.
+  for (const cached of await store.cached(key, input.exclude)) {
+    const explanation = showableExplanation(cached.template, frame);
+    if (explanation) return { source: 'cache', id: cached.id, explanation, universe: key.universe };
+  }
+
+  if (!settings.enabled) return { source: 'standard', reason: 'off' };
+  const provider = settings.realtime;
+  if (!provider) return { source: 'standard', reason: 'no-provider' };
+  if (!withinBudget(settings, provider)) return { source: 'standard', reason: 'budget' };
+
+  const generated = await generate(
+    {
+      exercise,
+      response,
+      grade: input.grade,
+      universe,
+      key,
+      task: 'realtime',
+      prompt: settings.prompt,
+    },
+    provider,
+    settings,
+    fetcher,
+  );
+  if (generated.usage) await store.logUsage(generated.usage);
+  if (!generated.ok) {
+    return {
+      source: 'standard',
+      reason: generated.usage?.outcome === 'error' ? 'failed' : 'rejected',
+    };
+  }
+  const id = await store.save({
+    key,
+    template: generated.template,
+    model: provider.model,
+    promptVersion: settings.prompt.version,
+  });
+  return { source: 'ai', id, explanation: generated.rendered, universe: key.universe };
+}
+
+export type NightJob = { key: CacheKey; universe: Universe | null; grade: Grade };
+
+/**
+ * The night's pre-generation (docs/specs.md): explanations written ahead for the combinations
+ * still missing, on our own server when there is one. Returns how many were kept.
+ */
+export async function pregenerate(
+  jobs: readonly NightJob[],
+  settings: GatewaySettings,
+  store: GatewayStore,
+  fetcher: Fetch = fetch,
+): Promise<{ kept: number; rejected: number; failed: number; skipped: number }> {
+  const counts = { kept: 0, rejected: 0, failed: 0, skipped: 0 };
+  const provider = settings.night ?? settings.realtime;
+  if (!settings.enabled || !provider) return { ...counts, skipped: jobs.length };
+  let spent = 0;
+  for (const job of jobs) {
+    if (!withinBudget({ ...settings, spentTodayUsd: settings.spentTodayUsd + spent }, provider)) {
+      counts.skipped += 1;
+      continue;
+    }
+    const sample = coachSample(job.key.skill, job.key.error);
+    if (!sample) {
+      counts.skipped += 1;
+      continue;
+    }
+    const generated = await generate(
+      {
+        ...sample,
+        grade: job.grade,
+        universe: job.universe,
+        key: job.key,
+        task: 'night',
+        prompt: settings.prompt,
+      },
+      provider,
+      settings,
+      fetcher,
+    );
+    if (generated.usage) {
+      spent += generated.usage.costUsd;
+      await store.logUsage(generated.usage);
+    }
+    if (generated.ok) {
+      await store.save({
+        key: job.key,
+        template: generated.template,
+        model: provider.model,
+        promptVersion: settings.prompt.version,
+      });
+      counts.kept += 1;
+    } else if (generated.usage?.outcome === 'error') {
+      counts.failed += 1;
+    } else {
+      counts.rejected += 1;
+    }
+  }
+  return counts;
+}
