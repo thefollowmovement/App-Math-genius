@@ -4,6 +4,7 @@ import { LoadingScreen } from '@/components/loading-screen';
 import { useChild, type Child } from '@/data/children';
 import { placementOffer } from '@/data/placement-model';
 import { markIntroSeen, usePracticeStore } from '@/data/practice/practice-store';
+import { usePracticeSync } from '@/data/practice/sync';
 import { localDate } from '@/utils/local-date';
 import { useHeroIntro } from '@/hooks/use-hero-intro';
 import { HeroIntro } from '@/screens/hero-intro';
@@ -21,6 +22,8 @@ function Intro({ child }: { child: Child }) {
   const router = useRouter();
   const intro = useHeroIntro(child);
   const practice = usePracticeStore((state) => state.children[child.id]);
+  // While the hero presents the app: a test taken on another device is known before the end.
+  usePracticeSync(child.id);
   const home = { pathname: '/child/home', params: { id: child.id } } as const;
   const done = () => {
     markIntroSeen(child.id);

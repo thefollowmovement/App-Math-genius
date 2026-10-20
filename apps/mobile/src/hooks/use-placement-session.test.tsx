@@ -1,7 +1,12 @@
 import { SKIPPED_ANSWER, type ExerciseResponse } from '@math-genius/exercise-engine';
 import { act, renderHook } from '@testing-library/react-native';
 
-import { childPractice, openSession, usePracticeStore } from '@/data/practice/practice-store';
+import {
+  childPractice,
+  openSession,
+  recordAnswer,
+  usePracticeStore,
+} from '@/data/practice/practice-store';
 import { rightResponse } from '@/test-utils/responses';
 
 import { usePlacementSession } from './use-placement-session';
@@ -57,6 +62,32 @@ describe('usePlacementSession', () => {
     await act(async () => result.current.submit(unreadable(first.type)));
     expect(result.current.notice).not.toBeNull();
     expect(childPractice(CHILD).active?.attempts).toHaveLength(0);
+  });
+
+  it('ends a test whose last answer was saved but not closed (the app was closed)', async () => {
+    // Plays the whole test, then reopens the last answer's state without the closing.
+    const first = await renderTest();
+    for (let i = 0; i < 30 && !first.result.current.finished; i++) {
+      await act(async () => first.result.current.skip());
+    }
+    const [test] = childPractice(CHILD).outbox;
+    if (!test) throw new Error('no test');
+    await first.unmount();
+    usePracticeStore.setState({ children: {}, itemRatings: {} });
+    openSession({
+      childId: CHILD,
+      grade: 'CM1',
+      now: new Date(),
+      id: 'test-2',
+      seed: 5,
+      placement: true,
+    });
+    for (const attempt of test.attempts) recordAnswer(CHILD, 'test-2', attempt);
+
+    const { onFinished } = await renderTest();
+    expect(onFinished).toHaveBeenCalledTimes(1);
+    expect(childPractice(CHILD).active).toBeNull();
+    expect(childPractice(CHILD).placedAt).toBe(test.attempts.at(-1)?.answeredAt);
   });
 
   it('counts « Je ne sais pas » as a wrong answer, and ends once the child is placed', async () => {

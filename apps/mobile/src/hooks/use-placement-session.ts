@@ -46,6 +46,20 @@ export function usePlacementSession(childId: string, onFinished: () => void) {
     if (exerciseKey) shownAt.current = Date.now();
   }, [exerciseKey]);
 
+  // Every question answered but the test still open (the app closed right after the last
+  // answer): it ends now, as it would have.
+  const onFinishedRef = useRef(onFinished);
+  useEffect(() => {
+    onFinishedRef.current = onFinished;
+  });
+  const unclosed = session !== null && session.attempts.length > 0 && planned === null;
+  useEffect(() => {
+    if (!unclosed || !session) return;
+    completeSession(childId, session.id, session.attempts.at(-1)?.answeredAt ?? session.startedAt);
+    void syncNow();
+    onFinishedRef.current();
+  }, [unclosed, session, childId]);
+
   const record = (response: ExerciseResponse | SkippedAnswer, correct: boolean) => {
     if (!session || !context || !planned) return;
     const now = new Date();
