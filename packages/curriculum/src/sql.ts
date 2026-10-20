@@ -1,12 +1,32 @@
-import { skills } from '.';
+import { ERROR_TYPES, skills } from '.';
 
 const text = (value: string) => `'${value.replace(/'/g, "''")}'`;
 
 /**
- * SQL that loads the referential into the `skills` table (generated migrations *_skills.sql).
- * An upsert: codes are stable, so a new version only adds skills or updates their fields.
+ * SQL that loads the referential into the `skills` and `error_types` tables (generated migrations
+ * *_skills.sql). Upserts: codes are stable, so a new version only adds rows or updates their fields.
  */
 export function skillsSql(): string {
+  return [skillRowsSql(), errorTypesSql()].join('\n');
+}
+
+function errorTypesSql(): string {
+  const rows = ERROR_TYPES.map((type) => {
+    const skillCodes = `array[${type.skills.map(text).join(', ')}]::text[]`;
+    return `  (${[text(type.code), text(type.label), skillCodes].join(', ')})`;
+  });
+  return [
+    'insert into public.error_types (code, label, skills)',
+    'values',
+    rows.join(',\n'),
+    'on conflict (code) do update',
+    '  set label = excluded.label,',
+    '      skills = excluded.skills;',
+    '',
+  ].join('\n');
+}
+
+function skillRowsSql(): string {
   const rows = skills.map((skill) => {
     const prerequisites = `array[${skill.prerequisites.map(text).join(', ')}]::text[]`;
     const automatism = 'automatism' in skill && skill.automatism ? 'true' : 'false';

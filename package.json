@@ -20,6 +20,7 @@
     "supabase:reset": "supabase db reset",
     "supabase:status": "supabase status",
     "supabase:test": "supabase test db",
+    "supabase:cron-secrets": "node supabase/scripts/cron-secrets.mjs",
     "supabase:types": "supabase gen types --lang typescript --local --schema public > packages/shared/src/database.types.ts && prettier --write packages/shared/src/database.types.ts",
     "curriculum:sql": "pnpm --filter @math-genius/curriculum sql",
     "functions:bundle": "pnpm --filter @math-genius/exercise-engine bundle:server",

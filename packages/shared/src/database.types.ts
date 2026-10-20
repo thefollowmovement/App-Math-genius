@@ -10,6 +10,7 @@ export type Database = {
           child_id: string;
           created_at: string;
           difficulty: number;
+          error_type: string | null;
           generator_id: string;
           hint_used: boolean;
           id: string;
@@ -33,6 +34,7 @@ export type Database = {
           child_id: string;
           created_at?: string;
           difficulty: number;
+          error_type?: string | null;
           generator_id: string;
           hint_used?: boolean;
           id?: string;
@@ -55,6 +57,7 @@ export type Database = {
           child_id?: string;
           created_at?: string;
           difficulty?: number;
+          error_type?: string | null;
           generator_id?: string;
           hint_used?: boolean;
           id?: string;
@@ -78,6 +81,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'children';
             referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'attempts_error_type_fkey';
+            columns: ['error_type'];
+            isOneToOne: false;
+            referencedRelation: 'error_types';
+            referencedColumns: ['code'];
           },
           {
             foreignKeyName: 'attempts_session_id_fkey';
@@ -360,6 +370,59 @@ export type Database = {
           },
         ];
       };
+      child_interests: {
+        Row: {
+          answered_at: string;
+          child_id: string;
+          created_at: string;
+          question_id: string;
+          source: Database['public']['Enums']['interest_source'];
+          universe_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answered_at?: string;
+          child_id: string;
+          created_at?: string;
+          question_id: string;
+          source: Database['public']['Enums']['interest_source'];
+          universe_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          answered_at?: string;
+          child_id?: string;
+          created_at?: string;
+          question_id?: string;
+          source?: Database['public']['Enums']['interest_source'];
+          universe_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'child_interests_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_interests_question_id_fkey';
+            columns: ['question_id'];
+            isOneToOne: false;
+            referencedRelation: 'interest_questions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'child_interests_universe_id_fkey';
+            columns: ['universe_id'];
+            isOneToOne: false;
+            referencedRelation: 'universes';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       child_items: {
         Row: {
           bought_at: string;
@@ -477,7 +540,10 @@ export type Database = {
           gender: Database['public']['Enums']['child_gender'];
           grade: Database['public']['Enums']['grade'];
           id: string;
+          personalization_consent_at: string | null;
+          personalization_consent_version: string | null;
           theme_id: string;
+          universe_asked_at: string | null;
           updated_at: string;
         };
         ComputedFields: never;
@@ -490,7 +556,10 @@ export type Database = {
           gender: Database['public']['Enums']['child_gender'];
           grade: Database['public']['Enums']['grade'];
           id?: string;
+          personalization_consent_at?: string | null;
+          personalization_consent_version?: string | null;
           theme_id?: string;
+          universe_asked_at?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -502,7 +571,10 @@ export type Database = {
           gender?: Database['public']['Enums']['child_gender'];
           grade?: Database['public']['Enums']['grade'];
           id?: string;
+          personalization_consent_at?: string | null;
+          personalization_consent_version?: string | null;
           theme_id?: string;
+          universe_asked_at?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -597,6 +669,31 @@ export type Database = {
           },
         ];
       };
+      error_types: {
+        Row: {
+          code: string;
+          created_at: string;
+          label: string;
+          skills: string[];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          code: string;
+          created_at?: string;
+          label: string;
+          skills?: string[];
+          updated_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          label?: string;
+          skills?: string[];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       families: {
         Row: {
           created_at: string;
@@ -666,6 +763,132 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      interest_options: {
+        Row: {
+          created_at: string;
+          icon: string;
+          position: number;
+          question_id: string;
+          universe_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          icon: string;
+          position: number;
+          question_id: string;
+          universe_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          icon?: string;
+          position?: number;
+          question_id?: string;
+          universe_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'interest_options_question_id_fkey';
+            columns: ['question_id'];
+            isOneToOne: false;
+            referencedRelation: 'interest_questions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'interest_options_universe_id_fkey';
+            columns: ['universe_id'];
+            isOneToOne: false;
+            referencedRelation: 'universes';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      interest_other_answers: {
+        Row: {
+          answer: string;
+          child_id: string;
+          created_at: string;
+          id: string;
+          question_id: string;
+          status: Database['public']['Enums']['moderation_status'];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          answer: string;
+          child_id: string;
+          created_at?: string;
+          id?: string;
+          question_id: string;
+          status?: Database['public']['Enums']['moderation_status'];
+          updated_at?: string;
+        };
+        Update: {
+          answer?: string;
+          child_id?: string;
+          created_at?: string;
+          id?: string;
+          question_id?: string;
+          status?: Database['public']['Enums']['moderation_status'];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'interest_other_answers_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'interest_other_answers_question_id_fkey';
+            columns: ['question_id'];
+            isOneToOne: false;
+            referencedRelation: 'interest_questions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      interest_questions: {
+        Row: {
+          active: boolean;
+          category: Database['public']['Enums']['universe_category'];
+          created_at: string;
+          grades: Database['public']['Enums']['grade'][];
+          id: string;
+          other_grades: Database['public']['Enums']['grade'][];
+          position: number;
+          title: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          active?: boolean;
+          category: Database['public']['Enums']['universe_category'];
+          created_at?: string;
+          grades: Database['public']['Enums']['grade'][];
+          id: string;
+          other_grades?: Database['public']['Enums']['grade'][];
+          position: number;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          category?: Database['public']['Enums']['universe_category'];
+          created_at?: string;
+          grades?: Database['public']['Enums']['grade'][];
+          id?: string;
+          other_grades?: Database['public']['Enums']['grade'][];
+          position?: number;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       island_completions: {
         Row: {
@@ -746,6 +969,42 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      learner_profiles: {
+        Row: {
+          child_id: string;
+          computed_at: string;
+          created_at: string;
+          profile: NonNullable<Json>;
+          summary: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          computed_at: string;
+          created_at?: string;
+          profile: NonNullable<Json>;
+          summary: string;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          computed_at?: string;
+          created_at?: string;
+          profile?: NonNullable<Json>;
+          summary?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'learner_profiles_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: true;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       notifications: {
         Row: {
@@ -1271,6 +1530,46 @@ export type Database = {
         };
         Relationships: [];
       };
+      universes: {
+        Row: {
+          category: Database['public']['Enums']['universe_category'];
+          created_at: string;
+          grades: Database['public']['Enums']['grade'][];
+          id: string;
+          name: string;
+          pegi: number | null;
+          review_at: string;
+          status: Database['public']['Enums']['universe_status'];
+          updated_at: string;
+          vocabulary: NonNullable<Json>;
+        };
+        ComputedFields: never;
+        Insert: {
+          category: Database['public']['Enums']['universe_category'];
+          created_at?: string;
+          grades: Database['public']['Enums']['grade'][];
+          id: string;
+          name: string;
+          pegi?: number | null;
+          review_at: string;
+          status?: Database['public']['Enums']['universe_status'];
+          updated_at?: string;
+          vocabulary?: NonNullable<Json>;
+        };
+        Update: {
+          category?: Database['public']['Enums']['universe_category'];
+          created_at?: string;
+          grades?: Database['public']['Enums']['grade'][];
+          id?: string;
+          name?: string;
+          pegi?: number | null;
+          review_at?: string;
+          status?: Database['public']['Enums']['universe_status'];
+          updated_at?: string;
+          vocabulary?: NonNullable<Json>;
+        };
+        Relationships: [];
+      };
       vacations: {
         Row: {
           child_id: string;
@@ -1353,6 +1652,9 @@ export type Database = {
       };
       give_parent_reward: { Args: { p_reward_id: string }; Returns: undefined };
       open_chest: { Args: { p_chest_id: string }; Returns: Json };
+      profile_input: { Args: { p_child_id: string; p_now?: string }; Returns: Json };
+      profiles_due: { Args: { p_limit?: number; p_now?: string }; Returns: string[] };
+      record_answer_errors: { Args: { p_session_id: string; p_verdicts: Json }; Returns: number };
       redeem_pairing_code: {
         Args: { p_code: string; p_platform: Database['public']['Enums']['device_platform'] };
         Returns: {
@@ -1369,11 +1671,21 @@ export type Database = {
         Returns: boolean;
       };
       revoke_device: { Args: { p_device_id: string }; Returns: undefined };
+      save_learner_profile: {
+        Args: { p_child_id: string; p_computed_at?: string; p_profile: Json; p_summary: string };
+        Returns: boolean;
+      };
       send_child_message: { Args: { p_child_id: string; p_message: string }; Returns: number };
+      set_child_interests: { Args: { p_answers: Json; p_child_id: string }; Returns: number };
       set_child_look: {
         Args: { p_avatar: Json; p_child_id: string; p_theme_id: string };
         Returns: undefined;
       };
+      set_personalization: {
+        Args: { p_child_id: string; p_enabled: boolean; p_version?: string };
+        Returns: string;
+      };
+      skip_universe: { Args: { p_child_id: string }; Returns: undefined };
       sync_session: {
         Args: { p_session: Json };
         Returns: {
@@ -1416,7 +1728,9 @@ export type Database = {
       device_platform: 'ios' | 'android' | 'web';
       gem_reason: 'session' | 'chest' | 'freeze' | 'shop' | 'challenge' | 'refund';
       grade: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
+      interest_source: 'questionnaire' | 'parent';
       mastery_status: 'to_discover' | 'in_progress' | 'mastered' | 'to_review';
+      moderation_status: 'pending' | 'approved' | 'rejected';
       notification_audience: 'child' | 'parent';
       notification_kind:
         | 'routine_soon'
@@ -1434,6 +1748,8 @@ export type Database = {
       session_slot: 'current' | 'review' | 'automatism' | 'challenge';
       shop_item_kind: 'companion' | 'outfit' | 'accessory' | 'effect';
       skill_domain: 'numbers' | 'measures' | 'geometry' | 'data';
+      universe_category: 'game' | 'creator' | 'sport' | 'show' | 'music' | 'job';
+      universe_status: 'active' | 'testing' | 'retired';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1551,7 +1867,9 @@ export const Constants = {
       device_platform: ['ios', 'android', 'web'],
       gem_reason: ['session', 'chest', 'freeze', 'shop', 'challenge', 'refund'],
       grade: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
+      interest_source: ['questionnaire', 'parent'],
       mastery_status: ['to_discover', 'in_progress', 'mastered', 'to_review'],
+      moderation_status: ['pending', 'approved', 'rejected'],
       notification_audience: ['child', 'parent'],
       notification_kind: [
         'routine_soon',
@@ -1570,6 +1888,8 @@ export const Constants = {
       session_slot: ['current', 'review', 'automatism', 'challenge'],
       shop_item_kind: ['companion', 'outfit', 'accessory', 'effect'],
       skill_domain: ['numbers', 'measures', 'geometry', 'data'],
+      universe_category: ['game', 'creator', 'sport', 'show', 'music', 'job'],
+      universe_status: ['active', 'testing', 'retired'],
     },
   },
 } as const;
