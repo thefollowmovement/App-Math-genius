@@ -84,9 +84,11 @@ describe('PlacementResult', () => {
     expect(screen.getByRole('header', { name: t.result.title })).toBeOnTheScreen();
     for (const island of islands) {
       const name = strings.map.islands[island.domain].name;
-      const status =
-        island.playable === 0 ? t.result.soon : strings.map.progress(0, island.playable);
-      expect(screen.getByLabelText(`${name} : ${status}`)).toBeOnTheScreen();
+      const open = island.skills.filter(
+        (node) => node.status !== 'locked' && node.status !== 'coming_soon',
+      ).length;
+      const status = island.playable === 0 ? t.result.soon : t.result.opened(open, island.playable);
+      expect(screen.getByLabelText(`${name}\u00a0: ${status}`)).toBeOnTheScreen();
     }
     expect(screen.getByText(t.result.mission)).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: t.result.play }));

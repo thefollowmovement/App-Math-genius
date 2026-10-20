@@ -95,6 +95,8 @@ export const fr = {
       in_progress: 'En cours',
       validated: 'Validée',
       not_validated: 'Terminée, non validée',
+      // A placement test: no goal to meet.
+      finished: 'Terminé',
     },
     startedAt: (time: string) => `Commencée à ${time}`,
     score: (score: number, answered: number) =>
@@ -444,6 +446,8 @@ export const fr = {
       hero: 'Aventure terminée, bravo\u00a0! Voici ta carte\u00a0: ta première mission t’attend.',
       islands: 'Tes îles',
       soon: 'Bientôt',
+      opened: (open: number, playable: number) =>
+        `${open} étape${open > 1 ? 's' : ''} ouverte${open > 1 ? 's' : ''} sur ${playable}`,
       mission: 'Ta première mission',
       allDone:
         'Tu as déjà tout franchi sur la carte de ta classe\u00a0: entraîne-toi pour garder ton niveau\u00a0!',

@@ -1,7 +1,7 @@
 import { Pressable, ThemedText, View } from '@math-genius/ui';
 
 import type { SessionRow } from '@/data/family-sessions';
-import { minutesOf, sessionState } from '@/data/session-report';
+import { minutesOf, sessionState, showsFastAnswers } from '@/data/session-report';
 import { strings } from '@/i18n';
 
 import { SessionStateChip } from './session-state-chip';
@@ -40,7 +40,7 @@ export function TodaySessions({ sessions, onOpenSession }: TodaySessionsProps) {
           <ThemedText>
             {t.summary(t.score(session.score, session.answered), t.duration(minutesOf(session)))}
           </ThemedText>
-          {session.flagged ? (
+          {showsFastAnswers(session) ? (
             <ThemedText variant="caption" tone="danger">
               {t.flagged}
             </ThemedText>

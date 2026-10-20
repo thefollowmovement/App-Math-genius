@@ -91,13 +91,21 @@ export function PlacementResult({
   );
 }
 
+/** Steps of the island the child can play now: open, not locked, with exercises. */
+const opened = (island: IslandView) =>
+  island.skills.filter((node) => node.status !== 'locked' && node.status !== 'coming_soon').length;
+
+/** An island: open steps first (the test opens the map), then what is already mastered. */
 function IslandRow({ island }: { island: IslandView }) {
   const name = map.islands[island.domain];
   const soon = island.playable === 0;
+  const open = t.opened(opened(island), island.playable);
+  const mastered = island.mastered > 0 ? map.progress(island.mastered, island.playable) : null;
+  const status = soon ? t.soon : [open, mastered].filter(Boolean).join(', ');
   return (
     <View
       accessible
-      accessibilityLabel={`${name.name} : ${soon ? t.soon : map.progress(island.mastered, island.playable)}`}
+      accessibilityLabel={`${name.name}\u00a0: ${status}`}
       className="flex-row items-center gap-3 rounded-lg border-2 border-border bg-surface p-3"
     >
       <View className="size-12 items-center justify-center rounded-full bg-background">
@@ -105,21 +113,19 @@ function IslandRow({ island }: { island: IslandView }) {
       </View>
       <View className="flex-1 gap-1">
         <ThemedText variant="headline">{name.name}</ThemedText>
-        {soon ? (
-          <ThemedText variant="caption">{t.soon}</ThemedText>
-        ) : (
+        <ThemedText variant="caption">{soon ? t.soon : open}</ThemedText>
+        {mastered ? (
           <>
             <ProgressBar
               value={island.mastered / island.playable}
               size="sm"
+              fill="accent"
               label={name.name}
-              valueText={map.progress(island.mastered, island.playable)}
+              valueText={mastered}
             />
-            <ThemedText variant="caption">
-              {map.progress(island.mastered, island.playable)}
-            </ThemedText>
+            <ThemedText variant="caption">{mastered}</ThemedText>
           </>
-        )}
+        ) : null}
       </View>
     </View>
   );

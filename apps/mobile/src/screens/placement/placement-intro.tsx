@@ -44,7 +44,7 @@ export function PlacementIntro({ childName, recheck, onStart, onLater }: Placeme
         </ThemedText>
       </View>
       <View className="items-center">
-        <HeroView look={heroLook(avatar)} pose="think" size="lg" />
+        <HeroView look={heroLook(avatar)} pose="think" size="md" />
       </View>
       <View className="gap-3 rounded-lg border-2 border-border bg-surface p-5">
         {t.points.map((point) => (

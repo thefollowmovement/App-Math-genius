@@ -7,6 +7,7 @@ const styles: Record<SessionState, { box: string; tone: ThemedTextTone }> = {
   in_progress: { box: 'bg-secondary', tone: 'onSecondary' },
   validated: { box: 'bg-success', tone: 'onSuccess' },
   not_validated: { box: 'border border-border bg-surface', tone: 'default' },
+  finished: { box: 'border border-border bg-surface', tone: 'default' },
 };
 
 export function SessionStateChip({ state }: { state: SessionState }) {

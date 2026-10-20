@@ -3,7 +3,7 @@
 -- Run with `pnpm supabase:test`.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(10);
 
 -- Alice's family (Léa, CM1) and Léa's device.
 insert into auth.users (id, aud, role, email, raw_user_meta_data, is_anonymous)
@@ -90,6 +90,17 @@ select is(
   '{"type": "skipped"}'::jsonb,
   'A « Je ne sais pas » is stored as such, as a wrong answer'
 );
+
+-- The test is not the day's session: the parent still hears that it has not started (H + 60).
+reset role;
+insert into public.routines (child_id, days, start_time, deadline_time, goal_type, goal_value)
+values ('00000000-0000-4000-8000-0000000000c1', '{1,2,3,4,5}', '17:00', '20:30', 'duration', 15);
+select is(
+  private.enqueue_reminders('2026-10-20 18:00+02'),
+  1,
+  'A finished placement test does not stop the reminders of the day''s session'
+);
+set local role authenticated;
 
 -- Léa moves up to CM2: the test keeps the grade it was taken in.
 reset role;

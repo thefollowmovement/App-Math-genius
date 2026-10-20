@@ -15,12 +15,21 @@ import type { AttemptRow, SessionRow } from './family-sessions';
 export type DayStatus = 'not_started' | 'in_progress' | 'done' | 'missed' | 'off' | 'vacation';
 
 /** A session as the parent reads it. */
-export type SessionState = 'in_progress' | 'validated' | 'not_validated';
+export type SessionState = 'in_progress' | 'validated' | 'not_validated' | 'finished';
 
 export const sessionState = (session: SessionRow): SessionState => {
   if (session.completed_at === null) return 'in_progress';
+  // A placement test has no goal to meet.
+  if (session.kind === 'placement') return 'finished';
   return session.goal_met ? 'validated' : 'not_validated';
 };
+
+/**
+ * Whether to warn the parent of answers too fast to be read. Not for a placement test: there, a
+ * quick « Je ne sais pas » is the honest answer the test asks for.
+ */
+export const showsFastAnswers = (session: Pick<SessionRow, 'flagged' | 'kind'>) =>
+  session.flagged && session.kind !== 'placement';
 
 export const minutesOf = (session: Pick<SessionRow, 'duration_s'>) =>
   Math.round(session.duration_s / 60);
@@ -47,6 +56,8 @@ export function childDay(
 ): ChildDay {
   const daily = sessions.filter((session) => session.kind === 'daily');
   const main = (daily.length > 0 ? daily : sessions).at(-1) ?? null;
+  // A placement test is not the day's session (the server's reminders agree).
+  const counted = sessions.filter((session) => session.kind !== 'placement');
   const planned = plan.kind === 'planned' ? plan : null;
   const day = (status: DayStatus): ChildDay => ({
     status,
@@ -54,9 +65,9 @@ export function childDay(
     startsAt: status === 'not_started' && planned && minute < planned.start ? planned.start : null,
   });
 
-  if (sessions.some((session) => session.completed_at !== null)) return day('done');
+  if (counted.some((session) => session.completed_at !== null)) return day('done');
   if (planned && minute >= planned.deadline) return day('missed');
-  if (sessions.length > 0) return day('in_progress');
+  if (counted.length > 0) return day('in_progress');
   if (plan.kind === 'off' || plan.kind === 'vacation') return day(plan.kind);
   return day('not_started');
 }
