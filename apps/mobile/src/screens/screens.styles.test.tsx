@@ -127,6 +127,19 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
           sessionRow({ id: 'bonus', kind: 'bonus', completed_at: null, flagged: true }),
         ]}
         onOpenSession={jest.fn()}
+        placement={{
+          inProgress: false,
+          last: {
+            takenAt: '2026-10-20T17:12:00Z',
+            grade: 'CE2',
+            strands: [
+              { strand: 'numeration', level: 'ahead', placedRank: 3, answered: 4 },
+              { strand: 'fractions', level: 'to_consolidate', placedRank: 0, answered: 5 },
+              { strand: 'geometrie', level: null, placedRank: null, answered: 0 },
+            ],
+            priorities: ['ce2.fractions-unitaires', 'ce2.tables-multiplication'],
+          },
+        }}
         routine={{ ...DEFAULT_ROUTINE, weekendStartTime: '10:30' }}
         vacations={[vacation]}
         onEditRoutine={jest.fn()}

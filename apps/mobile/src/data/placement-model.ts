@@ -10,6 +10,10 @@ import type { ChildPractice } from './practice/practice-store';
  */
 export type PlacementOffer = 'first' | 'recheck' | 'resume' | null;
 
+/** Whether the grade has exercises to place a child with (not CP and CE1 for now). */
+export const placementAvailable = (grade: Grade) =>
+  STRANDS.some((strand) => placementRungs(strand, grade).length > 0);
+
 export function placementOffer(
   practice: ChildPractice | undefined,
   grade: Grade,
@@ -20,8 +24,7 @@ export function placementOffer(
   if (active?.kind === 'placement' && active.localDate === today) return 'resume';
   // Not while another of today's sessions is under way: the test would wait behind it.
   if (active && active.localDate === today && active.attempts.length > 0) return null;
-  // No exercise to place the child with (CP and CE1 for now).
-  if (!STRANDS.some((strand) => placementRungs(strand, grade).length > 0)) return null;
+  if (!placementAvailable(grade)) return null;
   const placedAt = practice?.placedAt ?? null;
   if (!placementDue(placedAt, now)) return null;
   return placedAt ? 'recheck' : 'first';
