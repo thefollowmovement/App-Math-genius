@@ -23,7 +23,9 @@ alter table public.children
   add column personalization_consent_version text
     check (personalization_consent_version is null or char_length(personalization_consent_version) <= 20),
   -- Last time the child answered or skipped « Ton univers ».
-  add column universe_asked_at timestamptz;
+  add column universe_asked_at timestamptz,
+  -- Last change of the answers, by the child or the parent: the profile's summary follows.
+  add column interests_updated_at timestamptz;
 
 -- Catalogue --------------------------------------------------------------------------------------
 
@@ -168,6 +170,7 @@ begin
   delete from public.interest_other_answers where child_id = new.id;
   delete from public.learner_profiles where child_id = new.id;
   new.universe_asked_at := null;
+  new.interests_updated_at := null;
   new.personalization_consent_version := null;
   return new;
 end;
@@ -293,9 +296,10 @@ begin
     end if;
   end loop;
 
-  if not by_parent then
-    update public.children c set universe_asked_at = now() where c.id = child.id;
-  end if;
+  update public.children c
+  set interests_updated_at = now(),
+      universe_asked_at = case when by_parent then c.universe_asked_at else now() end
+  where c.id = child.id;
   return kept;
 end;
 $$;
@@ -405,7 +409,8 @@ begin
 end;
 $$;
 
--- Children whose profile is due: consent given, and no profile computed in the last 20 hours.
+-- Children whose profile is due: consent given, and no profile computed in the last 20 hours, or
+-- the answers to « Ton univers » changed since (the summary names the universes).
 create function public.profiles_due(p_limit integer default 100, p_now timestamptz default now())
 returns setof uuid
 language sql stable security definer
@@ -415,7 +420,8 @@ as $$
   from public.children c
   left join public.learner_profiles p on p.child_id = c.id
   where c.personalization_consent_at is not null
-    and (p.computed_at is null or p.computed_at < p_now - interval '20 hours')
+    and (p.computed_at is null or p.computed_at < p_now - interval '20 hours'
+      or c.interests_updated_at > p.computed_at)
   order by p.computed_at nulls first, c.id
   limit greatest(1, least(p_limit, 500));
 $$;

@@ -2,7 +2,7 @@
 -- the questionnaire « Ton univers » and the learning profile. Run with `pnpm supabase:test`.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(34);
+select plan(35);
 
 -- Alice's family (Léa, CM1; Noé, 6e) with Léa's device; Bob's family (Hugo, CE2).
 insert into auth.users (id, aud, role, email, raw_user_meta_data, is_anonymous)
@@ -234,16 +234,24 @@ select is(
 select ok(
   public.save_learner_profile('00000000-0000-4000-8000-0000000000c1',
     '{"strengths": [], "weaknesses": [{"kind": "error", "error": "forgot-carry"}]}',
-    'Élève de CM1.', '2026-10-20 03:00+00')
-  and not public.save_learner_profile('00000000-0000-4000-8000-0000000000c3', '{}', '', '2026-10-20 03:00+00'),
+    'Élève de CM1.', now())
+  and not public.save_learner_profile('00000000-0000-4000-8000-0000000000c3', '{}', '', now()),
   'The server stores a profile, never without consent'
 );
 select is(
-  (select array_agg(id) from public.profiles_due(10, '2026-10-20 04:00+00') id),
+  (select array_agg(id) from public.profiles_due(10, now() + interval '1 hour') id),
   array['00000000-0000-4000-8000-0000000000c2']::uuid[],
   'A profile just computed is not due again'
 );
+-- The local database may hold them (pnpm supabase:cron-secrets): the test rolls this back.
+delete from vault.secrets where name in ('project_url', 'service_role_key');
 select is(private.request_profile_refresh(), null, 'Without the Vault secrets, the night job does nothing');
+update public.children set interests_updated_at = now() + interval '1 minute'
+where id = '00000000-0000-4000-8000-0000000000c1';
+select ok(
+  '00000000-0000-4000-8000-0000000000c1' in (select public.profiles_due(10, now())),
+  'New answers to « Ton univers » make the profile due again, for its summary'
+);
 
 set local role authenticated;
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000d1', true);

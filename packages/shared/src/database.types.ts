@@ -540,6 +540,7 @@ export type Database = {
           gender: Database['public']['Enums']['child_gender'];
           grade: Database['public']['Enums']['grade'];
           id: string;
+          interests_updated_at: string | null;
           personalization_consent_at: string | null;
           personalization_consent_version: string | null;
           theme_id: string;
@@ -556,6 +557,7 @@ export type Database = {
           gender: Database['public']['Enums']['child_gender'];
           grade: Database['public']['Enums']['grade'];
           id?: string;
+          interests_updated_at?: string | null;
           personalization_consent_at?: string | null;
           personalization_consent_version?: string | null;
           theme_id?: string;
@@ -571,6 +573,7 @@ export type Database = {
           gender?: Database['public']['Enums']['child_gender'];
           grade?: Database['public']['Enums']['grade'];
           id?: string;
+          interests_updated_at?: string | null;
           personalization_consent_at?: string | null;
           personalization_consent_version?: string | null;
           theme_id?: string;
