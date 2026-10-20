@@ -1,11 +1,12 @@
 import type { BadgeCode } from './badges';
 import { COMPANIONS, type CompanionId } from './companions';
+import { OUTFITS, type OutfitId } from './outfits';
 import type { ShopItemCode } from './shop';
 
 /**
  * Cosmetics: what the child's hero wears or has around it. Data only: one item is an id, a slot,
  * an unlock condition and a visual reference. The last migration that replaces
- * private.cosmetics() (*_companions.sql) holds the same ids, slots and conditions
+ * private.cosmetics() (*_outfits.sql) holds the same ids, slots and conditions
  * (cosmetics.test.ts compares them) and checks them when the child wears one. Ids are stored:
  * never rename one.
  */
@@ -18,6 +19,7 @@ export const COSMETIC_SLOTS = [
   'aura',
   'frame',
   'companion',
+  'outfit',
 ] as const;
 export type CosmeticSlot = (typeof COSMETIC_SLOTS)[number];
 
@@ -32,6 +34,8 @@ export type CosmeticUnlock =
  *   sticker, a companion beside). `art` names a drawing of apps/mobile/src/components/hero.
  * - image: a picture of its own, beside the hero (the companions). `art` names it in
  *   apps/mobile/src/components/companion.
+ * - outfit: the hero drawn in another outfit, every pose a picture of its own (`art` names it in
+ *   apps/mobile/src/components/hero/hero-outfits.ts).
  * - layer: a layer of the hero's own animation (Rive), switched on by name; it changes the hero
  *   drawing. Heroes drawn as still images cannot show these yet: the slots head, top, bottom and
  *   shoes wait for them.
@@ -39,6 +43,7 @@ export type CosmeticUnlock =
 export type CosmeticVisual =
   | { kind: 'overlay'; art: string }
   | { kind: 'image'; art: string }
+  | { kind: 'outfit'; art: string }
   | { kind: 'layer'; layer: string };
 
 type CosmeticDefinition = {
@@ -126,6 +131,13 @@ export const COSMETICS = [
     unlock,
     visual: { kind: 'image' as const, art: id },
   })),
+  // Outfits (outfits.ts): the hero drawn in them.
+  ...OUTFITS.map(({ id, unlock }) => ({
+    id,
+    slot: 'outfit' as const,
+    unlock,
+    visual: { kind: 'outfit' as const, art: id },
+  })),
   // Accessories, as stickers on the portrait.
   shopItem('bow', 'accessory'),
   shopItem('cap', 'accessory'),
@@ -143,10 +155,10 @@ export const COSMETICS = [
 export type Cosmetic = (typeof COSMETICS)[number];
 export type CosmeticId = Cosmetic['id'];
 /**
- * Cosmetics that are neither shop items nor companions: their names live with the editor's texts
- * (the shop and the companions name the others).
+ * Cosmetics that are neither shop items, companions nor outfits: their names live with the
+ * editor's texts (the shop, the companions and the outfits name the others).
  */
-export type EarnedCosmeticId = Exclude<CosmeticId, ShopItemCode | CompanionId>;
+export type EarnedCosmeticId = Exclude<CosmeticId, ShopItemCode | CompanionId | OutfitId>;
 
 const BY_ID: ReadonlyMap<string, Cosmetic> = new Map(COSMETICS.map((item) => [item.id, item]));
 

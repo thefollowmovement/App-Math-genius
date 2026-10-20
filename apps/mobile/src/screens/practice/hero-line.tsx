@@ -1,5 +1,5 @@
 import type { Exercise, Slot } from '@math-genius/exercise-engine';
-import { companionLook, type CompanionLook, type HeroPose } from '@math-genius/shared';
+import { companionLook, heroLook, type CompanionLook, type HeroPose } from '@math-genius/shared';
 import { Pressable, ThemedText, View, cx } from '@math-genius/ui';
 
 import { CompanionPicture } from '@/components/companion/companion-picture';
@@ -84,7 +84,7 @@ export function HeroLine(props: HeroLineProps) {
 
   const cast = (
     <View className="flex-row items-end">
-      <HeroView hero={avatar.hero} pose={line.pose} size="sm" />
+      <HeroView look={heroLook(avatar)} pose={line.pose} size="sm" />
       {companion ? (
         <View
           className={cx(

@@ -29,6 +29,7 @@ function Intro({ child }: { child: Child }) {
       childName={child.display_name}
       step={intro.step}
       hero={intro.hero}
+      outfit={intro.outfit}
       saving={intro.saving}
       error={intro.error}
       onPickHero={intro.pickHero}

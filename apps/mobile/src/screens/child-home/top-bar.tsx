@@ -1,4 +1,4 @@
-import type { Avatar } from '@math-genius/shared';
+import { heroLook, type Avatar } from '@math-genius/shared';
 import { ThemedText, View } from '@math-genius/ui';
 
 import { Emblem } from '@/components/game/icons';
@@ -27,7 +27,7 @@ export function TopBar({ name, avatar, progress, badges }: TopBarProps) {
       <View className="flex-row items-center gap-3">
         <View className="size-14 rounded-md border-3 border-primary bg-surface glow-primary">
           <View className="flex-1 overflow-hidden rounded-sm">
-            <HeroPicture hero={avatar.hero} pose="bust" label={portraitLabel(avatar)} />
+            <HeroPicture look={heroLook(avatar)} pose="bust" label={portraitLabel(avatar)} />
           </View>
         </View>
         <View className="flex-1 gap-1">

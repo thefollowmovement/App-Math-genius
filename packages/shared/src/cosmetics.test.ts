@@ -72,9 +72,10 @@ describe('heroes and cosmetics', () => {
     expect(missingUnlock(cosmetic('chat'), { ...none, owned: new Set(['chat']) })).toBeNull();
   });
 
-  it('draws companions as pictures, the others around the hero', () => {
+  it('draws companions as pictures, outfits on the hero, the others around it', () => {
+    const kinds: Partial<Record<string, string>> = { companion: 'image', outfit: 'outfit' };
     for (const { slot, visual } of COSMETICS) {
-      expect(visual.kind).toBe(slot === 'companion' ? 'image' : 'overlay');
+      expect(visual.kind).toBe(kinds[slot] ?? 'overlay');
     }
   });
 });

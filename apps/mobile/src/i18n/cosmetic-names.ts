@@ -1,7 +1,9 @@
 import {
   SHOP_ITEMS,
   isCompanionId,
+  isOutfitId,
   isShopItemCode,
+  outfitOf,
   type Avatar,
   type CosmeticId,
   type CosmeticUnlock,
@@ -15,9 +17,12 @@ const t = strings.look;
 
 const isEarned = (id: string): id is EarnedCosmeticId => id in t.cosmetics;
 
-/** A shop item's name, a companion's included. */
-export const shopItemName = (code: ShopItemCode): string =>
-  isCompanionId(code) ? strings.companions.items[code].name : strings.shop.items[code].name;
+/** A shop item's name, a companion's and an outfit's included. */
+export function shopItemName(code: ShopItemCode): string {
+  if (isCompanionId(code)) return strings.companions.items[code].name;
+  if (isOutfitId(code)) return strings.outfits.items[code].name;
+  return strings.shop.items[code].name;
+}
 
 /**
  * A cosmetic's name: a companion's short name, the shop's for what it sells (a shop cosmetic has
@@ -25,6 +30,7 @@ export const shopItemName = (code: ShopItemCode): string =>
  */
 export function cosmeticName(id: CosmeticId): string {
   if (isCompanionId(id)) return strings.companions.items[id].name;
+  if (isOutfitId(id)) return strings.outfits.items[id].name;
   if (isEarned(id)) return t.cosmetics[id];
   return isShopItemCode(id) ? shopItemName(id) : id;
 }
@@ -41,10 +47,15 @@ export function lockedText(cosmetic: CosmeticId, missing: CosmeticUnlock): strin
   return name;
 }
 
-/** The spoken label of the child's portrait: the hero, and its companion and accessory. */
+/** The spoken label of the child's portrait: the hero, its outfit, companion and accessory. */
 export function portraitLabel(avatar: Avatar): string {
   const hero = strings.heroes.items[avatar.hero].name;
   const { companion, accessory } = avatar.wear;
   const wearing = [companion, accessory].flatMap((id) => (id ? [cosmeticName(id)] : []));
-  return strings.heroes.portrait(hero, wearing);
+  const outfit = outfitOf(avatar);
+  return strings.heroes.portrait(
+    hero,
+    wearing,
+    outfit ? strings.outfits.items[outfit].worn : undefined,
+  );
 }

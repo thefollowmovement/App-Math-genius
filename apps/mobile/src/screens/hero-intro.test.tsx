@@ -19,7 +19,15 @@ describe('HeroIntro', () => {
     const props = callbacks();
     const user = userEvent.setup();
     await renderWithTheme(
-      <HeroIntro {...props} childName="Léa" step={0} hero="nova" saving={false} error="network" />,
+      <HeroIntro
+        {...props}
+        childName="Léa"
+        step={0}
+        hero="nova"
+        outfit={null}
+        saving={false}
+        error="network"
+      />,
     );
     expect(screen.getByRole('header', { name: t.choose.title })).toBeOnTheScreen();
     expect(screen.getByLabelText(t.progress(1, 4))).toBeOnTheScreen();
@@ -38,7 +46,15 @@ describe('HeroIntro', () => {
     const props = callbacks();
     const user = userEvent.setup();
     const { rerender } = await renderWithTheme(
-      <HeroIntro {...props} childName="Léa" step={1} hero="kai" saving={false} error={null} />,
+      <HeroIntro
+        {...props}
+        childName="Léa"
+        step={1}
+        hero="kai"
+        outfit={null}
+        saving={false}
+        error={null}
+      />,
     );
     expect(screen.getByRole('header', { name: 'Salut Léa !' })).toBeOnTheScreen();
     expect(screen.getByText(/Moi, c’est Kai/)).toBeOnTheScreen();
@@ -46,7 +62,15 @@ describe('HeroIntro', () => {
     expect(props.onNext).toHaveBeenCalled();
 
     await rerender(
-      <HeroIntro {...props} childName="Léa" step={3} hero="kai" saving={false} error={null} />,
+      <HeroIntro
+        {...props}
+        childName="Léa"
+        step={3}
+        hero="kai"
+        outfit={null}
+        saving={false}
+        error={null}
+      />,
     );
     expect(screen.getByLabelText(t.progress(4, 4))).toBeOnTheScreen();
     expect(screen.queryByRole('button', { name: t.next })).toBeNull();

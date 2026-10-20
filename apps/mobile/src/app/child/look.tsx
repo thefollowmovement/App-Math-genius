@@ -1,3 +1,4 @@
+import { outfitOf } from '@math-genius/shared';
 import { themes } from '@math-genius/ui';
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -36,6 +37,7 @@ export default function LookRoute() {
     <ThemePreview theme={themes[editor.look.theme]}>
       <LookEditor
         look={editor.look}
+        savedOutfit={editor.saved ? outfitOf(editor.saved.avatar) : null}
         unlocked={unlocked}
         hint={editor.hint}
         changed={editor.changed}

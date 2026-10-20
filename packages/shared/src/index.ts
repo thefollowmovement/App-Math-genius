@@ -129,3 +129,12 @@ export {
   type CompanionStage,
   type Rarity,
 } from './companions';
+export {
+  OUTFITS,
+  heroLook,
+  isOutfitId,
+  outfitOf,
+  type HeroLook,
+  type Outfit,
+  type OutfitId,
+} from './outfits';

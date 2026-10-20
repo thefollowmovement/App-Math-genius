@@ -39,6 +39,8 @@ export function useLookEditor(child: Child | undefined, unlocked: Unlocked) {
 
   return {
     look,
+    /** The look as saved: what the hero wears until the child saves another. */
+    saved,
     changed: look !== null && saved !== null && !sameLook(look, saved),
     hint,
     setHero: (hero: HeroId) => look && change(withHero(look, hero)),

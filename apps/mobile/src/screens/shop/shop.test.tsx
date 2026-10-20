@@ -67,6 +67,17 @@ describe('Shop', () => {
     expect(screen.queryByRole('button', { name: t.buyLabel('Kitsune', 250) })).toBeNull();
   });
 
+  it('sells outfits, shown on the child’s hero', async () => {
+    const user = userEvent.setup();
+    const { onBuy } = await renderShop(150);
+    const o = strings.outfits.items;
+    expect(screen.getByText(t.kinds.outfit)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: t.buyLabel(o.sport.name, 100) }));
+    expect(onBuy).toHaveBeenCalledWith('sport');
+    // Magie costs 200 gems: 50 are missing.
+    expect(screen.queryByRole('button', { name: t.buyLabel(o.magie.name, 200) })).toBeNull();
+  });
+
   it('stops selling freezes once the stock is full', async () => {
     await renderShop(500, 3);
     expect(screen.getByText(t.freezes.full)).toBeOnTheScreen();

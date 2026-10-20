@@ -1,4 +1,11 @@
-import type { CosmeticId, CosmeticSlot, HeroId, Unlocked } from '@math-genius/shared';
+import {
+  isOutfitId,
+  type CosmeticId,
+  type CosmeticSlot,
+  type HeroId,
+  type OutfitId,
+  type Unlocked,
+} from '@math-genius/shared';
 import { Button, Screen, ThemedText, THEME_IDS, View, type ThemeId } from '@math-genius/ui';
 
 import { CenterGlow } from '@/components/decor';
@@ -17,6 +24,8 @@ const t = strings.look;
 type LookEditorProps = {
   /** The look being chosen: the screen is drawn in its theme. */
   look: Look;
+  /** The outfit the hero wears as saved (null: its stage outfit). */
+  savedOutfit: OutfitId | null;
   /** Badges earned and items bought: they unlock cosmetics. */
   unlocked: Unlocked;
   /** The cosmetic just tried before it was unlocked. */
@@ -34,6 +43,7 @@ type LookEditorProps = {
 /** The child picks their hero, what surrounds it and a theme, previewed before it is saved. */
 export function LookEditor({
   look,
+  savedOutfit,
   unlocked,
   hint,
   changed,
@@ -78,9 +88,11 @@ export function LookEditor({
           avatar={look.avatar}
           unlocked={unlocked}
           tried={hint?.cosmetic ?? null}
+          savedOutfit={savedOutfit}
           onPick={onCosmetic}
         />
-        {hint ? (
+        {/* An outfit tried before it was unlocked says why on its preview. */}
+        {hint && !isOutfitId(hint.cosmetic) ? (
           <ThemedText className="text-center" accessibilityLiveRegion="polite">
             {lockedText(hint.cosmetic, hint.missing)}
           </ThemedText>

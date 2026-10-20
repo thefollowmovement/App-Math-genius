@@ -1,13 +1,14 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { COSMETICS, HERO_IDS, HERO_POSES, type Avatar } from '@math-genius/shared';
+import { COSMETICS, HERO_IDS, HERO_POSES, OUTFITS, type Avatar } from '@math-genius/shared';
 import { ThemedText } from '@math-genius/ui';
 import { screen } from '@testing-library/react-native';
 
 import { renderWithTheme } from '@/test-utils/render';
 
 import { COSMETIC_ART } from './cosmetic-art';
+import { HERO_ART, heroPicture } from './hero-art';
 import { HeroBust } from './hero-bust';
 import { HeroProvider, useChildHero } from './hero-context';
 
@@ -19,6 +20,26 @@ describe('heroes', () => {
       for (const suffix of ['', '@2x', '@3x']) {
         expect(existsSync(join(assets, hero, `${pose}${suffix}.webp`))).toBe(true);
       }
+    }
+  });
+
+  it.each(HERO_IDS)('has every pose of %s in each outfit, in three densities', (hero) => {
+    for (const { id } of OUTFITS) {
+      for (const pose of HERO_POSES) {
+        for (const suffix of ['', '@2x', '@3x']) {
+          expect(existsSync(join(assets, hero, id, `${pose}${suffix}.webp`))).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('draws every pose in the outfit the hero wears, its stage outfit without one', () => {
+    for (const pose of HERO_POSES) {
+      expect(heroPicture({ hero: 'taro', outfit: null }, pose)).toBe(HERO_ART.taro.poses[pose]);
+      expect(heroPicture({ hero: 'taro', outfit: 'magie' }, pose)).toBe(
+        HERO_ART.taro.outfits.magie[pose],
+      );
+      expect(HERO_ART.taro.outfits.magie[pose]).not.toBe(HERO_ART.taro.poses[pose]);
     }
   });
 

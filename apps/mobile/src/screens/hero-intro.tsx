@@ -1,4 +1,4 @@
-import type { HeroId } from '@math-genius/shared';
+import type { HeroId, OutfitId } from '@math-genius/shared';
 import { Button, Screen, ThemedText, View, cx } from '@math-genius/ui';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
@@ -19,6 +19,8 @@ type HeroIntroProps = {
   /** 0: the child chooses a hero; then the hero presents the app. */
   step: number;
   hero: HeroId;
+  /** The outfit the hero wears (null: its stage outfit). */
+  outfit: OutfitId | null;
   saving: boolean;
   error: ErrorKind | null;
   onPickHero: (hero: HeroId) => void;
@@ -108,12 +110,12 @@ function ChooseStep({ hero, error, onPickHero }: HeroIntroProps) {
   );
 }
 
-function HeroStep({ childName, hero, index }: HeroIntroProps & { index: number }) {
+function HeroStep({ childName, hero, outfit, index }: HeroIntroProps & { index: number }) {
   const current = t.steps[index] ?? t.steps[0];
   return (
     <View className="gap-6">
       <View className="items-center">
-        <HeroView hero={hero} pose={POSES[index] ?? 'victory'} size="lg" />
+        <HeroView look={{ hero, outfit }} pose={POSES[index] ?? 'victory'} size="lg" />
       </View>
       <View className="gap-3">
         <ThemedText

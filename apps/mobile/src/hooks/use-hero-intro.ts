@@ -1,4 +1,4 @@
-import type { HeroId } from '@math-genius/shared';
+import { outfitOf, type HeroId } from '@math-genius/shared';
 import { useState } from 'react';
 
 import type { Child } from '@/data/children';
@@ -16,6 +16,8 @@ export function useHeroIntro(child: Child) {
   return {
     step,
     hero,
+    /** The outfit the hero already wears (a child back on a new device). */
+    outfit: outfitOf(saved.avatar),
     pickHero: (next: HeroId) => {
       save.reset();
       setHero(next);

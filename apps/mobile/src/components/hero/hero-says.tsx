@@ -1,4 +1,4 @@
-import type { HeroPose } from '@math-genius/shared';
+import { heroLook, type HeroPose } from '@math-genius/shared';
 import { ThemedText, View, cx } from '@math-genius/ui';
 import type { ComponentProps } from 'react';
 
@@ -41,10 +41,10 @@ type HeroSaysProps = {
 
 /** The child's hero in a pose, and what it says. */
 export function HeroSays({ pose, size = 'sm', children, className }: HeroSaysProps) {
-  const { hero } = useChildHero();
+  const avatar = useChildHero();
   return (
     <View className={cx('flex-row items-end gap-3', className)}>
-      <HeroView hero={hero} pose={pose} size={size} />
+      <HeroView look={heroLook(avatar)} pose={pose} size={size} />
       <SpeechBubble className="mb-2 flex-1">{children}</SpeechBubble>
     </View>
   );
