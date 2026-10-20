@@ -155,6 +155,74 @@ export const fr = {
     noDevices: 'Aucun appareil relié pour l’instant.',
     pairedOn: (date: string) => `Relié depuis le ${date}`,
     revoke: 'Retirer',
+    profile: {
+      title: 'Profil d’apprentissage et univers',
+      consent: {
+        intro: (name: string) =>
+          `Avec votre accord, l’app apprend comment ${name} apprend et ce qui lui plaît, pour adapter ses explications.`,
+        points: [
+          'Un court questionnaire « Ton univers » sur ses jeux, sports, musiques… facultatif.',
+          'Un profil recalculé chaque nuit à partir de ses réponses : forces, points à travailler, façon d’apprendre.',
+          'Le coach ne reçoit qu’un résumé, sans prénom ni rien qui permette de reconnaître votre enfant.',
+          'Aucune publicité, aucune revente. Vous pouvez tout modifier ou tout désactiver : tout est alors supprimé.',
+        ],
+        enable: 'Activer la personnalisation',
+        off: 'Sans personnalisation, les explications prennent des exemples de la vie courante.',
+      },
+      updatedOn: (date: string) => `Profil mis à jour le ${date}`,
+      pending: 'Le profil sera calculé après sa prochaine séance.',
+      strengths: 'Ses forces',
+      noStrength: 'Ses forces apparaîtront après quelques séances.',
+      weaknesses: 'Points à travailler',
+      noWeakness: 'Rien de particulier pour l’instant.',
+      style: 'Sa façon d’apprendre',
+      noStyle: 'Encore à observer : il faut quelques séances.',
+      strength: {
+        ahead: (strand: string) => `En avance en ${strand}`,
+        solid: (strand: string, mastered: number) =>
+          `À l’aise en ${strand} : ${mastered} compétences de l’année déjà maîtrisées`,
+        best: (strand: string) => `Son point fort du moment : ${strand}`,
+        mentalSpeed: (seconds: string, percent: number) =>
+          `Calcul mental rapide : ${seconds} s par calcul, ${percent} % de réussite`,
+        flawless: (run: number) => `Jusqu’à ${run} bonnes réponses d’affilée`,
+      },
+      weakness: {
+        error: (label: string, count: number) => `${label} (${count} fois en 30 jours)`,
+        behind: (strand: string) => `À consolider en ${strand}`,
+        fading: (skill: string) => `À revoir : ${skill}`,
+        stuck: (skill: string) => `Bloque sur : ${skill}`,
+      },
+      styleLine: {
+        steady: (minutes: number) => `Garde sa concentration toute la séance (${minutes} min)`,
+        drops: (minutes: number) => `Perd sa concentration après ${minutes} minutes environ`,
+        bestTime: {
+          morning: 'Plus efficace le matin',
+          afternoon: 'Plus efficace l’après-midi',
+          evening: 'Plus efficace en fin de journée',
+        },
+        afterError: {
+          perseveres: 'Persévère après une erreur',
+          gives_up: 'Abandonne parfois la séance après une erreur',
+          guesses: 'Répond vite au hasard après une erreur',
+        },
+        twins: (percent: number) =>
+          `Réussit ${percent} % des exercices jumeaux, après une correction`,
+      },
+      universe: 'Son univers',
+      noUniverse: 'Pas encore de réponse au questionnaire « Ton univers ».',
+      other: (answer: string) => `Autre : ${answer}`,
+      otherStatus: {
+        pending: 'en attente de relecture',
+        approved: 'relu',
+        rejected: 'écarté',
+      },
+      editUniverse: 'Modifier son univers',
+      disable: 'Désactiver la personnalisation',
+      disableConfirm:
+        'Ses centres d’intérêt et son profil d’apprentissage seront supprimés. Vous pourrez réactiver la personnalisation plus tard.',
+      confirm: 'Désactiver et supprimer',
+      cancel: 'Annuler',
+    },
     placement: {
       title: 'Test de départ',
       none: 'Pas encore passé\u00a0: il est proposé à l’enfant sur son accueil.',

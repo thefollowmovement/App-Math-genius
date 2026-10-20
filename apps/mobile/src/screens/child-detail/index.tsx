@@ -14,10 +14,11 @@ import { TodaySessions } from '../today-sessions';
 import { NudgePanel, type NudgeResult } from './nudge-panel';
 import { PairingPanel, type PairingState } from './pairing-panel';
 import { PlacementPanel } from './placement-panel';
+import { ProfilePanel, type ProfilePanelState } from './profile-panel';
 import { RewardsPanel, type ParentRewardsState } from './rewards-panel';
 import { RoutinePanel } from './routine-panel';
 
-export type { NudgeResult, PairingState, ParentRewardsState };
+export type { NudgeResult, PairingState, ParentRewardsState, ProfilePanelState };
 
 export type NudgeState = {
   onSend: (message: string) => void;
@@ -48,6 +49,8 @@ type ChildDetailProps = {
   onEditRoutine: () => void;
   /** Real-life rewards set by the parent. */
   rewards: ParentRewardsState;
+  /** Personalization: consent, learning profile and universe. Missing: not shown. */
+  profile?: ProfilePanelState;
   /** Messages to the child, once a device is paired. */
   nudge: NudgeState;
   pairing: PairingState;
@@ -71,6 +74,7 @@ export function ChildDetail({
   vacations,
   onEditRoutine,
   rewards,
+  profile,
   nudge,
   pairing,
   creatingCode,
@@ -98,6 +102,7 @@ export function ChildDetail({
       </View>
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
       <PlacementPanel report={placement} grade={child.grade} available={placementAvailable} />
+      {profile ? <ProfilePanel childName={child.display_name} {...profile} /> : null}
       <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
       <RewardsPanel {...rewards} />
       {devices.length > 0 ? (

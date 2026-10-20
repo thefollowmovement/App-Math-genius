@@ -33,6 +33,8 @@ export default function ParentLayout() {
         <Stack.Screen name="children/new" options={{ title: strings.childForm.title }} />
         <Stack.Screen name="children/[id]/index" />
         <Stack.Screen name="children/[id]/routine" options={{ title: strings.routine.title }} />
+        {/* The questionnaire shows its own buttons to leave. */}
+        <Stack.Screen name="children/[id]/universe" options={{ headerShown: false }} />
         <Stack.Screen name="sessions/[id]" options={{ title: strings.sessionDetail.title }} />
       </Stack.Protected>
       <Stack.Protected guard={!isParent}>

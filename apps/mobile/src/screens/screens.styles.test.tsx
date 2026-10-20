@@ -149,6 +149,36 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
         vacations={[vacation]}
         onEditRoutine={jest.fn()}
         rewards={parentRewards({ error: 'network' })}
+        profile={{
+          enabled: true,
+          profile: {
+            computedAt: '2026-10-20T03:00:00Z',
+            profile: {
+              grade: 'CE2',
+              answers: 300,
+              mastered: 4,
+              inProgress: 2,
+              strengths: [{ kind: 'best', strand: 'calcul' }],
+              weaknesses: [
+                {
+                  kind: 'error',
+                  error: 'forgot-carry',
+                  count: 5,
+                  lastSeenAt: '2026-10-19T17:00:00Z',
+                },
+              ],
+              style: { attention: null, bestTime: null, afterError: 'guesses', twinSuccess: 0.4 },
+              computedAt: '2026-10-20T03:00:00Z',
+            },
+          },
+          chosen: [{ universeId: 'minecraft', name: 'Minecraft', icon: '⛏️' }],
+          others: [],
+          saving: false,
+          error: null,
+          onEnable: jest.fn(),
+          onDisable: jest.fn(),
+          onEditUniverse: jest.fn(),
+        }}
         nudge={{ onSend: jest.fn(), sending: false, result: 'no_device', error: 'tooManyMessages' }}
         pairing={{
           status: 'showing',
