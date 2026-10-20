@@ -17,6 +17,7 @@ import {
   startingRecord,
 } from './mastery';
 import { type Island, planBossExercise } from './islands';
+import { placementMastery, planPlacementExercise } from './placement';
 import { type ItemRatings, clampDifficulty, difficultyFor, itemRating } from './ratings';
 import type { SessionAttempt, Slot } from './session';
 
@@ -36,6 +37,13 @@ export type PlannerContext = {
   generators?: readonly Generator[];
   /** A boss session: the island it evaluates (planBossExercise). */
   boss?: Island;
+  /** A placement test (placement.ts): its own questions, and records for every skill at the end. */
+  placement?: boolean;
+  /**
+   * The child took the placement test before this session: earlier grades are no longer presumed
+   * known, the test's records say what is (isAcquired).
+   */
+  placed?: boolean;
 };
 
 export type PlannedExercise = Pick<
@@ -100,12 +108,18 @@ export function liveMastery(
   return map;
 }
 
-/** Mastery once the session is over; only completed sessions count toward "maîtrisée". */
+/**
+ * Mastery once the session is over; only completed sessions count toward "maîtrisée". A completed
+ * placement test also writes what it concludes on the skills it did not ask.
+ */
 export function finishSession(
   context: PlannerContext,
   attempts: readonly SessionAttempt[],
   options: { at: string; completed: boolean },
 ): MasteryMap {
+  if (context.placement && options.completed) {
+    return placementMastery(context, attempts, options.at);
+  }
   const map: Partial<Record<SkillCode, MasteryRecord>> = { ...liveMastery(context, attempts) };
   if (!options.completed) return map;
   for (const skill of new Set(attempts.map((attempt) => attempt.skill))) {
@@ -136,7 +150,8 @@ function skillPool(context: PlannerContext, mastery: MasteryMap): Pool {
     recordOf(skill) ?? startingRecord(skill, childGrade, context.mastery);
   // A prerequisite without a generator cannot be practised yet, so it does not block.
   const acquired = (skill: Skill) =>
-    !withGenerator.has(skill.code) || isAcquired(recordOf(skill), skill, childGrade, at);
+    !withGenerator.has(skill.code) ||
+    isAcquired(recordOf(skill), skill, childGrade, at, context.placed);
   const unlocked = (skill: Skill) =>
     skill.prerequisites.every((code) => !isSkillCode(code) || acquired(getSkill(code)));
 
@@ -271,6 +286,7 @@ export function planNext(
   attempts: readonly SessionAttempt[],
 ): PlannedExercise | null {
   if (context.boss) return planBossExercise(context, context.boss, attempts);
+  if (context.placement) return planPlacementExercise(context, attempts);
   const index = attempts.length;
   const rng = createRng(deriveSeed(context.seed, index));
   const seed = rng.int(0, 2 ** 31 - 1);

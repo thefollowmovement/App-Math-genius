@@ -1123,6 +1123,7 @@ export type Database = {
           goal_met: boolean;
           goal_type: Database['public']['Enums']['session_goal_type'];
           goal_value: number;
+          grade: Database['public']['Enums']['grade'];
           id: string;
           kind: Database['public']['Enums']['session_kind'];
           local_date: string;
@@ -1146,6 +1147,7 @@ export type Database = {
           goal_met?: boolean;
           goal_type: Database['public']['Enums']['session_goal_type'];
           goal_value: number;
+          grade: Database['public']['Enums']['grade'];
           id: string;
           kind: Database['public']['Enums']['session_kind'];
           local_date: string;
@@ -1168,6 +1170,7 @@ export type Database = {
           goal_met?: boolean;
           goal_type?: Database['public']['Enums']['session_goal_type'];
           goal_value?: number;
+          grade?: Database['public']['Enums']['grade'];
           id?: string;
           kind?: Database['public']['Enums']['session_kind'];
           local_date?: string;
@@ -1386,6 +1389,7 @@ export type Database = {
           goal_met: boolean;
           goal_type: Database['public']['Enums']['session_goal_type'];
           goal_value: number;
+          grade: Database['public']['Enums']['grade'];
           id: string;
           kind: Database['public']['Enums']['session_kind'];
           local_date: string;

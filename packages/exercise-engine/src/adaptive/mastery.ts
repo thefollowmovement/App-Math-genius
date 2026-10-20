@@ -25,14 +25,15 @@ export const MASTERY_THRESHOLD = 80;
 export const SESSIONS_TO_MASTER = 2;
 /** An earlier-grade skill stops being presumed known after this many answers below 70. */
 const EVIDENCE_ATTEMPTS = 4;
-const PRESUMED_THRESHOLD = 70;
+/** Mastery under which practice withdraws that presumption, and the test's acquisition. */
+export const PRESUMED_THRESHOLD = 70;
 
 const DAY_MS = 86_400_000;
 
 /**
  * Starting ratings: earlier grades are presumed known (difficulty 3 at about 80 % success),
  * the child's own grade starts at difficulty 2, later grades lower still. The placement test
- * (phase 7) will replace these guesses.
+ * (placement.ts) replaces these guesses with records of its own.
  */
 const SAME_GRADE_ELO = 1150;
 const gradeShift = (skill: Skill, childGrade: Grade) => {
@@ -79,7 +80,8 @@ export const masteryOf = (record: MasteryRecord, at: string) =>
   masteryFromElo(decayedElo(record, at));
 
 export function masteryStatus(record: MasteryRecord, at: string): MasteryStatus {
-  if (record.attempts === 0) return 'to_discover';
+  // A skill the placement test found acquired is mastered before any practice.
+  if (record.attempts === 0 && !record.masteredAt) return 'to_discover';
   if (record.masteredAt)
     return masteryOf(record, at) >= MASTERY_THRESHOLD ? 'mastered' : 'to_review';
   return 'in_progress';
@@ -87,19 +89,22 @@ export function masteryStatus(record: MasteryRecord, at: string): MasteryStatus 
 
 /**
  * Whether a skill counts as known for the skills that require it. Earlier-grade skills are
- * presumed known until enough answers show otherwise.
+ * presumed known until enough answers show otherwise. Once the child is `placed` (placement.ts),
+ * the test's records say what is known: only an earlier-grade skill without a record (one the
+ * test could not reach) is still presumed.
  */
 export function isAcquired(
   record: MasteryRecord | undefined,
   skill: Skill,
   childGrade: Grade,
   at: string,
+  placed = false,
 ): boolean {
   if (record?.masteredAt) return true;
   if (gradeRank(skill.grade) >= gradeRank(childGrade)) return false;
-  return (
-    !record || record.attempts < EVIDENCE_ATTEMPTS || masteryOf(record, at) >= PRESUMED_THRESHOLD
-  );
+  if (!record) return true;
+  if (placed) return false;
+  return record.attempts < EVIDENCE_ATTEMPTS || masteryOf(record, at) >= PRESUMED_THRESHOLD;
 }
 
 /** The record after one answer on an item rated `item`. */
