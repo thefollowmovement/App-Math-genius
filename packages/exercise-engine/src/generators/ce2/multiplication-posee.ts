@@ -1,4 +1,4 @@
-import { defineGenerator, n, r } from '../kit';
+import { defineGenerator, n, noCarryProduct, r } from '../kit';
 
 const RANGES = { 1: [11, 30], 2: [12, 99], 3: [100, 499], 4: [100, 999], 5: [1000, 1999] } as const;
 
@@ -13,6 +13,7 @@ export default defineGenerator({
       prompt: `${n(a)} × ${b} = ?`,
       check: `${n(a)} × ${b}`,
       answer: r(a * b),
+      mistakes: { 'forgot-carry': [r(noCarryProduct(a, b))] },
       hint: 'Multiplie d’abord les unités, puis les dizaines, sans oublier les retenues.',
       explanation: [
         `On multiplie chaque chiffre de ${n(a)} par ${b}, en commençant par les unités.`,

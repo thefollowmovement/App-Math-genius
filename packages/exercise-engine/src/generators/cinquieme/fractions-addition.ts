@@ -18,6 +18,10 @@ export default defineGenerator({
       prompt: ask ? `${ask}${expression}` : `${expression} = ?`,
       check: expression,
       answer,
+      mistakes: {
+        'adds-denominators': [minus ? undefined : r(a + b, den + big)],
+        'same-denominator': [r(minus ? a - b : a + b, big)],
+      },
       display: 'fraction',
       ...(difficulty === 5 && { forms: ['fraction', 'integer'], irreducible: true }),
       hint: `Écris ${frac(a, den)} avec le dénominateur ${big}.`,

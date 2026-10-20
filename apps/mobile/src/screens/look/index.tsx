@@ -12,12 +12,14 @@ import { CenterGlow } from '@/components/decor';
 import { HeroBust } from '@/components/hero/hero-bust';
 import type { ErrorKind } from '@/data/errors';
 import type { LockedHint, Look } from '@/data/look-model';
+import type { UniverseOption } from '@/data/universe-model';
 import { strings } from '@/i18n';
 import { lockedText, portraitLabel } from '@/i18n/cosmetic-names';
 
 import { CosmeticPicker } from './cosmetic-picker';
 import { HeroPicker } from './hero-picker';
 import { ThemeCard } from './theme-card';
+import { UniverseSection } from './universe-section';
 
 const t = strings.look;
 
@@ -38,6 +40,8 @@ type LookEditorProps = {
   onCosmetic: (slot: CosmeticSlot, id: CosmeticId | null) => void;
   onTheme: (theme: ThemeId) => void;
   onSave: () => void;
+  /** What the child likes, once the parent agreed to personalization. */
+  universe?: { chosen: readonly UniverseOption[]; onEdit: () => void };
 };
 
 /** The child picks their hero, what surrounds it and a theme, previewed before it is saved. */
@@ -53,6 +57,7 @@ export function LookEditor({
   onCosmetic,
   onTheme,
   onSave,
+  universe,
 }: LookEditorProps) {
   const hero = strings.heroes.items[look.avatar.hero];
   return (
@@ -98,6 +103,7 @@ export function LookEditor({
           </ThemedText>
         ) : null}
       </View>
+      {universe ? <UniverseSection chosen={universe.chosen} onEdit={universe.onEdit} /> : null}
       <View className="gap-3" accessibilityRole="radiogroup" accessibilityLabel={t.themes}>
         <ThemedText variant="label" accessibilityRole="header">
           {t.themes}

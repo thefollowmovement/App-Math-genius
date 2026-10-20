@@ -16,6 +16,9 @@ export default defineGenerator({
       prompt: 'Lequel de ces nombres est premier ?',
       options: options.map((x) => ({ label: String(x), check: `premier(${x})` })),
       answer: options.indexOf(prime),
+      mistakes: {
+        'odd-is-prime': options.map((x, i) => (x % 2 === 1 && x !== prime ? i : undefined)),
+      },
       hint: 'Un nombre premier a exactement deux diviseurs : 1 et lui-même.',
       explanation: [
         `${prime} n’est divisible que par 1 et par lui-même.`,

@@ -20,6 +20,10 @@ export default defineGenerator({
       prompt: `Combien font ${percent} % de ${n(quantity)} ?`,
       check: `${percent} % × ${n(quantity)}`,
       answer: r(answer),
+      mistakes: {
+        'percent-subtract': [quantity > percent ? r(quantity - percent) : undefined],
+        'percent-hundred': [r(percent * quantity)],
+      },
       hint:
         percent === 50
           ? 'Prendre 50 %, c’est prendre la moitié.'

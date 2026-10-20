@@ -16,6 +16,10 @@ export default defineGenerator({
         : `Quel est le périmètre d’un rectangle de ${l} cm de longueur et ${w} cm de largeur ?`,
       check: square ? `perimetre_carre(${l})` : `perimetre_rectangle(${l}, ${w})`,
       answer: r(square ? 4 * length : 2 * (length + width)),
+      mistakes: {
+        'area-perimeter': [r(square ? length * length : length * width)],
+        'half-perimeter': [r(square ? 2 * length : length + width)],
+      },
       unit: 'cm',
       hint: 'Le périmètre, c’est la longueur du tour de la figure.',
       explanation: [

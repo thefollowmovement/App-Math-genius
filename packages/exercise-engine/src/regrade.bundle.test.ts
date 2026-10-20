@@ -4,7 +4,7 @@ import { build } from 'esbuild';
 
 import { SERVER_BUNDLE, serverBundleOptions } from '../scripts/server-bundle';
 
-describe('engine bundle of the award-session Edge Function', () => {
+describe('engine bundle of the Edge Functions', () => {
   it('matches the engine (run `pnpm functions:bundle` after changing it)', async () => {
     const result = await build({ ...serverBundleOptions, write: false, outfile: SERVER_BUNDLE });
     const fresh = result.outputFiles?.[0]?.text;

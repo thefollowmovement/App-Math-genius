@@ -38,6 +38,25 @@ export {
   type MasteryStatus,
 } from './adaptive/mastery';
 export {
+  FLAWLESS_RUN,
+  MENTAL_FAST_MS,
+  PROFILE_WINDOW_DAYS,
+  learnerProfile,
+  localHour,
+  timeOfDay,
+  type AfterError,
+  type LearnerProfile,
+  type LearningStyle,
+  type ProfileAttempt,
+  type ProfileInput,
+  type ProfileSession,
+  type ProfileSessionKind,
+  type Strength,
+  type TimeOfDay,
+  type Weakness,
+} from './adaptive/profile';
+export { profileSummary } from './adaptive/profile-summary';
+export {
   SLOT_PATTERN,
   buildExercise,
   finishSession,
@@ -77,6 +96,7 @@ export {
   type ExerciseType,
   type FractionShadeExercise,
   type MatchExercise,
+  type Mistakes,
   type NumberLineExercise,
   type NumericExercise,
   type OrderExercise,
@@ -92,6 +112,7 @@ export {
 } from './format';
 export { defineGenerator, generateExercise, generatorId, type Generator } from './generator';
 export { generators } from './generators';
+export { diagnoseResponse, mistakeList } from './diagnose';
 export { gradeResponse, type ExerciseResponse, type Verdict } from './grade';
 export { parseTypedNumber, type NumberForm, type TypedNumber } from './parse';
 export { createRng, deriveSeed, type Rng } from './random';

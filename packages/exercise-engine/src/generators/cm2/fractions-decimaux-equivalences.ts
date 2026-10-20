@@ -1,4 +1,4 @@
-import { defineGenerator, distinct, formatDecimal, frac, r, range } from '../kit';
+import { defineGenerator, distinct, formatDecimal, frac, r, range, swapTenths } from '../kit';
 
 // Denominators: tenths first, then hundredths, halves, quarters, fifths…
 const DENS = { 1: [10], 2: [10, 100], 3: [10, 100, 2, 4], 4: [100, 4, 5, 20], 5: [1000, 4, 5, 25] };
@@ -21,6 +21,15 @@ export default defineGenerator({
       left,
       right,
       answer: values.map((value) => right.indexOf(value)),
+      mistakes: {
+        // 3/10 matched with 0,03 and 3/100 with 0,3.
+        'tenths-hundredths': [
+          swapTenths(
+            picked,
+            values.map((value) => right.indexOf(value)),
+          ),
+        ],
+      },
       prompt: 'Relie chaque fraction à son écriture décimale.',
       hint: '1/10 s’écrit 0,1 et 1/100 s’écrit 0,01. Pour 1/4 ou 1/5, pense à des centièmes.',
       explanation: [left.map((label, index) => `${label} = ${values[index]}`).join(' ; ')],

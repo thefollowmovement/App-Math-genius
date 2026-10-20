@@ -15,6 +15,10 @@ export default defineGenerator({
       prompt: `Écris sans puissance : ${shown}`,
       check: difficulty === 1 ? `10^${exponent}` : `${formatDecimal(factor)} × 10^${exponent}`,
       answer,
+      mistakes: {
+        'zeros-count': [mul(factor, r(10 ** (exponent - 1))), mul(factor, r(10 ** (exponent + 1)))],
+        'exponent-times-ten': [difficulty === 1 ? r(10 * exponent) : undefined],
+      },
       hint: `${power(10, exponent)}, c’est 1 suivi de ${exponent} zéros.`,
       explanation: [
         `${power(10, exponent)} = ${n(10 ** exponent)}`,

@@ -15,6 +15,12 @@ export default defineGenerator({
       prompt: missing ? `${a} × ? = ${product}` : `${a} × ${b} = ?`,
       check: missing ? `${product} ÷ ${a}` : `${a} × ${b}`,
       answer: r(missing ? b : a * b),
+      mistakes: missing
+        ? { 'table-neighbour': [r(b - 1), r(b + 1)] }
+        : {
+            'table-neighbour': [r(a * (b - 1)), r(a * (b + 1))],
+            'adds-instead-of-multiplying': [r(a + b)],
+          },
       hint: `Pense à la table de ${a}.`,
       explanation: [`${a} × ${b} = ${product}`],
     };

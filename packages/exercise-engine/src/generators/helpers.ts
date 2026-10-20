@@ -1,4 +1,6 @@
-import { type Rational, compare } from '../rational';
+import type { Mistakes } from '../exercise';
+import { formatDecimal } from '../format';
+import { type Rational, add, compare, div, mul, rational, sub } from '../rational';
 
 /** Calls `make` until `count` values with distinct keys come out. */
 export function distinct<T>(
@@ -88,8 +90,16 @@ export function gcd(a: number, b: number): number {
   return b === 0 ? Math.abs(a) : gcd(b, a % b);
 }
 
-/** Everything an order exercise needs but its hint, from the labels and their values. */
-export function orderFields(labels: string[], values: readonly Rational[], direction: Direction) {
+/**
+ * Everything an order exercise needs but its hint, from the labels and their values. Ranging the
+ * other way round is a mistake of every order exercise; `mistakes` adds the generator's own.
+ */
+export function orderFields(
+  labels: string[],
+  values: readonly Rational[],
+  direction: Direction,
+  mistakes: Mistakes<readonly number[]> = {},
+) {
   const answer = ranking(values, direction);
   return {
     type: 'order' as const,
@@ -98,5 +108,106 @@ export function orderFields(labels: string[], values: readonly Rational[], direc
     answer,
     prompt: orderPrompt(direction),
     explanation: [orderSentence(labels, answer, direction)],
+    mistakes: { 'reverse-order': [[...answer].reverse()], ...mistakes },
   };
+}
+
+// Typical mistakes (Exercise.mistakes): what a child who makes them computes. -----------------
+
+const digitsOf = (value: number) => [...String(value)].reverse().map(Number);
+
+/** a + b column by column, forgetting the carries: 47 + 38 → 75. */
+export function noCarrySum(a: number, b: number): number {
+  const [x, y] = [digitsOf(a), digitsOf(b)];
+  const length = Math.max(x.length, y.length);
+  return Array.from({ length }, (_, i) => ((x[i] ?? 0) + (y[i] ?? 0)) % 10).reduce(
+    (sum, digit, i) => sum + digit * 10 ** i,
+    0,
+  );
+}
+
+/** a × b (b one digit) digit by digit, forgetting the carries: 47 × 3 → 21 (12 + 1 ten). */
+export function noCarryProduct(a: number, b: number): number {
+  return digitsOf(a).reduce((sum, digit, i) => sum + ((digit * b) % 10) * 10 ** i, 0);
+}
+
+/** The order of `keys` in the given direction, as `ranking` does with values. */
+export function rankBy(keys: readonly (number | string)[], direction: Direction): number[] {
+  const sign = direction === 'ascending' ? 1 : -1;
+  return keys
+    .map((key, index) => ({ key, index }))
+    .sort((a, b) => sign * (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map(({ index }) => index);
+}
+
+/** "2,15" read as 2 and 15: the digits after the comma compared as a whole number. */
+export const afterCommaKey = (label: string) => {
+  const [whole = '0', decimals = '0'] = label.replace(/\D*$/, '').split(',');
+  return Number(whole.replace(/\D/g, '')) * 1e6 + Number(decimals);
+};
+
+/** a op b with exact numbers; undefined for a division by zero. */
+export function calc(operator: string, a: Rational, b: Rational): Rational | undefined {
+  if (operator === '+') return add(a, b);
+  if (operator === '−') return sub(a, b);
+  if (operator === '×') return mul(a, b);
+  return b.num === 0 ? undefined : div(a, b);
+}
+
+/** An expression computed from left to right, parentheses and priorities ignored. */
+export function leftToRight(expression: string): Rational | undefined {
+  const tokens = expression.replace(/[()]/g, '').split(' ').filter(Boolean);
+  let value: Rational | undefined = rational(Number(tokens[0]));
+  for (let i = 1; i + 1 < tokens.length && value; i += 2) {
+    value = calc(tokens[i] ?? '+', value, rational(Number(tokens[i + 1])));
+  }
+  return value;
+}
+
+/** a + b with the last digits aligned instead of the commas: 3,5 + 1,25 → 1,60. */
+export function misalignedSum(a: Rational, b: Rational): Rational {
+  const written = (value: Rational) => {
+    const [whole = '', decimals = ''] = formatDecimal(value).replace(/\s/g, '').split(',');
+    return { digits: Number(whole + decimals), places: decimals.length };
+  };
+  const [x, y] = [written(a), written(b)];
+  return rational(x.digits + y.digits, 10 ** Math.max(x.places, y.places));
+}
+
+/** A copy of `list` with two places swapped; undefined when one of them is missing (-1). */
+export function swapped(list: readonly number[], i: number, j: number): number[] | undefined {
+  if (i < 0 || j < 0) return undefined;
+  const copy = [...list];
+  [copy[i], copy[j]] = [list[j] ?? 0, list[i] ?? 0];
+  return copy;
+}
+
+/** a op b op c… from left to right; `minusNegative`: − (−3) taken as − 3, a typical mistake. */
+export function chain(
+  terms: readonly number[],
+  operators: readonly string[],
+  minusNegative = false,
+) {
+  return terms.reduce((sum, term, i) => {
+    if (i === 0) return term;
+    if (operators[i - 1] !== '−') return sum + term;
+    return minusNegative ? sum - Math.abs(term) : sum - term;
+  }, 0);
+}
+
+/** Whether the last digit of `value` alone says it is a multiple of `divisor` (3: 3, 6, 9). */
+export const endsLikeMultiple = (value: number, divisor: number) =>
+  value % 10 > 0 && (value % 10) % divisor === 0;
+
+/** `answer` with k/10 and k/100 matched the other way round, when both are there. */
+export function swapTenths(fractions: readonly number[][], answer: readonly number[]) {
+  const tenth = fractions.findIndex(
+    ([num, den]) => den === 10 && fractions.some(([k, d]) => k === num && d === 100),
+  );
+  const num = fractions[tenth]?.[0];
+  return swapped(
+    answer,
+    tenth,
+    fractions.findIndex(([k, d]) => k === num && d === 100),
+  );
 }

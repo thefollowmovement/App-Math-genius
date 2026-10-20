@@ -1,4 +1,4 @@
-import { add, compare, decimal, defineGenerator, n, sub } from '../kit';
+import { add, compare, decimal, defineGenerator, misalignedSum, n, sub } from '../kit';
 
 // Decimal places of each term: from difficulty 2 they differ, so the commas must be aligned.
 const PLACES = { 1: [1, 1], 2: [1, 2], 3: [2, 2], 4: [0, 2], 5: [3, 1] } as const;
@@ -21,6 +21,7 @@ export default defineGenerator({
       prompt: `${n(a)} ${operator} ${n(b)} = ?`,
       check: `${n(a)} ${operator} ${n(b)}`,
       answer,
+      mistakes: { 'misaligned-commas': [operator === '+' ? misalignedSum(a, b) : undefined] },
       hint: 'Pose l’opération en alignant les virgules. Tu peux compléter avec des zéros.',
       explanation: [
         'On aligne les virgules, puis on calcule comme avec des entiers.',

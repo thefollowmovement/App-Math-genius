@@ -5,6 +5,8 @@ import { registerCSS } from 'react-native-css/jest';
 
 import { badgeGroups } from '@/data/badges-model';
 import { currentStop } from '@/data/mission-model';
+import { questionsFor } from '@/data/universe-model';
+import { catalogue } from '@/test-utils/universes';
 import type { Child } from '@/data/children';
 import { shopGroups } from '@/data/rewards-model';
 import type { VacationRow } from '@/data/routine-plan';
@@ -35,6 +37,7 @@ import { PairDevice } from './pair-device';
 import { PlacementScreen } from './placement';
 import { PlacementIntro } from './placement/placement-intro';
 import { PlacementResult } from './placement/placement-result';
+import { UniverseQuestionnaire } from './universe';
 import { ParentHome } from './parent-home';
 import { PracticeScreen } from './practice';
 import { ProfilePicker } from './profile-picker';
@@ -56,6 +59,8 @@ const lea: Child = {
   birth_year: null,
   theme_id: 'kawaii',
   avatar: {},
+  personalization_consent_at: null,
+  universe_asked_at: null,
 };
 const tom: Child = { ...lea, id: 'tom', display_name: 'Tom', gender: 'boy', grade: 'CM1' };
 const vacation: VacationRow = {
@@ -144,6 +149,36 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
         vacations={[vacation]}
         onEditRoutine={jest.fn()}
         rewards={parentRewards({ error: 'network' })}
+        profile={{
+          enabled: true,
+          profile: {
+            computedAt: '2026-10-20T03:00:00Z',
+            profile: {
+              grade: 'CE2',
+              answers: 300,
+              mastered: 4,
+              inProgress: 2,
+              strengths: [{ kind: 'best', strand: 'calcul' }],
+              weaknesses: [
+                {
+                  kind: 'error',
+                  error: 'forgot-carry',
+                  count: 5,
+                  lastSeenAt: '2026-10-19T17:00:00Z',
+                },
+              ],
+              style: { attention: null, bestTime: null, afterError: 'guesses', twinSuccess: 0.4 },
+              computedAt: '2026-10-20T03:00:00Z',
+            },
+          },
+          chosen: [{ universeId: 'minecraft', name: 'Minecraft', icon: '⛏️' }],
+          others: [],
+          saving: false,
+          error: null,
+          onEnable: jest.fn(),
+          onDisable: jest.fn(),
+          onEditUniverse: jest.fn(),
+        }}
         nudge={{ onSend: jest.fn(), sending: false, result: 'no_device', error: 'tooManyMessages' }}
         pairing={{
           status: 'showing',
@@ -236,9 +271,76 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
     ),
   },
   {
+    name: 'ChildHome (universe and super-power)',
+    render: () => (
+      <ChildHome
+        child={lea}
+        practice={{ status: 'ready' }}
+        plan={{ kind: 'planned', start: 17 * 60, deadline: 18 * 60 }}
+        goal={{ type: 'duration', minutes: 15 }}
+        universe="again"
+        onOpenUniverse={jest.fn()}
+        superPower={{ kind: 'strand', strand: 'fractions', how: 'ahead' }}
+        sync="idle"
+        onStart={jest.fn()}
+      />
+    ),
+  },
+  {
     name: 'PlacementIntro',
     render: () => (
       <PlacementIntro childName="Léa" recheck={false} onStart={jest.fn()} onLater={jest.fn()} />
+    ),
+  },
+  {
+    name: 'UniverseQuestionnaire (introduction)',
+    render: () => (
+      <UniverseQuestionnaire
+        childName="Léa"
+        mode="first"
+        questions={questionsFor(catalogue, '5e')}
+        initial={{}}
+        saving={false}
+        saved={false}
+        error={null}
+        onSave={jest.fn()}
+        onLater={jest.fn()}
+        onContinue={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'UniverseQuestionnaire (question)',
+    render: () => (
+      <UniverseQuestionnaire
+        childName="Léa"
+        mode="edit"
+        questions={questionsFor(catalogue, '5e')}
+        initial={{ games: { universes: ['minecraft'], other: 'Zelda' } }}
+        saving={false}
+        saved={false}
+        error="network"
+        onSave={jest.fn()}
+        onLater={jest.fn()}
+        onContinue={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'UniverseQuestionnaire (saved)',
+    render: () => (
+      <UniverseQuestionnaire
+        childName="Léa"
+        mode="first"
+        questions={questionsFor(catalogue, 'CM1')}
+        initial={{}}
+        saving={false}
+        saved
+        error={null}
+        onSave={jest.fn()}
+        onLater={jest.fn()}
+        onContinue={jest.fn()}
+      />
     ),
   },
   {
@@ -305,6 +407,10 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
         error="avatarLocked"
         onTheme={jest.fn()}
         onSave={jest.fn()}
+        universe={{
+          chosen: questionsFor(catalogue, 'CM1')[0]?.options ?? [],
+          onEdit: jest.fn(),
+        }}
       />
     ),
   },

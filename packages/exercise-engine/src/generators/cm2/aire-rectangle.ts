@@ -18,6 +18,10 @@ export default defineGenerator({
         : `Quelle est l’aire d’un rectangle de ${l} ${unit} sur ${w} ${unit} ?`,
       check: square ? `aire_carre(${l})` : `aire_rectangle(${l}, ${w})`,
       answer: r(square ? length * length : length * width),
+      mistakes: {
+        'area-perimeter': [r(square ? 4 * length : 2 * (length + width))],
+        'adds-instead-of-multiplying': [r(square ? 2 * length : length + width)],
+      },
       unit: `${unit}²`,
       hint: 'L’aire d’un rectangle, c’est la longueur multipliée par la largeur.',
       explanation: [

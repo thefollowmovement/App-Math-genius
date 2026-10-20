@@ -18,6 +18,7 @@ export default defineGenerator({
       prompt: `Quel est le ${asked} de la division de ${dividend} par ${divisor} ?`,
       check: `${asked}(${dividend}, ${divisor})`,
       answer: r(answer),
+      mistakes: { 'quotient-remainder': [r(asked === 'reste' ? quotient : remainder)] },
       hint: `Cherche le plus grand multiple de ${divisor} qui ne dépasse pas ${dividend}.`,
       explanation: [
         `${dividend} = ${divisor} × ${quotient} + ${remainder}`,

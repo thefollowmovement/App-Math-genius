@@ -6,6 +6,14 @@ import { sixiemeSkills } from './grades/sixieme';
 import type { Skill } from './types';
 
 export {
+  ERROR_TYPES,
+  getErrorType,
+  isErrorTypeCode,
+  type ErrorType,
+  type ErrorTypeCode,
+} from './error-types';
+
+export {
   DOMAINS,
   STRANDS,
   type Domain,

@@ -1,4 +1,7 @@
+import type { ErrorTypeCode } from '@math-genius/curriculum';
+
 import { buildExercise } from './adaptive/planner';
+import { diagnoseResponse } from './diagnose';
 import { DIFFICULTIES, type Exercise } from './exercise';
 import { type ExerciseResponse, gradeResponse } from './grade';
 import { rational } from './rational';
@@ -18,8 +21,15 @@ export type StoredAnswer = {
   answer: unknown;
 };
 
-/** Null: this version of the engine cannot rebuild the exercise (unknown generator). */
-export type ServerVerdict = { position: number; correct: boolean | null };
+/**
+ * Null: this version of the engine cannot rebuild the exercise (unknown generator). `error`: the
+ * typical mistake behind a wrong answer, when the exercise knows it (diagnose.ts).
+ */
+export type ServerVerdict = {
+  position: number;
+  correct: boolean | null;
+  error: ErrorTypeCode | null;
+};
 
 type JsonObject = { [key: string]: unknown };
 
@@ -74,12 +84,14 @@ export function rebuildExercise(
   }
 }
 
-/** Grades every stored answer again. An answer of an unknown shape is wrong. */
+/** Grades every stored answer again, and names its mistake. An answer of an unknown shape is wrong. */
 export function regrade(answers: readonly StoredAnswer[]): ServerVerdict[] {
   return answers.map(({ position, ...stored }) => {
     const exercise = rebuildExercise(stored);
-    if (!exercise) return { position, correct: null };
+    if (!exercise) return { position, correct: null, error: null };
     const response = parseStoredResponse(stored.answer);
-    return { position, correct: response ? gradeResponse(exercise, response).correct : false };
+    if (!response) return { position, correct: false, error: null };
+    const correct = gradeResponse(exercise, response).correct;
+    return { position, correct, error: correct ? null : diagnoseResponse(exercise, response) };
   });
 }

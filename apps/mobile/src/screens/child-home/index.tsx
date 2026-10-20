@@ -7,11 +7,13 @@ import { ChestArt } from '@/components/game/chest-art';
 import { HeroBust } from '@/components/hero/hero-bust';
 import { SpeechBubble } from '@/components/hero/hero-says';
 import type { Child } from '@/data/children';
+import type { SuperPower } from '@/data/learner-profile-model';
 import type { Stop } from '@/data/mission-model';
 import type { PlacementOffer } from '@/data/placement-model';
 import type { ParentRewardView } from '@/data/parent-rewards-model';
 import type { PracticeStatus } from '@/data/practice/summary';
 import { progressView, type Rewards, type WeeklyChallenge } from '@/data/rewards-model';
+import type { UniverseOffer } from '@/data/universe-model';
 import { strings } from '@/i18n';
 import { portraitLabel } from '@/i18n/cosmetic-names';
 import { goalText } from '@/utils/routine-text';
@@ -21,7 +23,9 @@ import { NextRewardCard } from '../rewards/next-reward-card';
 import { ChildNav, type NavLink } from './child-nav';
 import { MissionCard } from './mission-card';
 import { PlacementCard } from './placement-card';
+import { SuperPowerCard } from './super-power-card';
 import { TopBar } from './top-bar';
+import { UniverseCard } from './universe-card';
 
 const t = strings.childHome;
 
@@ -39,6 +43,11 @@ type ChildHomeProps = {
   /** The placement test to take, or to resume. */
   placement?: PlacementOffer;
   onStartPlacement?: () => void;
+  /** « Ton univers » to answer, once the parent agreed. */
+  universe?: UniverseOffer;
+  onOpenUniverse?: () => void;
+  /** The child's first strength, from the learning profile. */
+  superPower?: SuperPower | null;
   /** Missing until the first award, or while loading. */
   rewards?: Rewards;
   /** This week's challenge, once known. */
@@ -75,6 +84,9 @@ export function ChildHome({
   stop = null,
   placement = null,
   onStartPlacement,
+  universe = null,
+  onOpenUniverse,
+  superPower = null,
   rewards,
   challenge,
   nextReward,
@@ -120,6 +132,10 @@ export function ChildHome({
       {placement === 'recheck' && onStartPlacement ? (
         <PlacementCard offer={placement} onStart={onStartPlacement} />
       ) : null}
+      {/* After the first test: the child is asked about their universe. */}
+      {universe && onOpenUniverse && placement !== 'first' && placement !== 'resume' ? (
+        <UniverseCard offer={universe} onOpen={onOpenUniverse} />
+      ) : null}
       {chest && onOpenChest ? (
         <View className="flex-row items-center gap-3 rounded-lg border-2 border-accent bg-surface p-3 glow-accent">
           <View className="h-14 w-16">
@@ -142,6 +158,7 @@ export function ChildHome({
           {nextReward ? <NextRewardCard reward={nextReward} className="flex-1" /> : null}
         </View>
       ) : null}
+      {superPower ? <SuperPowerCard power={superPower} /> : null}
       {/* The hero stands at the bottom of the page when it is short. */}
       <View className="flex-1" />
       <View className="flex-row items-end gap-3">

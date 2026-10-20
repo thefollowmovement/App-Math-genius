@@ -1,10 +1,17 @@
-import type { SkillCode } from '@math-genius/curriculum';
+import type { ErrorTypeCode, SkillCode } from '@math-genius/curriculum';
 
 import type { NumberForm } from './parse';
 import type { Rational } from './rational';
 
 export type Difficulty = 1 | 2 | 3 | 4 | 5;
 export const DIFFICULTIES = [1, 2, 3, 4, 5] as const satisfies readonly Difficulty[];
+
+/**
+ * Typical wrong answers, by the mistake behind them (docs/specs.md, Coach IA : diagnostic par le
+ * code), computed from the exercise's own numbers. Missing values, and values equal to the right
+ * answer, are ignored: a generator can list them without conditions.
+ */
+export type Mistakes<T> = Partial<Record<ErrorTypeCode, readonly (T | undefined)[]>>;
 
 type Common = {
   /** Instruction and data, as shown to the child. */
@@ -31,6 +38,7 @@ export type NumericExercise = Common & {
   unit?: string;
   /** Show the expected answer as a fraction (probabilities, fraction sums) rather than 0,25. */
   display?: 'fraction';
+  mistakes?: Mistakes<Rational>;
 };
 
 export type ChoiceExercise = Common & {
@@ -38,9 +46,16 @@ export type ChoiceExercise = Common & {
   /** 3 or 4 options; `check` is true for the right one only. */
   options: readonly { label: string; check: string }[];
   answer: number;
+  /** Indices of the options a typical mistake picks. */
+  mistakes?: Mistakes<number>;
 };
 
-export type TrueFalseExercise = Common & { type: 'true-false'; check: string; answer: boolean };
+export type TrueFalseExercise = Common & {
+  type: 'true-false';
+  check: string;
+  answer: boolean;
+  mistakes?: Mistakes<boolean>;
+};
 
 export type NumberLineExercise = Common & {
   type: 'number-line';
@@ -51,6 +66,7 @@ export type NumberLineExercise = Common & {
   /** Number to place, as written in the prompt. */
   target: string;
   answer: Rational;
+  mistakes?: Mistakes<Rational>;
 };
 
 export type OrderExercise = Common & {
@@ -59,6 +75,7 @@ export type OrderExercise = Common & {
   items: readonly string[];
   /** Indices of `items` in the expected order. */
   answer: readonly number[];
+  mistakes?: Mistakes<readonly number[]>;
 };
 
 export type MatchExercise = Common & {
@@ -67,6 +84,7 @@ export type MatchExercise = Common & {
   right: readonly string[];
   /** `answer[i]` is the index in `right` that goes with `left[i]`. */
   answer: readonly number[];
+  mistakes?: Mistakes<readonly number[]>;
 };
 
 export type FractionShadeExercise = Common & {
@@ -77,6 +95,7 @@ export type FractionShadeExercise = Common & {
   fraction: string;
   /** Number of parts to shade, wherever they are. */
   answer: number;
+  mistakes?: Mistakes<number>;
 };
 
 export type ExerciseContent =

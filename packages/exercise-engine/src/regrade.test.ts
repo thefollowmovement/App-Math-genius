@@ -1,6 +1,9 @@
 import { generatorId } from './generator';
 import { generators } from './generators';
 import { buildExercise } from './adaptive/planner';
+import { mistakeList } from './diagnose';
+import { formatNumber } from './format';
+import type { Rational } from './rational';
 import {
   SKIPPED_ANSWER,
   type StoredAnswer,
@@ -43,18 +46,41 @@ describe('server-side regrading', () => {
   it('cannot vouch for an exercise this engine does not know', () => {
     const base = { position: 0, seed: 1, answer: { type: 'numeric', text: '12' } };
     expect(regrade([{ ...base, generator_id: 'ce2.removed', difficulty: 2 }])).toEqual([
-      { position: 0, correct: null },
+      { position: 0, correct: null, error: null },
     ]);
     expect(
       regrade([{ ...base, generator_id: generatorId(generators[0]!), difficulty: 9 }]),
-    ).toEqual([{ position: 0, correct: null }]);
+    ).toEqual([{ position: 0, correct: null, error: null }]);
+  });
+
+  it('names the typical mistake behind a wrong answer', () => {
+    const generator = generators.find((candidate) => candidate.skill === 'ce2.addition-posee');
+    if (!generator) throw new Error('no addition generator');
+    const id = generatorId(generator);
+    // An addition that needs a carry, answered without it.
+    const stored = (seed: number, text: string) => ({
+      position: seed,
+      generator_id: id,
+      difficulty: 3,
+      seed,
+      answer: { type: 'numeric', text },
+    });
+    const exercise = Array.from({ length: 50 }, (_, seed) =>
+      buildExercise({ generatorId: id, difficulty: 3, seed }),
+    ).find((candidate) => candidate.type === 'numeric' && mistakeList(candidate).length > 0);
+    if (!exercise) throw new Error('no addition with a carry');
+    const [mistake] = mistakeList(exercise);
+    const text = formatNumber(mistake?.answer as Rational);
+    expect(regrade([stored(exercise.seed, text)])).toEqual([
+      { position: exercise.seed, correct: false, error: 'forgot-carry' },
+    ]);
   });
 
   it('marks an answer of an unknown shape as wrong', () => {
     const id = generatorId(generators[0]!);
     expect(
       regrade([{ position: 3, generator_id: id, difficulty: 2, seed: 5, answer: { type: 'x' } }]),
-    ).toEqual([{ position: 3, correct: false }]);
+    ).toEqual([{ position: 3, correct: false, error: null }]);
   });
 
   it('marks « Je ne sais pas » as wrong', () => {
@@ -62,7 +88,7 @@ describe('server-side regrading', () => {
     const answer = stored(SKIPPED_ANSWER);
     expect(isSkippedAnswer(answer)).toBe(true);
     expect(regrade([{ position: 0, generator_id: id, difficulty: 2, seed: 5, answer }])).toEqual([
-      { position: 0, correct: false },
+      { position: 0, correct: false, error: null },
     ]);
   });
 

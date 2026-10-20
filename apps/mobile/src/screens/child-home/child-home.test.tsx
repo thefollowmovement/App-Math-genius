@@ -18,6 +18,8 @@ const lea: Child = {
   birth_year: null,
   theme_id: 'neon',
   avatar: {},
+  personalization_consent_at: null,
+  universe_asked_at: null,
 };
 const t = strings.childHome;
 const goal = { type: 'duration', minutes: 15 } as const;
@@ -265,5 +267,49 @@ describe('ChildHome rewards', () => {
     expect(
       screen.getByRole('progressbar', { name: strings.parentRewards.child.title }),
     ).toHaveAccessibilityValue({ text: strings.parentRewards.child.progressLabel(4, 7) });
+  });
+});
+
+describe('ChildHome personalization', () => {
+  it('asks about the child’s universe after the first test, and shows the super-power', async () => {
+    const onOpenUniverse = jest.fn();
+    const user = userEvent.setup();
+    const { rerender } = await renderWithTheme(
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'ready' }}
+        universe="first"
+        onOpenUniverse={onOpenUniverse}
+        superPower={{ kind: 'strand', strand: 'fractions', how: 'ahead' }}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(strings.universe.card.firstText)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: strings.universe.card.answer }));
+    expect(onOpenUniverse).toHaveBeenCalledTimes(1);
+    expect(
+      screen.getByLabelText(
+        `${strings.superPower.label} : ${strings.superPower.strands.fractions}. ${strings.superPower.how.ahead}`,
+      ),
+    ).toBeOnTheScreen();
+
+    // The first test comes first.
+    await rerender(
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'ready' }}
+        placement="first"
+        onStartPlacement={jest.fn()}
+        universe="first"
+        onOpenUniverse={onOpenUniverse}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.queryByText(strings.universe.card.firstText)).not.toBeOnTheScreen();
+    expect(screen.queryByText(strings.superPower.label)).not.toBeOnTheScreen();
   });
 });

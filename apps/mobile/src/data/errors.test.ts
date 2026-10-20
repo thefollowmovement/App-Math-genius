@@ -25,6 +25,7 @@ describe('errorKind', () => {
     expect(errorKind({ code: 'PT409', message: 'already_owned' })).toBe('alreadyOwned');
     expect(errorKind({ code: 'PT409', message: 'too_many_freezes' })).toBe('tooManyFreezes');
     expect(errorKind({ code: 'PT403', message: 'avatar_locked' })).toBe('avatarLocked');
+    expect(errorKind({ code: 'PT409', message: 'personalization_off' })).toBe('personalizationOff');
   });
 
   it('recognizes network failures and falls back to unknown', () => {

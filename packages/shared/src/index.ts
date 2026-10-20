@@ -59,6 +59,11 @@ export {
 } from './rewards';
 export { awardSchema, type Award } from './award';
 export {
+  PERSONALIZATION_CONSENT_VERSION,
+  UNIVERSE_RECHECK_DAYS,
+  universeDue,
+} from './personalization';
+export {
   BADGES,
   BADGE_CATEGORIES,
   BADGE_METRICS,

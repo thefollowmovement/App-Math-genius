@@ -18,6 +18,7 @@ export default defineGenerator({
       prompt: `${expression} = ?`,
       check: expression,
       answer: r(resultNum, den),
+      mistakes: { 'adds-denominators': [subtract ? undefined : r(resultNum, 2 * den)] },
       display: 'fraction',
       hint: 'Les dénominateurs sont les mêmes : regarde seulement les numérateurs.',
       explanation: [

@@ -16,6 +16,7 @@ export default defineGenerator({
       prompt: `Un sac contient ${list(content)}. On tire une boule au hasard. Quelle est la probabilité qu’elle soit ${colors[target]?.slice(0, -1)} ?`,
       check: `${favourable} ÷ (${counts.join(' + ')})`,
       answer: r(favourable, total),
+      mistakes: { 'favourable-over-others': [r(favourable, total - favourable)] },
       display: 'fraction',
       hint: 'Probabilité = nombre de cas favorables ÷ nombre total de cas.',
       explanation: [

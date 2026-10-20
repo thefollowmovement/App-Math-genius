@@ -23,8 +23,18 @@ export async function refetchAfterWrite(client: QueryClient, queryKey: QueryKey)
   await client.invalidateQueries({ queryKey });
 }
 
-/** Profiles, routines and rewards are kept on the device; practice data has its own store. */
-const PERSISTED_QUERIES = new Set(['children', 'routines', 'rewards']);
+/**
+ * Profiles, routines, rewards and the universes are kept on the device; practice data has its own
+ * store.
+ */
+const PERSISTED_QUERIES = new Set([
+  'children',
+  'routines',
+  'rewards',
+  'universes',
+  'interests',
+  'learner-profile',
+]);
 
 export const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
   persister: createAsyncStoragePersister({

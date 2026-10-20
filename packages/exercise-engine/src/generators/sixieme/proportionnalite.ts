@@ -1,4 +1,4 @@
-import { decimal, defineGenerator, mul, n, r, range } from '../kit';
+import { add, decimal, defineGenerator, mul, n, r, range } from '../kit';
 
 export default defineGenerator({
   skill: '6e.proportionnalite',
@@ -16,6 +16,7 @@ export default defineGenerator({
       prompt: `Dans ce tableau de proportionnalité, ${first} correspond à ${n(y1)}. À quoi correspond ${second} ?`,
       check: `${n(y1)} ÷ ${first} × ${second}`,
       answer,
+      mistakes: { 'additive-reasoning': [add(y1, r(second - first))] },
       hint: 'Cherche par combien il faut multiplier la première ligne pour obtenir la seconde.',
       explanation: [
         `${n(y1)} ÷ ${first} = ${n(coefficient)}`,
