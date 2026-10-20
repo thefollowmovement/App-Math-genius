@@ -77,6 +77,7 @@ export {
   type ExerciseType,
   type FractionShadeExercise,
   type MatchExercise,
+  type Mistakes,
   type NumberLineExercise,
   type NumericExercise,
   type OrderExercise,
@@ -92,6 +93,7 @@ export {
 } from './format';
 export { defineGenerator, generateExercise, generatorId, type Generator } from './generator';
 export { generators } from './generators';
+export { diagnoseResponse, mistakeList } from './diagnose';
 export { gradeResponse, type ExerciseResponse, type Verdict } from './grade';
 export { parseTypedNumber, type NumberForm, type TypedNumber } from './parse';
 export { createRng, deriveSeed, type Rng } from './random';

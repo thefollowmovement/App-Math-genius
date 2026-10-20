@@ -9,16 +9,27 @@ export {
 } from '../format';
 export { type Rational, add, compare, decimal, mul, rational as r, sub } from '../rational';
 export {
+  afterCommaKey,
+  calc,
+  chain,
   distinct,
+  endsLikeMultiple,
   gcd,
   isPrime,
+  leftToRight,
   list,
+  misalignedSum,
+  noCarryProduct,
+  noCarrySum,
   orderFields,
   orderPrompt,
   orderSentence,
   plural,
   power,
   range,
+  rankBy,
   ranking,
   smallestFactor,
+  swapped,
+  swapTenths,
 } from './helpers';

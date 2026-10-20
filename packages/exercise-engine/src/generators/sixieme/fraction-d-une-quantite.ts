@@ -21,6 +21,7 @@ export default defineGenerator({
       prompt: `Combien font ${num}/${den} de ${n(quantity)} ?`,
       check: `${num}/${den} × ${n(quantity)}`,
       answer: r(num * part),
+      mistakes: { 'divides-only': [r(part)] },
       hint: `Partage d’abord ${n(quantity)} en ${den} parts égales.`,
       explanation: [
         `${n(quantity)} ÷ ${den} = ${n(part)}`,

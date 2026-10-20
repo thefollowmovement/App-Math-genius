@@ -1,4 +1,4 @@
-import { defineGenerator, n, r } from '../kit';
+import { calc, defineGenerator, n, r } from '../kit';
 
 const OPPOSITE = { '+': '−', '−': '+', '×': '÷', '÷': '×' } as const;
 
@@ -23,6 +23,14 @@ export default defineGenerator({
           ? `${n(c)} ${OPPOSITE[operator]} ${n(hideA ? b : a)}`
           : `${n(a)} ${operator} ${n(c)}`,
       answer: r(hideA ? a : b),
+      mistakes: {
+        // The other operation on the same two numbers: 12 + 7 for ? + 7 = 12.
+        'inverse-operation': [
+          hideA || !backwards
+            ? calc(operator, r(c), r(hideA ? b : a))
+            : calc(OPPOSITE[operator], r(a), r(c)),
+        ],
+      },
       hint: 'Utilise l’opération inverse pour retrouver le nombre manquant.',
       explanation: [`${n(a)} ${operator} ${n(b)} = ${n(c)}, donc il manque ${n(hideA ? a : b)}.`],
     };

@@ -22,6 +22,7 @@ export default defineGenerator({
       step: r(1, den),
       target: `${num}/${den}`,
       answer: r(num, den),
+      mistakes: { 'off-by-one-graduation': [r(num - 1, den), r(num + 1, den)] },
       prompt: `Place ${num}/${den} sur la droite graduée.`,
       hint: `L’unité est partagée en ${den} parts égales : chaque graduation vaut 1/${den}.`,
       explanation: [`${num}/${den}, c’est ${num} graduations de 1/${den} après 0.`],

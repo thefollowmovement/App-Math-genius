@@ -1,4 +1,4 @@
-import { defineGenerator, distinct, n, orderFields, r } from '../kit';
+import { defineGenerator, distinct, n, orderFields, r, rankBy } from '../kit';
 
 const MAX = { 1: 99, 2: 999, 3: 9999, 4: 999, 5: 999 };
 
@@ -14,6 +14,8 @@ export default defineGenerator({
         values.map(n),
         values.map((value) => r(value)),
         direction,
+        // Read as words, 1 000 comes before 999: the length of the numbers is overlooked.
+        { 'digits-not-length': [rankBy(values.map(String), direction)] },
       ),
       hint: 'Compare d’abord le nombre de chiffres, puis les chiffres un par un en partant de la gauche.',
     };

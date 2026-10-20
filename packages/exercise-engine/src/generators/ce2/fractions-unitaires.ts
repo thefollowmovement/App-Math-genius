@@ -19,6 +19,7 @@ export default defineGenerator({
       parts: den * group,
       fraction: `1/${den}`,
       answer: group,
+      mistakes: { 'one-part-only': [1], 'shades-denominator': [den] },
       prompt: `Colorie 1/${den} de la barre.`,
       hint: `Regroupe les parts pour former ${den} morceaux égaux.`,
       explanation: [

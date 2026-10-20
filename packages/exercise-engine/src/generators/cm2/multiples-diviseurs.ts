@@ -1,4 +1,4 @@
-import { defineGenerator, n, range } from '../kit';
+import { defineGenerator, endsLikeMultiple, n, range } from '../kit';
 
 const DIVISORS = { 1: [2, 5, 10], 2: [2, 5, 10], 3: [2, 3, 5, 9, 10], 4: [3, 9], 5: [3, 4, 6, 9] };
 const SENTENCES = [
@@ -19,6 +19,14 @@ export default defineGenerator({
       prompt: `Vrai ou faux ? ${rng.pick(SENTENCES)(value, divisor)}`,
       check: `multiple(${value}, ${divisor})`,
       answer: remainder === 0,
+      mistakes: {
+        // For 3 and 9 the last digit says nothing: 23 is no multiple of 3, 27 is.
+        'last-digit-rule': [
+          divisor === 3 || divisor === 9
+            ? endsLikeMultiple(divisor * quotient + remainder, divisor)
+            : undefined,
+        ],
+      },
       hint: `Essaie de diviser ${value} par ${divisor} : y a-t-il un reste ?`,
       explanation: [
         `${value} = ${divisor} × ${n(quotient)} + ${remainder}`,

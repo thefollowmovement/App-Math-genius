@@ -1,4 +1,4 @@
-import { defineGenerator, n, op, r } from '../kit';
+import { chain, defineGenerator, n, op, r } from '../kit';
 
 export default defineGenerator({
   skill: '5e.relatifs-addition-soustraction',
@@ -11,9 +11,7 @@ export default defineGenerator({
     const expression = terms
       .map((term, i) => (i === 0 ? op(term) : `${operators[i - 1]} ${op(term)}`))
       .join(' ');
-    const value = terms.reduce((sum, term, i) =>
-      i === 0 ? term : operators[i - 1] === '−' ? sum - term : sum + term,
-    );
+    const value = chain(terms, operators);
     const rule = operators.includes('−')
       ? 'Soustraire, c’est ajouter l’opposé.'
       : 'On additionne en tenant compte des signes.';
@@ -22,6 +20,11 @@ export default defineGenerator({
       prompt: `${expression} = ?`,
       check: expression,
       answer: r(value),
+      mistakes: {
+        // − (−3) taken as − 3; or the right size with the wrong sign.
+        'subtract-negative': [r(chain(terms, operators, true))],
+        'sign-error': [r(-value)],
+      },
       hint: 'Soustraire un nombre, c’est ajouter son opposé.',
       explanation: [rule, `${expression} = ${n(value)}`],
     };

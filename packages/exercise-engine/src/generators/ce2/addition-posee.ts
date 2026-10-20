@@ -1,4 +1,4 @@
-import { defineGenerator, n, r } from '../kit';
+import { defineGenerator, n, noCarrySum, r } from '../kit';
 
 // Ranges of the two terms; sums stay below 10 000, as in the CE2 programme.
 const RANGES = {
@@ -19,6 +19,7 @@ export default defineGenerator({
       prompt: `${n(a)} + ${n(b)} = ?`,
       check: `${n(a)} + ${n(b)}`,
       answer: r(a + b),
+      mistakes: { 'forgot-carry': [r(noCarrySum(a, b))] },
       hint: 'Pose l’addition en alignant les unités, puis calcule de droite à gauche sans oublier les retenues.',
       explanation: [
         'On additionne colonne par colonne, en commençant par les unités.',

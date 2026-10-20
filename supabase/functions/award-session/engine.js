@@ -929,6 +929,184 @@ var sixiemeSkills = defineGradeSkills("6e", "2025", [
   }
 ]);
 
+// ../curriculum/src/error-types.ts
+var ERROR_TYPES = [
+  {
+    code: "forgot-carry",
+    label: "oublie la retenue",
+    skills: ["ce2.addition-posee", "ce2.multiplication-posee"]
+  },
+  {
+    code: "reverse-order",
+    label: "range dans le mauvais sens",
+    skills: ["ce2.comparer-ranger-nombres", "cm1.comparer-decimaux"]
+  },
+  {
+    code: "digits-not-length",
+    label: "compare les chiffres sans regarder combien les nombres en ont",
+    skills: ["ce2.comparer-ranger-nombres"]
+  },
+  { code: "double-half", label: "confond le double et la moiti\xE9", skills: ["ce2.doubles-moities"] },
+  {
+    code: "one-part-only",
+    label: "colorie une seule part au lieu d\u2019un morceau entier",
+    skills: ["ce2.fractions-unitaires"]
+  },
+  {
+    code: "shades-denominator",
+    label: "colorie autant de parts que le d\xE9nominateur",
+    skills: ["ce2.fractions-unitaires"]
+  },
+  {
+    code: "conversion-factor",
+    label: "se trompe de nombre de z\xE9ros dans les conversions",
+    skills: ["ce2.longueurs-conversions"]
+  },
+  {
+    code: "conversion-direction",
+    label: "convertit dans le mauvais sens",
+    skills: ["ce2.longueurs-conversions"]
+  },
+  {
+    code: "table-neighbour",
+    label: "confond des r\xE9sultats voisins dans les tables",
+    skills: ["ce2.tables-multiplication"]
+  },
+  {
+    code: "adds-instead-of-multiplying",
+    label: "additionne au lieu de multiplier",
+    skills: ["ce2.tables-multiplication", "cm2.aire-rectangle"]
+  },
+  {
+    code: "decimals-as-integers",
+    label: "compare les chiffres apr\xE8s la virgule comme des nombres entiers",
+    skills: ["cm1.comparer-decimaux"]
+  },
+  {
+    code: "quotient-remainder",
+    label: "confond le quotient et le reste",
+    skills: ["cm1.division-euclidienne"]
+  },
+  {
+    code: "off-by-one-graduation",
+    label: "se d\xE9cale d\u2019une graduation sur la droite gradu\xE9e",
+    skills: ["cm1.fractions-droite-graduee"]
+  },
+  {
+    code: "decimal-place-value",
+    label: "place mal les dixi\xE8mes et les centi\xE8mes",
+    skills: ["cm1.nombres-decimaux"]
+  },
+  {
+    code: "area-perimeter",
+    label: "confond aire et p\xE9rim\xE8tre",
+    skills: ["cm1.perimetre", "cm2.aire-rectangle"]
+  },
+  {
+    code: "half-perimeter",
+    label: "ne compte chaque c\xF4t\xE9 qu\u2019une fois dans le p\xE9rim\xE8tre",
+    skills: ["cm1.perimetre"]
+  },
+  {
+    code: "additive-reasoning",
+    label: "ajoute au lieu de multiplier dans les probl\xE8mes de proportionnalit\xE9",
+    skills: ["cm1.proportionnalite", "6e.proportionnalite"]
+  },
+  {
+    code: "skips-unit-price",
+    label: "oublie de passer par le prix d\u2019un seul objet",
+    skills: ["cm1.proportionnalite"]
+  },
+  {
+    code: "misaligned-commas",
+    label: "n\u2019aligne pas les virgules",
+    skills: ["cm2.addition-soustraction-decimaux"]
+  },
+  {
+    code: "inverse-operation",
+    label: "n\u2019utilise pas l\u2019op\xE9ration inverse pour trouver un nombre manquant",
+    skills: ["cm2.expressions-inconnue"]
+  },
+  {
+    code: "adds-denominators",
+    label: "additionne aussi les d\xE9nominateurs",
+    skills: ["cm2.fractions-addition-meme-denominateur", "5e.fractions-addition"]
+  },
+  {
+    code: "tenths-hundredths",
+    label: "confond dixi\xE8mes et centi\xE8mes",
+    skills: ["cm2.fractions-decimaux-equivalences"]
+  },
+  {
+    code: "last-digit-rule",
+    label: "regarde le dernier chiffre pour savoir si un nombre est divisible par 3 ou 9",
+    skills: ["cm2.multiples-diviseurs"]
+  },
+  {
+    code: "percent-subtract",
+    label: "enl\xE8ve le nombre au lieu de prendre le pourcentage",
+    skills: ["cm2.pourcentages"]
+  },
+  {
+    code: "percent-hundred",
+    label: "oublie de diviser par 100 dans un pourcentage",
+    skills: ["cm2.pourcentages"]
+  },
+  {
+    code: "acute-obtuse",
+    label: "confond angle aigu et angle obtus",
+    skills: ["6e.angles-degres"]
+  },
+  {
+    code: "divides-only",
+    label: "partage sans multiplier par le num\xE9rateur",
+    skills: ["6e.fraction-d-une-quantite"]
+  },
+  {
+    code: "odd-is-prime",
+    label: "croit que les nombres impairs sont premiers",
+    skills: ["6e.nombres-premiers"]
+  },
+  {
+    code: "left-to-right",
+    label: "calcule de gauche \xE0 droite sans les priorit\xE9s",
+    skills: ["6e.priorites-operatoires"]
+  },
+  {
+    code: "favourable-over-others",
+    label: "divise par les autres cas au lieu du total",
+    skills: ["6e.probabilites"]
+  },
+  {
+    code: "same-denominator",
+    label: "additionne les num\xE9rateurs sans mettre au m\xEAme d\xE9nominateur",
+    skills: ["5e.fractions-addition"]
+  },
+  {
+    code: "zeros-count",
+    label: "se trompe dans le nombre de z\xE9ros",
+    skills: ["5e.puissances-de-10"]
+  },
+  {
+    code: "exponent-times-ten",
+    label: "multiplie 10 par l\u2019exposant",
+    skills: ["5e.puissances-de-10"]
+  },
+  {
+    code: "subtract-negative",
+    label: "oublie que soustraire un nombre n\xE9gatif revient \xE0 ajouter",
+    skills: ["5e.relatifs-addition-soustraction"]
+  },
+  {
+    code: "sign-error",
+    label: "se trompe de signe",
+    skills: ["5e.relatifs-addition-soustraction"]
+  }
+];
+var BY_CODE = new Map(
+  ERROR_TYPES.map((item) => [item.code, item])
+);
+
 // ../curriculum/src/index.ts
 var skills = [
   ...ce2Skills,
@@ -1009,6 +1187,7 @@ function decimal(scaled, places) {
 var add = (a, b) => rational(a.num * b.den + b.num * a.den, a.den * b.den);
 var sub = (a, b) => rational(a.num * b.den - b.num * a.den, a.den * b.den);
 var mul = (a, b) => rational(a.num * b.num, a.den * b.den);
+var div = (a, b) => rational(a.num * b.den, a.den * b.num);
 var equals = (a, b) => a.num === b.num && a.den === b.den;
 var compare = (a, b) => Math.sign(a.num * b.den - b.num * a.den);
 function isTerminating(value) {
@@ -1101,7 +1280,7 @@ function orderSentence(labels, order, direction) {
 function gcd2(a, b) {
   return b === 0 ? Math.abs(a) : gcd2(b, a % b);
 }
-function orderFields(labels, values, direction) {
+function orderFields(labels, values, direction, mistakes = {}) {
   const answer = ranking(values, direction);
   return {
     type: "order",
@@ -1109,8 +1288,76 @@ function orderFields(labels, values, direction) {
     items: labels,
     answer,
     prompt: orderPrompt(direction),
-    explanation: [orderSentence(labels, answer, direction)]
+    explanation: [orderSentence(labels, answer, direction)],
+    mistakes: { "reverse-order": [[...answer].reverse()], ...mistakes }
   };
+}
+var digitsOf = (value) => [...String(value)].reverse().map(Number);
+function noCarrySum(a, b) {
+  const [x, y] = [digitsOf(a), digitsOf(b)];
+  const length = Math.max(x.length, y.length);
+  return Array.from({ length }, (_, i) => ((x[i] ?? 0) + (y[i] ?? 0)) % 10).reduce(
+    (sum, digit, i) => sum + digit * 10 ** i,
+    0
+  );
+}
+function noCarryProduct(a, b) {
+  return digitsOf(a).reduce((sum, digit, i) => sum + digit * b % 10 * 10 ** i, 0);
+}
+function rankBy(keys, direction) {
+  const sign = direction === "ascending" ? 1 : -1;
+  return keys.map((key, index) => ({ key, index })).sort((a, b) => sign * (a.key < b.key ? -1 : a.key > b.key ? 1 : 0)).map(({ index }) => index);
+}
+var afterCommaKey = (label) => {
+  const [whole = "0", decimals = "0"] = label.replace(/\D*$/, "").split(",");
+  return Number(whole.replace(/\D/g, "")) * 1e6 + Number(decimals);
+};
+function calc(operator, a, b) {
+  if (operator === "+") return add(a, b);
+  if (operator === "\u2212") return sub(a, b);
+  if (operator === "\xD7") return mul(a, b);
+  return b.num === 0 ? void 0 : div(a, b);
+}
+function leftToRight(expression) {
+  const tokens = expression.replace(/[()]/g, "").split(" ").filter(Boolean);
+  let value = rational(Number(tokens[0]));
+  for (let i = 1; i + 1 < tokens.length && value; i += 2) {
+    value = calc(tokens[i] ?? "+", value, rational(Number(tokens[i + 1])));
+  }
+  return value;
+}
+function misalignedSum(a, b) {
+  const written = (value) => {
+    const [whole = "", decimals = ""] = formatDecimal(value).replace(/\s/g, "").split(",");
+    return { digits: Number(whole + decimals), places: decimals.length };
+  };
+  const [x, y] = [written(a), written(b)];
+  return rational(x.digits + y.digits, 10 ** Math.max(x.places, y.places));
+}
+function swapped(list2, i, j) {
+  if (i < 0 || j < 0) return void 0;
+  const copy = [...list2];
+  [copy[i], copy[j]] = [list2[j] ?? 0, list2[i] ?? 0];
+  return copy;
+}
+function chain(terms, operators, minusNegative = false) {
+  return terms.reduce((sum, term, i) => {
+    if (i === 0) return term;
+    if (operators[i - 1] !== "\u2212") return sum + term;
+    return minusNegative ? sum - Math.abs(term) : sum - term;
+  }, 0);
+}
+var endsLikeMultiple = (value, divisor) => value % 10 > 0 && value % 10 % divisor === 0;
+function swapTenths(fractions, answer) {
+  const tenth = fractions.findIndex(
+    ([num2, den]) => den === 10 && fractions.some(([k, d]) => k === num2 && d === 100)
+  );
+  const num = fractions[tenth]?.[0];
+  return swapped(
+    answer,
+    tenth,
+    fractions.findIndex(([k, d]) => k === num && d === 100)
+  );
 }
 
 // src/generators/ce2/addition-posee.ts
@@ -1131,6 +1378,7 @@ var addition_posee_default = defineGenerator({
       prompt: `${formatNumber(a)} + ${formatNumber(b)} = ?`,
       check: `${formatNumber(a)} + ${formatNumber(b)}`,
       answer: rational(a + b),
+      mistakes: { "forgot-carry": [rational(noCarrySum(a, b))] },
       hint: "Pose l\u2019addition en alignant les unit\xE9s, puis calcule de droite \xE0 gauche sans oublier les retenues.",
       explanation: [
         "On additionne colonne par colonne, en commen\xE7ant par les unit\xE9s.",
@@ -1152,7 +1400,9 @@ var comparer_ranger_nombres_default = defineGenerator({
       ...orderFields(
         values.map(formatNumber),
         values.map((value) => rational(value)),
-        direction
+        direction,
+        // Read as words, 1 000 comes before 999: the length of the numbers is overlooked.
+        { "digits-not-length": [rankBy(values.map(String), direction)] }
       ),
       hint: "Compare d\u2019abord le nombre de chiffres, puis les chiffres un par un en partant de la gauche."
     };
@@ -1171,6 +1421,7 @@ var doubles_moities_default = defineGenerator({
         prompt: `Quel est le double de ${formatNumber(value)} ?`,
         check: `double(${formatNumber(value)})`,
         answer: rational(2 * value),
+        mistakes: { "double-half": [rational(value, 2)] },
         hint: "Le double, c\u2019est le nombre ajout\xE9 \xE0 lui-m\xEAme.",
         explanation: [`${formatNumber(value)} + ${formatNumber(value)} = ${formatNumber(2 * value)}`]
       };
@@ -1180,6 +1431,7 @@ var doubles_moities_default = defineGenerator({
       prompt: `Quelle est la moiti\xE9 de ${formatNumber(2 * value)} ?`,
       check: `moitie(${formatNumber(2 * value)})`,
       answer: rational(value),
+      mistakes: { "double-half": [rational(4 * value)] },
       hint: "La moiti\xE9, c\u2019est le nombre qu\u2019il faut doubler pour retrouver le nombre de d\xE9part.",
       explanation: [`${formatNumber(value)} + ${formatNumber(value)} = ${formatNumber(2 * value)}, donc la moiti\xE9 est ${formatNumber(value)}.`]
     };
@@ -1204,6 +1456,7 @@ var fractions_unitaires_default = defineGenerator({
       parts: den * group,
       fraction: `1/${den}`,
       answer: group,
+      mistakes: { "one-part-only": [1], "shades-denominator": [den] },
       prompt: `Colorie 1/${den} de la barre.`,
       hint: `Regroupe les parts pour former ${den} morceaux \xE9gaux.`,
       explanation: [
@@ -1233,6 +1486,10 @@ var longueurs_conversions_default = defineGenerator({
       prompt: `${formatNumber(value)} ${from} = ? ${to}`,
       check: `conversion(${formatNumber(value)}, ${from}, ${to})`,
       answer: rational(answer),
+      mistakes: {
+        "conversion-factor": [rational(answer * 10), rational(answer, 10)],
+        "conversion-direction": [reverse ? rational(value * factor) : rational(value, factor)]
+      },
       unit: to,
       hint: `Combien de ${small} dans 1 ${big} ?`,
       explanation: [
@@ -1255,6 +1512,7 @@ var multiplication_posee_default = defineGenerator({
       prompt: `${formatNumber(a)} \xD7 ${b} = ?`,
       check: `${formatNumber(a)} \xD7 ${b}`,
       answer: rational(a * b),
+      mistakes: { "forgot-carry": [rational(noCarryProduct(a, b))] },
       hint: "Multiplie d\u2019abord les unit\xE9s, puis les dizaines, sans oublier les retenues.",
       explanation: [
         `On multiplie chaque chiffre de ${formatNumber(a)} par ${b}, en commen\xE7ant par les unit\xE9s.`,
@@ -1278,6 +1536,10 @@ var tables_multiplication_default = defineGenerator({
       prompt: missing ? `${a} \xD7 ? = ${product}` : `${a} \xD7 ${b} = ?`,
       check: missing ? `${product} \xF7 ${a}` : `${a} \xD7 ${b}`,
       answer: rational(missing ? b : a * b),
+      mistakes: missing ? { "table-neighbour": [rational(b - 1), rational(b + 1)] } : {
+        "table-neighbour": [rational(a * (b - 1)), rational(a * (b + 1))],
+        "adds-instead-of-multiplying": [rational(a + b)]
+      },
       hint: `Pense \xE0 la table de ${a}.`,
       explanation: [`${a} \xD7 ${b} = ${product}`]
     };
@@ -1297,7 +1559,9 @@ var comparer_decimaux_default = defineGenerator({
     const values = distinct(difficulty < 4 ? 4 : 5, draw, formatDecimal);
     const direction = rng.pick(["ascending", "descending"]);
     return {
-      ...orderFields(values.map(formatDecimal), values, direction),
+      ...orderFields(values.map(formatDecimal), values, direction, {
+        "decimals-as-integers": [rankBy(values.map(formatDecimal).map(afterCommaKey), direction)]
+      }),
       hint: "Compare la partie enti\xE8re, puis les dixi\xE8mes, puis les centi\xE8mes. Ajouter des z\xE9ros \xE0 la fin ne change rien."
     };
   }
@@ -1320,6 +1584,7 @@ var division_euclidienne_default = defineGenerator({
       prompt: `Quel est le ${asked} de la division de ${dividend} par ${divisor} ?`,
       check: `${asked}(${dividend}, ${divisor})`,
       answer: rational(answer),
+      mistakes: { "quotient-remainder": [rational(asked === "reste" ? quotient : remainder)] },
       hint: `Cherche le plus grand multiple de ${divisor} qui ne d\xE9passe pas ${dividend}.`,
       explanation: [
         `${dividend} = ${divisor} \xD7 ${quotient} + ${remainder}`,
@@ -1350,6 +1615,7 @@ var fractions_droite_graduee_default = defineGenerator({
       step: rational(1, den),
       target: `${num}/${den}`,
       answer: rational(num, den),
+      mistakes: { "off-by-one-graduation": [rational(num - 1, den), rational(num + 1, den)] },
       prompt: `Place ${num}/${den} sur la droite gradu\xE9e.`,
       hint: `L\u2019unit\xE9 est partag\xE9e en ${den} parts \xE9gales : chaque graduation vaut 1/${den}.`,
       explanation: [`${num}/${den}, c\u2019est ${num} graduations de 1/${den} apr\xE8s 0.`]
@@ -1377,6 +1643,13 @@ var nombres_decimaux_default = defineGenerator({
       prompt: `\xC9cris ce nombre avec une virgule : ${list(words)}.`,
       check: shown.map(([count, , fn]) => fn ? `${fn}(${count})` : `${count}`).join(" + "),
       answer,
+      mistakes: {
+        // 3 units and 5 hundredths written 3,5, or tenths and hundredths swapped.
+        "decimal-place-value": [
+          decimal(units * 10 + hundredths, 1),
+          decimal(units * 100 + hundredths * 10 + tenths, 2)
+        ]
+      },
       forms: ["decimal"],
       hint: "Les dixi\xE8mes s\u2019\xE9crivent juste apr\xE8s la virgule, puis viennent les centi\xE8mes.",
       explanation: [`${list(words)} : ${formatDecimal(answer)}`]
@@ -1398,6 +1671,10 @@ var perimetre_default = defineGenerator({
       prompt: square ? `Quel est le p\xE9rim\xE8tre d\u2019un carr\xE9 de ${l} cm de c\xF4t\xE9 ?` : `Quel est le p\xE9rim\xE8tre d\u2019un rectangle de ${l} cm de longueur et ${w} cm de largeur ?`,
       check: square ? `perimetre_carre(${l})` : `perimetre_rectangle(${l}, ${w})`,
       answer: rational(square ? 4 * length : 2 * (length + width)),
+      mistakes: {
+        "area-perimeter": [rational(square ? length * length : length * width)],
+        "half-perimeter": [rational(square ? 2 * length : length + width)]
+      },
       unit: "cm",
       hint: "Le p\xE9rim\xE8tre, c\u2019est la longueur du tour de la figure.",
       explanation: [
@@ -1422,6 +1699,10 @@ var proportionnalite_default = defineGenerator({
       prompt: `${first} ${item}s co\xFBtent ${total} \u20AC. Combien co\xFBtent ${second} ${item}s ?`,
       check: `${total} \xF7 ${first} \xD7 ${second}`,
       answer: rational(second * price),
+      mistakes: {
+        "additive-reasoning": [rational(first * price + second - first)],
+        "skips-unit-price": [rational(first * price * second)]
+      },
       unit: "\u20AC",
       hint: `Cherche d\u2019abord le prix d\u2019un seul ${item}.`,
       explanation: [
@@ -1448,6 +1729,7 @@ var addition_soustraction_decimaux_default = defineGenerator({
       prompt: `${formatNumber(a)} ${operator} ${formatNumber(b)} = ?`,
       check: `${formatNumber(a)} ${operator} ${formatNumber(b)}`,
       answer,
+      mistakes: { "misaligned-commas": [operator === "+" ? misalignedSum(a, b) : void 0] },
       hint: "Pose l\u2019op\xE9ration en alignant les virgules. Tu peux compl\xE9ter avec des z\xE9ros.",
       explanation: [
         "On aligne les virgules, puis on calcule comme avec des entiers.",
@@ -1473,6 +1755,10 @@ var aire_rectangle_default = defineGenerator({
       prompt: square ? `Quelle est l\u2019aire d\u2019un carr\xE9 de ${l} ${unit} de c\xF4t\xE9 ?` : `Quelle est l\u2019aire d\u2019un rectangle de ${l} ${unit} sur ${w} ${unit} ?`,
       check: square ? `aire_carre(${l})` : `aire_rectangle(${l}, ${w})`,
       answer: rational(square ? length * length : length * width),
+      mistakes: {
+        "area-perimeter": [rational(square ? 4 * length : 2 * (length + width))],
+        "adds-instead-of-multiplying": [rational(square ? 2 * length : length + width)]
+      },
       unit: `${unit}\xB2`,
       hint: "L\u2019aire d\u2019un rectangle, c\u2019est la longueur multipli\xE9e par la largeur.",
       explanation: [
@@ -1501,6 +1787,12 @@ var expressions_inconnue_default = defineGenerator({
       prompt: `Quel nombre manque ? ${hideA ? "?" : formatNumber(a)} ${operator} ${hideA ? formatNumber(b) : "?"} = ${formatNumber(c)}`,
       check: hideA || !backwards ? `${formatNumber(c)} ${OPPOSITE[operator]} ${formatNumber(hideA ? b : a)}` : `${formatNumber(a)} ${operator} ${formatNumber(c)}`,
       answer: rational(hideA ? a : b),
+      mistakes: {
+        // The other operation on the same two numbers: 12 + 7 for ? + 7 = 12.
+        "inverse-operation": [
+          hideA || !backwards ? calc(operator, rational(c), rational(hideA ? b : a)) : calc(OPPOSITE[operator], rational(a), rational(c))
+        ]
+      },
       hint: "Utilise l\u2019op\xE9ration inverse pour retrouver le nombre manquant.",
       explanation: [`${formatNumber(a)} ${operator} ${formatNumber(b)} = ${formatNumber(c)}, donc il manque ${formatNumber(hideA ? a : b)}.`]
     };
@@ -1525,6 +1817,7 @@ var fractions_addition_meme_denominateur_default = defineGenerator({
       prompt: `${expression} = ?`,
       check: expression,
       answer: rational(resultNum, den),
+      mistakes: { "adds-denominators": [subtract ? void 0 : rational(resultNum, 2 * den)] },
       display: "fraction",
       hint: "Les d\xE9nominateurs sont les m\xEAmes : regarde seulement les num\xE9rateurs.",
       explanation: [
@@ -1554,6 +1847,15 @@ var fractions_decimaux_equivalences_default = defineGenerator({
       left,
       right,
       answer: values.map((value) => right.indexOf(value)),
+      mistakes: {
+        // 3/10 matched with 0,03 and 3/100 with 0,3.
+        "tenths-hundredths": [
+          swapTenths(
+            picked,
+            values.map((value) => right.indexOf(value))
+          )
+        ]
+      },
       prompt: "Relie chaque fraction \xE0 son \xE9criture d\xE9cimale.",
       hint: "1/10 s\u2019\xE9crit 0,1 et 1/100 s\u2019\xE9crit 0,01. Pour 1/4 ou 1/5, pense \xE0 des centi\xE8mes.",
       explanation: [left.map((label, index) => `${label} = ${values[index]}`).join(" ; ")]
@@ -1580,6 +1882,12 @@ var multiples_diviseurs_default = defineGenerator({
       prompt: `Vrai ou faux ? ${rng.pick(SENTENCES)(value, divisor)}`,
       check: `multiple(${value}, ${divisor})`,
       answer: remainder === 0,
+      mistakes: {
+        // For 3 and 9 the last digit says nothing: 23 is no multiple of 3, 27 is.
+        "last-digit-rule": [
+          divisor === 3 || divisor === 9 ? endsLikeMultiple(divisor * quotient + remainder, divisor) : void 0
+        ]
+      },
       hint: `Essaie de diviser ${value} par ${divisor} : y a-t-il un reste ?`,
       explanation: [
         `${value} = ${divisor} \xD7 ${formatNumber(quotient)} + ${remainder}`,
@@ -1608,6 +1916,10 @@ var pourcentages_default = defineGenerator({
       prompt: `Combien font ${percent} % de ${formatNumber(quantity)} ?`,
       check: `${percent} % \xD7 ${formatNumber(quantity)}`,
       answer: rational(answer),
+      mistakes: {
+        "percent-subtract": [quantity > percent ? rational(quantity - percent) : void 0],
+        "percent-hundred": [rational(percent * quantity)]
+      },
       hint: percent === 50 ? "Prendre 50 %, c\u2019est prendre la moiti\xE9." : `${percent} %, c\u2019est ${percent} pour 100.`,
       explanation: [`${formatNumber(quantity)} \xD7 ${percent} \xF7 100 = ${formatNumber(answer)}`]
     };
@@ -1634,6 +1946,9 @@ var angles_degres_default = defineGenerator({
       prompt: `Un angle mesure ${measure}\xB0. Cet angle est :`,
       options: NATURES.map((label) => ({ label, check: `${label}(${measure})` })),
       answer: NATURES.indexOf(nature),
+      mistakes: {
+        "acute-obtuse": [{ aigu: 2, obtus: 0, droit: void 0, plat: void 0 }[nature]]
+      },
       hint: "Compare la mesure \xE0 90\xB0 (angle droit) et \xE0 180\xB0 (angle plat).",
       explanation: [`${REASONS[nature](measure)} : l\u2019angle est ${nature}.`]
     };
@@ -1660,6 +1975,7 @@ var fraction_d_une_quantite_default = defineGenerator({
       prompt: `Combien font ${num}/${den} de ${formatNumber(quantity)} ?`,
       check: `${num}/${den} \xD7 ${formatNumber(quantity)}`,
       answer: rational(num * part),
+      mistakes: { "divides-only": [rational(part)] },
       hint: `Partage d\u2019abord ${formatNumber(quantity)} en ${den} parts \xE9gales.`,
       explanation: [
         `${formatNumber(quantity)} \xF7 ${den} = ${formatNumber(part)}`,
@@ -1684,6 +2000,9 @@ var nombres_premiers_default = defineGenerator({
       prompt: "Lequel de ces nombres est premier ?",
       options: options.map((x) => ({ label: String(x), check: `premier(${x})` })),
       answer: options.indexOf(prime),
+      mistakes: {
+        "odd-is-prime": options.map((x, i) => x % 2 === 1 && x !== prime ? i : void 0)
+      },
       hint: "Un nombre premier a exactement deux diviseurs : 1 et lui-m\xEAme.",
       explanation: [
         `${prime} n\u2019est divisible que par 1 et par lui-m\xEAme.`,
@@ -1715,6 +2034,7 @@ var priorites_operatoires_default = defineGenerator({
       prompt: `Calcule : ${expression}`,
       check: expression,
       answer: rational(value),
+      mistakes: { "left-to-right": [leftToRight(expression)] },
       hint: "Les parenth\xE8ses d\u2019abord, puis les multiplications et les divisions, puis les additions et les soustractions.",
       explanation: [`On commence par ${first}.`, `${expression} = ${formatNumber(value)}`]
     };
@@ -1737,6 +2057,7 @@ var probabilites_default = defineGenerator({
       prompt: `Un sac contient ${list(content)}. On tire une boule au hasard. Quelle est la probabilit\xE9 qu\u2019elle soit ${colors[target]?.slice(0, -1)} ?`,
       check: `${favourable} \xF7 (${counts.join(" + ")})`,
       answer: rational(favourable, total),
+      mistakes: { "favourable-over-others": [rational(favourable, total - favourable)] },
       display: "fraction",
       hint: "Probabilit\xE9 = nombre de cas favorables \xF7 nombre total de cas.",
       explanation: [
@@ -1762,6 +2083,7 @@ var proportionnalite_default2 = defineGenerator({
       prompt: `Dans ce tableau de proportionnalit\xE9, ${first} correspond \xE0 ${formatNumber(y1)}. \xC0 quoi correspond ${second} ?`,
       check: `${formatNumber(y1)} \xF7 ${first} \xD7 ${second}`,
       answer,
+      mistakes: { "additive-reasoning": [add(y1, rational(second - first))] },
       hint: "Cherche par combien il faut multiplier la premi\xE8re ligne pour obtenir la seconde.",
       explanation: [
         `${formatNumber(y1)} \xF7 ${first} = ${formatNumber(coefficient)}`,
@@ -1789,6 +2111,10 @@ var fractions_addition_default = defineGenerator({
       prompt: ask ? `${ask}${expression}` : `${expression} = ?`,
       check: expression,
       answer,
+      mistakes: {
+        "adds-denominators": [minus ? void 0 : rational(a + b, den + big)],
+        "same-denominator": [rational(minus ? a - b : a + b, big)]
+      },
       display: "fraction",
       ...difficulty === 5 && { forms: ["fraction", "integer"], irreducible: true },
       hint: `\xC9cris ${formatFraction(a, den)} avec le d\xE9nominateur ${big}.`,
@@ -1813,6 +2139,10 @@ var puissances_de_10_default = defineGenerator({
       prompt: `\xC9cris sans puissance : ${shown}`,
       check: difficulty === 1 ? `10^${exponent}` : `${formatDecimal(factor)} \xD7 10^${exponent}`,
       answer,
+      mistakes: {
+        "zeros-count": [mul(factor, rational(10 ** (exponent - 1))), mul(factor, rational(10 ** (exponent + 1)))],
+        "exponent-times-ten": [difficulty === 1 ? rational(10 * exponent) : void 0]
+      },
       hint: `${power(10, exponent)}, c\u2019est 1 suivi de ${exponent} z\xE9ros.`,
       explanation: [
         `${power(10, exponent)} = ${formatNumber(10 ** exponent)}`,
@@ -1831,15 +2161,18 @@ var relatifs_addition_soustraction_default = defineGenerator({
     const terms = difficulty >= 4 ? [draw(), draw(), draw()] : [draw(), draw()];
     const operators = terms.slice(1).map(() => difficulty >= 2 && rng.chance(0.5) ? "\u2212" : "+");
     const expression = terms.map((term, i) => i === 0 ? formatOperand(term) : `${operators[i - 1]} ${formatOperand(term)}`).join(" ");
-    const value = terms.reduce(
-      (sum, term, i) => i === 0 ? term : operators[i - 1] === "\u2212" ? sum - term : sum + term
-    );
+    const value = chain(terms, operators);
     const rule = operators.includes("\u2212") ? "Soustraire, c\u2019est ajouter l\u2019oppos\xE9." : "On additionne en tenant compte des signes.";
     return {
       type: "numeric",
       prompt: `${expression} = ?`,
       check: expression,
       answer: rational(value),
+      mistakes: {
+        // − (−3) taken as − 3; or the right size with the wrong sign.
+        "subtract-negative": [rational(chain(terms, operators, true))],
+        "sign-error": [rational(-value)]
+      },
       hint: "Soustraire un nombre, c\u2019est ajouter son oppos\xE9.",
       explanation: [rule, `${expression} = ${formatNumber(value)}`]
     };
@@ -1985,6 +2318,46 @@ function gradeResponse(exercise, response) {
   return { correct: false, reason: "unreadable" };
 }
 
+// src/diagnose.ts
+function diagnoseResponse(exercise, response) {
+  if (exercise.type !== response.type || gradeResponse(exercise, response).correct) return null;
+  switch (response.type) {
+    case "numeric": {
+      if (exercise.type !== "numeric") return null;
+      const typed = parseTypedNumber(response.text)?.value;
+      return typed ? find(exercise.mistakes, exercise.answer, typed, equals) : null;
+    }
+    case "number-line":
+      if (exercise.type !== "number-line") return null;
+      return find(exercise.mistakes, exercise.answer, response.value, equals);
+    case "choice":
+      if (exercise.type !== "choice") return null;
+      return find(exercise.mistakes, exercise.answer, response.index, same);
+    case "true-false":
+      if (exercise.type !== "true-false") return null;
+      return find(exercise.mistakes, exercise.answer, response.value, same);
+    case "fraction-shade":
+      if (exercise.type !== "fraction-shade") return null;
+      return find(exercise.mistakes, exercise.answer, response.shaded, same);
+    case "order":
+      if (exercise.type !== "order") return null;
+      return find(exercise.mistakes, exercise.answer, response.order, sameList2);
+    case "match":
+      if (exercise.type !== "match") return null;
+      return find(exercise.mistakes, exercise.answer, response.pairs, sameList2);
+  }
+}
+var same = (a, b) => a === b;
+var sameList2 = (a, b) => a.length === b.length && a.every((value, index) => value === b[index]);
+function find(mistakes, answer, given, equal) {
+  for (const [code, values] of Object.entries(mistakes ?? {})) {
+    for (const value of values) {
+      if (value !== void 0 && !equal(value, answer) && equal(value, given)) return code;
+    }
+  }
+  return null;
+}
+
 // src/regrade.ts
 var isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 var isNumberList = (value) => Array.isArray(value) && value.every((item) => typeof item === "number");
@@ -2023,9 +2396,11 @@ function rebuildExercise(stored) {
 function regrade(answers) {
   return answers.map(({ position, ...stored }) => {
     const exercise = rebuildExercise(stored);
-    if (!exercise) return { position, correct: null };
+    if (!exercise) return { position, correct: null, error: null };
     const response = parseStoredResponse(stored.answer);
-    return { position, correct: response ? gradeResponse(exercise, response).correct : false };
+    if (!response) return { position, correct: false, error: null };
+    const correct = gradeResponse(exercise, response).correct;
+    return { position, correct, error: correct ? null : diagnoseResponse(exercise, response) };
   });
 }
 export {

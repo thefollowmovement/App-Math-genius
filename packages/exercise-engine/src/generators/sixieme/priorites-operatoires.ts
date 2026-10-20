@@ -1,4 +1,4 @@
-import { defineGenerator, n, r } from '../kit';
+import { defineGenerator, leftToRight, n, r } from '../kit';
 
 // [calculation, value, first step] for three numbers a, b, c.
 type Template = (a: number, b: number, c: number) => [string, number, string];
@@ -24,6 +24,7 @@ export default defineGenerator({
       prompt: `Calcule : ${expression}`,
       check: expression,
       answer: r(value),
+      mistakes: { 'left-to-right': [leftToRight(expression)] },
       hint: 'Les parenthèses d’abord, puis les multiplications et les divisions, puis les additions et les soustractions.',
       explanation: [`On commence par ${first}.`, `${expression} = ${n(value)}`],
     };

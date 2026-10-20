@@ -12,6 +12,7 @@ export default defineGenerator({
         prompt: `Quel est le double de ${n(value)} ?`,
         check: `double(${n(value)})`,
         answer: r(2 * value),
+        mistakes: { 'double-half': [r(value, 2)] },
         hint: 'Le double, c’est le nombre ajouté à lui-même.',
         explanation: [`${n(value)} + ${n(value)} = ${n(2 * value)}`],
       };
@@ -21,6 +22,7 @@ export default defineGenerator({
       prompt: `Quelle est la moitié de ${n(2 * value)} ?`,
       check: `moitie(${n(2 * value)})`,
       answer: r(value),
+      mistakes: { 'double-half': [r(4 * value)] },
       hint: 'La moitié, c’est le nombre qu’il faut doubler pour retrouver le nombre de départ.',
       explanation: [`${n(value)} + ${n(value)} = ${n(2 * value)}, donc la moitié est ${n(value)}.`],
     };

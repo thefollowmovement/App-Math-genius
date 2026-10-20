@@ -15,6 +15,10 @@ export default defineGenerator({
       prompt: `${first} ${item}s coûtent ${total} €. Combien coûtent ${second} ${item}s ?`,
       check: `${total} ÷ ${first} × ${second}`,
       answer: r(second * price),
+      mistakes: {
+        'additive-reasoning': [r(first * price + second - first)],
+        'skips-unit-price': [r(first * price * second)],
+      },
       unit: '€',
       hint: `Cherche d’abord le prix d’un seul ${item}.`,
       explanation: [

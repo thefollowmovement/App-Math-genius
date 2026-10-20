@@ -23,6 +23,9 @@ export default defineGenerator({
       prompt: `Un angle mesure ${measure}°. Cet angle est :`,
       options: NATURES.map((label) => ({ label, check: `${label}(${measure})` })),
       answer: NATURES.indexOf(nature),
+      mistakes: {
+        'acute-obtuse': [{ aigu: 2, obtus: 0, droit: undefined, plat: undefined }[nature]],
+      },
       hint: 'Compare la mesure à 90° (angle droit) et à 180° (angle plat).',
       explanation: [`${REASONS[nature](measure)} : l’angle est ${nature}.`],
     };

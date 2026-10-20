@@ -21,6 +21,10 @@ export default defineGenerator({
       prompt: `${n(value)} ${from} = ? ${to}`,
       check: `conversion(${n(value)}, ${from}, ${to})`,
       answer: r(answer),
+      mistakes: {
+        'conversion-factor': [r(answer * 10), r(answer, 10)],
+        'conversion-direction': [reverse ? r(value * factor) : r(value, factor)],
+      },
       unit: to,
       hint: `Combien de ${small} dans 1 ${big} ?`,
       explanation: [

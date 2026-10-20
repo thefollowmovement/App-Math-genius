@@ -1,4 +1,12 @@
-import { decimal, defineGenerator, distinct, formatDecimal, orderFields } from '../kit';
+import {
+  afterCommaKey,
+  decimal,
+  defineGenerator,
+  distinct,
+  formatDecimal,
+  orderFields,
+  rankBy,
+} from '../kit';
 
 export default defineGenerator({
   skill: 'cm1.comparer-decimaux',
@@ -13,7 +21,9 @@ export default defineGenerator({
     const values = distinct(difficulty < 4 ? 4 : 5, draw, formatDecimal);
     const direction = rng.pick(['ascending', 'descending'] as const);
     return {
-      ...orderFields(values.map(formatDecimal), values, direction),
+      ...orderFields(values.map(formatDecimal), values, direction, {
+        'decimals-as-integers': [rankBy(values.map(formatDecimal).map(afterCommaKey), direction)],
+      }),
       hint: 'Compare la partie entière, puis les dixièmes, puis les centièmes. Ajouter des zéros à la fin ne change rien.',
     };
   },

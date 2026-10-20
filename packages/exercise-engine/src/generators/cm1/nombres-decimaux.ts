@@ -20,6 +20,13 @@ export default defineGenerator({
       prompt: `Écris ce nombre avec une virgule : ${list(words)}.`,
       check: shown.map(([count, , fn]) => (fn ? `${fn}(${count})` : `${count}`)).join(' + '),
       answer,
+      mistakes: {
+        // 3 units and 5 hundredths written 3,5, or tenths and hundredths swapped.
+        'decimal-place-value': [
+          decimal(units * 10 + hundredths, 1),
+          decimal(units * 100 + hundredths * 10 + tenths, 2),
+        ],
+      },
       forms: ['decimal'],
       hint: 'Les dixièmes s’écrivent juste après la virgule, puis viennent les centièmes.',
       explanation: [`${list(words)} : ${formatDecimal(answer)}`],
