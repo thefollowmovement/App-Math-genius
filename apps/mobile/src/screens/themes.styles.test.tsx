@@ -21,7 +21,10 @@ import { PlacementScreen } from './placement';
 import { PlacementIntro } from './placement/placement-intro';
 import { PlacementResult } from './placement/placement-result';
 import { currentStop } from '@/data/mission-model';
+import { questionsFor } from '@/data/universe-model';
+import { catalogue } from '@/test-utils/universes';
 import { SessionSummary } from './session-summary';
+import { UniverseQuestionnaire } from './universe';
 
 const globalCss = compileGlobalCss();
 
@@ -33,6 +36,8 @@ const lea: Child = {
   birth_year: null,
   theme_id: 'kawaii',
   avatar: {},
+  personalization_consent_at: null,
+  universe_asked_at: null,
 };
 
 const COLOR_KEYS = /^(color|backgroundColor|border\w*Color|tintColor)$/;
@@ -73,8 +78,28 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
         onOpenChest={jest.fn()}
         onOpenMap={jest.fn()}
         onOpenLook={jest.fn()}
+        universe="first"
+        onOpenUniverse={jest.fn()}
+        superPower={{ kind: 'mental_speed' }}
         sync="offline"
         onStart={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'UniverseQuestionnaire',
+    render: () => (
+      <UniverseQuestionnaire
+        childName="Léa"
+        mode="edit"
+        questions={questionsFor(catalogue, '5e')}
+        initial={{ games: { universes: ['minecraft'], other: '' } }}
+        saving={false}
+        saved={false}
+        error={null}
+        onSave={jest.fn()}
+        onLater={jest.fn()}
+        onContinue={jest.fn()}
       />
     ),
   },

@@ -13,6 +13,8 @@ const lea: Child = {
   birth_year: null,
   theme_id: 'kawaii',
   avatar: {},
+  personalization_consent_at: null,
+  universe_asked_at: null,
 };
 
 describe('ProfilePicker', () => {

@@ -456,6 +456,72 @@ export const fr = {
       close: 'Retour à l’accueil',
     },
   },
+  universe: {
+    // The questions and the names of the universes come from the catalogue (database).
+    intro: {
+      first: {
+        label: 'Ton univers',
+        title: (name: string) => `Dis-moi ce que tu aimes, ${name} !`,
+        text: 'Tes jeux, ton sport, ta musique… Je m’en servirai pour t’expliquer les maths avec des exemples qui te parlent.',
+      },
+      again: {
+        label: 'Ton univers',
+        title: (name: string) => `Tes goûts ont changé, ${name} ?`,
+        text: 'Dis-moi ce que tu aimes en ce moment : mes exemples suivront.',
+      },
+      points: [
+        'Choisis autant de réponses que tu veux.',
+        'Rien ne te plaît ? Passe à la question suivante.',
+        'Tu pourras tout changer quand tu veux, dans « Mon héros ».',
+      ],
+      start: 'C’est parti',
+      later: 'Plus tard',
+    },
+    step: (index: number, total: number) => `Question ${index} sur ${total}`,
+    progress: 'Avancement du questionnaire',
+    pickMany: 'Choisis tout ce que tu aimes.',
+    other: 'Autre chose ? Écris-le',
+    otherHint: 'Quelqu’un de l’équipe le lira avant qu’il serve d’exemple.',
+    next: 'Suivant',
+    finish: 'Terminer',
+    back: 'Question précédente',
+    close: 'Fermer',
+    saved: {
+      label: 'Ton univers',
+      title: 'C’est noté !',
+      hero: 'Super ! Je vais m’en servir pour mes exemples.',
+      continue: 'Continuer',
+    },
+    card: {
+      firstText: 'Dis-moi ce que tu aimes pour des exemples à ton image.',
+      againText: 'Tes goûts ont changé ? Mets ton univers à jour.',
+      answer: 'Répondre',
+      update: 'Mettre à jour',
+    },
+    look: {
+      title: 'Ton univers',
+      empty: 'Pas encore choisi : dis-moi ce que tu aimes.',
+      edit: 'Modifier mon univers',
+    },
+  },
+  superPower: {
+    label: 'Ton super-pouvoir',
+    mental_speed: { title: 'As du calcul mental', text: 'Tes calculs fusent !' },
+    flawless: { title: 'As du sans-faute', text: 'Les bonnes réponses s’enchaînent.' },
+    strands: {
+      numeration: 'As des nombres',
+      calcul: 'As du calcul',
+      fractions: 'As des fractions',
+      mesures: 'As des mesures',
+      geometrie: 'As de la géométrie',
+      problemes: 'As des problèmes',
+    },
+    how: {
+      ahead: 'Tu es en avance !',
+      solid: 'Tu maîtrises déjà plein de choses.',
+      best: 'C’est là que tu brilles en ce moment.',
+    },
+  },
   summary: {
     // A validated mission takes the theme's line (themes.*.goalMet).
     bossOver: 'Combat terminé\u00a0!',
@@ -1260,6 +1326,7 @@ export const fr = {
     alreadyOwned: 'Cet objet est déjà acheté.',
     tooManyFreezes: 'Le stock de gels est déjà plein.',
     avatarLocked: 'Cet objet n’est pas encore débloqué.',
+    personalizationOff: 'La personnalisation n’est pas activée pour ce profil.',
     network: 'Pas de connexion. Vérifiez le réseau et réessayez.',
     unknown: 'Une erreur est survenue. Réessayez.',
   },

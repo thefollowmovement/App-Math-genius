@@ -15,6 +15,9 @@ import { useIslands, useRewards, useWeeklyChallenge } from '@/data/rewards';
 import { childPlan, routineOf } from '@/data/routine-plan';
 import { useRoutines } from '@/data/routines';
 import { useAccountKind } from '@/data/session';
+import { superPower } from '@/data/learner-profile-model';
+import { useLearnerProfile } from '@/data/universe';
+import { universeOffer } from '@/data/universe-model';
 import { useLocalClock } from '@/hooks/use-local-clock';
 import { useStartSession } from '@/hooks/use-start-session';
 import { ChildHome } from '@/screens/child-home';
@@ -34,6 +37,8 @@ export default function ChildHomeRoute() {
   const challenge = useWeeklyChallenge(child.data?.id);
   const parentRewards = useParentRewards(child.data?.id);
   const islands = useIslands(child.data?.id);
+  const consent = Boolean(child.data?.personalization_consent_at);
+  const profile = useLearnerProfile(child.data?.id, consent);
   const { date } = useLocalClock();
   usePracticeSync(child.data?.id);
 
@@ -61,6 +66,9 @@ export default function ChildHomeRoute() {
       )}
       placement={placementOffer(practice, child.data.grade, date, new Date())}
       onStartPlacement={() => router.push({ pathname: '/child/placement', params: { id } })}
+      universe={universeOffer(child.data, new Date())}
+      onOpenUniverse={() => router.push({ pathname: '/child/universe', params: { id } })}
+      superPower={consent ? superPower(profile.data?.profile) : null}
       rewards={rewards.data}
       challenge={challenge.data}
       nextReward={nextReward(

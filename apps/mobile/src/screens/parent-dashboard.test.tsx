@@ -21,6 +21,8 @@ const lea: Child = {
   birth_year: null,
   theme_id: 'kawaii',
   avatar: {},
+  personalization_consent_at: null,
+  universe_asked_at: null,
 };
 const tom: Child = { ...lea, id: 'tom', display_name: 'Tom' };
 const zoe: Child = { ...lea, id: 'zoe', display_name: 'Zoé' };

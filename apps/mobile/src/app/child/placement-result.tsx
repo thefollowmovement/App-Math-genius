@@ -6,6 +6,7 @@ import { useChild } from '@/data/children';
 import { currentStop } from '@/data/mission-model';
 import { currentMastery, usePracticeStore } from '@/data/practice/practice-store';
 import { useIslands } from '@/data/rewards';
+import { universeOffer } from '@/data/universe-model';
 import { useStartSession } from '@/hooks/use-start-session';
 import { PlacementResult } from '@/screens/placement/placement-result';
 
@@ -28,13 +29,19 @@ export default function PlacementResultRoute() {
     defeated: islands.data ?? [],
     placed: Boolean(practice?.placedAt),
   });
+  // « Ton univers » comes right after the test (docs/specs.md), once the parent agreed.
+  const universe = universeOffer(child.data, new Date());
+  const thenUniverse = (then: 'play' | 'map' | 'home') =>
+    router.replace({ pathname: '/child/universe', params: { id, then } });
   return (
     <PlacementResult
       islands={map}
       stop={currentStop(map)}
-      onPlay={() => start('replace')}
-      onOpenMap={() => router.push({ pathname: '/child/map', params: { id } })}
-      onHome={() => router.replace(home)}
+      onPlay={() => (universe ? thenUniverse('play') : start('replace'))}
+      onOpenMap={() =>
+        universe ? thenUniverse('map') : router.push({ pathname: '/child/map', params: { id } })
+      }
+      onHome={() => (universe ? thenUniverse('home') : router.replace(home))}
     />
   );
 }

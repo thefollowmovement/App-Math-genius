@@ -7,6 +7,8 @@ import { ThemePreview } from '@/components/theme-preview';
 import { useChild } from '@/data/children';
 import { useBadges, useRewards } from '@/data/rewards';
 import { unlockedOf } from '@/data/rewards-model';
+import { useChildInterests, useUniverseCatalogue } from '@/data/universe';
+import { answersOf, chosenOf, questionsFor } from '@/data/universe-model';
 import { useLookEditor } from '@/hooks/use-look-editor';
 import { LookEditor } from '@/screens/look';
 
@@ -23,6 +25,9 @@ export default function LookRoute() {
     rewards.data?.kept ?? [],
   );
   const editor = useLookEditor(child.data, unlocked);
+  const consent = Boolean(child.data?.personalization_consent_at);
+  const catalogue = useUniverseCatalogue(consent);
+  const interests = useChildInterests(id, consent);
 
   if (child.isPending) return <LoadingScreen />;
   if (!editor.look) return <Redirect href="/child" />;
@@ -47,6 +52,21 @@ export default function LookRoute() {
         onCosmetic={editor.setCosmetic}
         onTheme={editor.setTheme}
         onSave={() => editor.save(back)}
+        universe={
+          consent && catalogue.data && child.data
+            ? {
+                chosen: chosenOf(
+                  questionsFor(catalogue.data, child.data.grade),
+                  answersOf(interests.data),
+                ),
+                onEdit: () =>
+                  router.push({
+                    pathname: '/child/universe',
+                    params: { id, mode: 'edit', then: 'back' },
+                  }),
+              }
+            : undefined
+        }
       />
     </ThemePreview>
   );

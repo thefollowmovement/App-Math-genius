@@ -7,10 +7,20 @@ import { useUserId } from './session';
 
 export type Child = Pick<
   Tables<'children'>,
-  'id' | 'display_name' | 'gender' | 'grade' | 'birth_year' | 'theme_id' | 'avatar'
+  | 'id'
+  | 'display_name'
+  | 'gender'
+  | 'grade'
+  | 'birth_year'
+  | 'theme_id'
+  | 'avatar'
+  // Personalization (phase 7b): the parent's consent, and when « Ton univers » was last asked.
+  | 'personalization_consent_at'
+  | 'universe_asked_at'
 >;
 
-const CHILD_COLUMNS = 'id, display_name, gender, grade, birth_year, theme_id, avatar';
+const CHILD_COLUMNS =
+  'id, display_name, gender, grade, birth_year, theme_id, avatar, personalization_consent_at, universe_asked_at';
 
 /** A parent gets their family's children; a paired device gets its own (RLS decides). */
 export function useChildren() {

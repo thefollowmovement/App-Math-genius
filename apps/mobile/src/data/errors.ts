@@ -8,6 +8,7 @@ export type ErrorKind =
   | 'alreadyOwned'
   | 'tooManyFreezes'
   | 'avatarLocked'
+  | 'personalizationOff'
   | 'network'
   | 'unknown';
 
@@ -30,6 +31,7 @@ export function errorKind(error: unknown): ErrorKind {
   if (text.includes('already_owned')) return 'alreadyOwned';
   if (text.includes('too_many_freezes')) return 'tooManyFreezes';
   if (text.includes('avatar_locked')) return 'avatarLocked';
+  if (text.includes('personalization_off')) return 'personalizationOff';
   if (/network request failed|failed to fetch|fetch failed/i.test(text)) return 'network';
   return 'unknown';
 }
