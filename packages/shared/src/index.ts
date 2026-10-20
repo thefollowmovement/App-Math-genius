@@ -13,6 +13,7 @@ export {
 export type { Database, Enums, Json, Tables } from './database.types';
 export { GRADES, gradeRank, type Grade } from './grade';
 export { gradeSchema } from './grade-schema';
+export { GRADE_BANDS, gradeBand, type GradeBand } from './grade-bands';
 export {
   PAIRING_CODE_ALPHABET,
   PAIRING_CODE_LENGTH,
