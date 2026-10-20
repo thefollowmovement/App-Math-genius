@@ -38,6 +38,25 @@ export {
   type MasteryStatus,
 } from './adaptive/mastery';
 export {
+  FLAWLESS_RUN,
+  MENTAL_FAST_MS,
+  PROFILE_WINDOW_DAYS,
+  learnerProfile,
+  localHour,
+  timeOfDay,
+  type AfterError,
+  type LearnerProfile,
+  type LearningStyle,
+  type ProfileAttempt,
+  type ProfileInput,
+  type ProfileSession,
+  type ProfileSessionKind,
+  type Strength,
+  type TimeOfDay,
+  type Weakness,
+} from './adaptive/profile';
+export { profileSummary } from './adaptive/profile-summary';
+export {
   SLOT_PATTERN,
   buildExercise,
   finishSession,
