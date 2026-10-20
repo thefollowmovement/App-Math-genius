@@ -1,5 +1,6 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
+import { useCoach } from '@/hooks/use-coach';
 import { usePracticeSession } from '@/hooks/use-practice-session';
 import { PracticeScreen } from '@/screens/practice';
 
@@ -10,6 +11,8 @@ export default function PracticeRoute() {
     router.replace({ pathname: '/child/summary', params: { id } }),
   );
   const home = { pathname: '/child/home', params: { id } } as const;
+  const wrong = practice.feedback && !practice.feedback.correct ? practice.feedback : null;
+  const coach = useCoach(id, wrong ? practice.exercise : null, wrong?.response ?? null);
 
   if (practice.finished) return null;
   if (!practice.session || !practice.step || !practice.exercise || !practice.count) {
@@ -29,9 +32,12 @@ export default function PracticeRoute() {
       hintShown={practice.hintShown}
       notice={practice.notice}
       feedback={practice.feedback}
+      coach={coach.view}
       onShowHint={practice.showHint}
       onSubmit={practice.submit}
       onContinue={practice.continueSession}
+      onUnderstood={coach.understood}
+      onExplainAgain={coach.explainAgain}
       onPause={() => router.replace(home)}
     />
   );

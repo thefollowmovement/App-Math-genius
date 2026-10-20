@@ -10,6 +10,7 @@ import { strings } from '@/i18n';
 import { companionLine, onFire, type TalkContext } from '@/i18n/companion-talk';
 
 import type { PracticeFeedback } from '.';
+import { CoachBubble, type CoachView } from './coach-bubble';
 
 const t = strings.practice;
 
@@ -23,6 +24,10 @@ type HeroLineProps = {
   reminder: boolean;
   hintShown: boolean;
   onShowHint: () => void;
+  /** After a wrong answer: the coach's explanation, presented by the hero. */
+  coach?: CoachView | null;
+  onUnderstood?: () => void;
+  onExplainAgain?: () => void;
 };
 
 /** What the bottom of the exercise shows: the hero's pose, a line and who says it. */
@@ -36,7 +41,7 @@ type Line = {
 };
 
 /** The hero alone: it offers a hint, thinks it over, cheers and encourages. */
-function heroLine({ exercise, feedback, reminder, hintShown }: HeroLineProps): Line {
+function heroLine({ exercise, feedback, reminder, hintShown, coach }: HeroLineProps): Line {
   const pick = (lines: readonly string[]) => lines[exercise.seed % lines.length] ?? lines[0] ?? '';
   const line = (pose: Line['pose'], text: string, ask = false): Line => ({
     pose,
@@ -47,6 +52,7 @@ function heroLine({ exercise, feedback, reminder, hintShown }: HeroLineProps): L
   if (feedback?.correct) {
     return line('victory', feedback.fast ? `${pick(t.correct)} ${t.fast}` : pick(t.correct));
   }
+  if (feedback && coach?.status === 'thinking') return line('think', t.coach.thinking);
   if (feedback) return line('encourage', pick(strings.heroes.encourage));
   // Before the hint: the bubble asks whether the child wants one.
   if (!reminder && !hintShown) return line('encourage', t.hintAsk, true);
@@ -74,17 +80,21 @@ function withCompanion(line: Line, companion: CompanionLook, context: TalkContex
  * (never a reproach). Without a companion, the hero says everything.
  */
 export function HeroLine(props: HeroLineProps) {
-  const { exercise, slot, combo, reminder, onShowHint } = props;
+  const { exercise, slot, combo, reminder, onShowHint, coach, feedback } = props;
   const avatar = useChildHero();
   const companion = companionLook(avatar);
   const context: TalkContext = { exercise, slot, combo, reminder };
-  const line = companion ? withCompanion(heroLine(props), companion, context) : heroLine(props);
+  // The coach's words are the hero's: the companion keeps its own lines for the rest.
+  const coaching = !!feedback && !feedback.correct && !!coach;
+  const line =
+    companion && !coaching ? withCompanion(heroLine(props), companion, context) : heroLine(props);
   const speaker =
     companion && line.byCompanion ? strings.companions.items[companion.id].name : undefined;
 
+  const look = heroLook(avatar);
   const cast = (
     <View className="flex-row items-end">
-      <HeroView look={heroLook(avatar)} pose={line.pose} size="sm" />
+      <HeroView look={look} pose={coaching ? 'think' : line.pose} size="sm" />
       {companion ? (
         <View
           className={cx(
@@ -97,6 +107,21 @@ export function HeroLine(props: HeroLineProps) {
       ) : null}
     </View>
   );
+
+  if (coaching && coach.status === 'shown') {
+    return (
+      <View className="gap-2">
+        <CoachBubble
+          explanation={coach.explanation}
+          hero={strings.heroes.items[look.hero].name}
+          more={coach.more}
+          onUnderstood={() => props.onUnderstood?.()}
+          onExplainAgain={() => props.onExplainAgain?.()}
+        />
+        {cast}
+      </View>
+    );
+  }
 
   if (line.ask) {
     return (

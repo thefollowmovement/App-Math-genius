@@ -21,6 +21,7 @@ import { renderWithTheme } from '@/test-utils/render';
 import { wrongResponse } from '@/test-utils/responses';
 
 import { PracticeScreen, type PracticeFeedback } from '.';
+import type { CoachView } from './coach-bubble';
 import { graduationCount } from './inputs/number-line-input';
 import type { SessionCount } from './session-header';
 
@@ -38,6 +39,7 @@ async function renderPractice(
     slot?: Slot;
     /** The child's hero, and maybe a companion (the default hero without). */
     avatar?: Avatar;
+    coach?: CoachView;
   } = {},
 ) {
   const handlers = {
@@ -45,6 +47,8 @@ async function renderPractice(
     onContinue: jest.fn(),
     onShowHint: jest.fn(),
     onPause: jest.fn(),
+    onUnderstood: jest.fn(),
+    onExplainAgain: jest.fn(),
   };
   const screenOf = (
     <PracticeScreen
@@ -59,6 +63,7 @@ async function renderPractice(
       hintShown={false}
       notice={options.notice ?? null}
       feedback={options.feedback ?? null}
+      coach={options.coach ?? null}
       {...handlers}
     />
   );
@@ -256,6 +261,52 @@ describe('after an answer', () => {
     await renderPractice(exercise, { reminder: true });
     expect(screen.getByText(`${t.reminder}\u00a0: ${exercise.hint}`)).toBeOnTheScreen();
     expect(screen.queryByLabelText(t.hint)).toBeNull();
+  });
+});
+
+describe('the coach after a mistake', () => {
+  const exercise = exerciseOfType('numeric');
+  const wrong = { response: wrongResponse(exercise), correct: false, fast: false, finished: false };
+  const explanation = {
+    what: 'Tu as oublié la retenue.',
+    image: 'Imagine une tour de blocs.',
+    tip: 'Garde la retenue en haut.',
+  };
+
+  it('is presented by the hero, in three parts, under the generator’s correction', async () => {
+    const { onUnderstood, onContinue, onExplainAgain } = await renderPractice(exercise, {
+      feedback: wrong,
+      coach: { status: 'shown', explanation, more: true },
+    });
+    expect(screen.getByText(rightAnswerText(exercise))).toBeOnTheScreen();
+    expect(screen.getByText(t.coach.title(strings.heroes.items.nova.name))).toBeOnTheScreen();
+    for (const part of [t.coach.what, t.coach.image, t.coach.tip]) {
+      expect(screen.getByText(part)).toBeOnTheScreen();
+    }
+    for (const text of Object.values(explanation)) expect(screen.getByText(text)).toBeOnTheScreen();
+    await press(t.coach.again);
+    expect(onExplainAgain).toHaveBeenCalled();
+    await press(t.coach.understood);
+    expect(onUnderstood).toHaveBeenCalled();
+    expect(onContinue).toHaveBeenCalled();
+  });
+
+  it('says when it has no other explanation', async () => {
+    await renderPractice(exercise, {
+      feedback: wrong,
+      coach: { status: 'shown', explanation, more: false },
+    });
+    expect(screen.queryByLabelText(t.coach.again)).toBeNull();
+    expect(screen.getByText(t.coach.noOther)).toBeOnTheScreen();
+  });
+
+  it('thinks while it looks for one, even with a companion', async () => {
+    await renderPractice(exercise, {
+      feedback: wrong,
+      coach: { status: 'thinking' },
+      avatar: { hero: 'nova', wear: { companion: 'dragon' } },
+    });
+    expect(screen.getByText(t.coach.thinking)).toBeOnTheScreen();
   });
 });
 

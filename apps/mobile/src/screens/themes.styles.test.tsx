@@ -125,6 +125,39 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
     ),
   },
   {
+    name: 'PracticeScreen (the coach explains)',
+    render: () => (
+      <PracticeScreen
+        exercise={exerciseOfType('numeric')}
+        slot="current"
+        twin={false}
+        reminder={false}
+        progress={0.4}
+        count={{ done: 6, total: 15, unit: 'exercises' }}
+        combo={0}
+        hintShown={false}
+        notice={null}
+        feedback={{
+          response: { type: 'numeric', text: '1' },
+          correct: false,
+          fast: false,
+          finished: false,
+        }}
+        coach={{
+          status: 'shown',
+          more: true,
+          explanation: { what: 'Ce qui s’est passé.', image: 'Imagine.', tip: 'L’astuce.' },
+        }}
+        onShowHint={jest.fn()}
+        onSubmit={jest.fn()}
+        onContinue={jest.fn()}
+        onUnderstood={jest.fn()}
+        onExplainAgain={jest.fn()}
+        onPause={jest.fn()}
+      />
+    ),
+  },
+  {
     name: 'WorldMap',
     render: () => (
       <WorldMap
