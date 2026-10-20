@@ -2,7 +2,7 @@
 -- Run with `pnpm supabase:test`.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(25);
+select plan(29);
 
 -- Eva (editor), Mo (moderator), Sam (super-admin); Alice's Léa (CM1, personalization on) and Bob's
 -- Hugo (CE2, off), each with a device.
@@ -141,6 +141,22 @@ select ok(
     and (public.coach_night_plan() -> 'existing') ? 'cm1.perimetre|area-perimeter|minecraft|cm1-cm2',
   'The night knows the mistakes made and the explanations already written'
 );
+select lives_ok(
+  $$ select public.coach_log_usage('{"task": "night", "provider": "openai-compatible", "model": "ministral-8b",
+       "outcome": "rejected", "problems": ["digits"], "skill_code": "cm1.perimetre",
+       "grade_band": "cm1-cm2", "prompt_version": 1}') $$,
+  'The night logs what it tried'
+);
+select ok(
+  (select (plan ->> 'remaining')::int = 49 and (plan -> 'existing') ? 'cm1.perimetre|||cm1-cm2'
+   from (select public.coach_night_plan() as plan) p),
+  'The next run knows what is left of the night''s batch and does not try a combination again'
+);
+select ok(
+  (select context #>> '{universe,name}' = 'Minecraft' and context #>> '{settings,enabled}' = 'true'
+   from (select public.coach_preview_context('minecraft') as context) c),
+  'A prompt test gets the settings and the universe to use'
+);
 delete from vault.secrets where name in ('project_url', 'service_role_key');
 select is(private.request_coach_night(), null, 'Without the Vault secrets, the night job does nothing');
 
@@ -158,6 +174,11 @@ select throws_ok(
   $$ select public.coach_context('00000000-0000-4000-8000-0000000000c1') $$,
   '42501', null,
   'A device cannot read what the gateway reads'
+);
+select throws_ok(
+  $$ select public.coach_preview_context('minecraft') $$,
+  '42501', null,
+  'nor try a prompt'
 );
 select is((select count(*)::int from public.explanations), 0, 'A device reads no explanation directly');
 select lives_ok(
@@ -219,7 +240,7 @@ select is(
   'An editor makes a new version of the prompt the active one'
 );
 select ok(
-  (select (costs -> 'days' -> 0 ->> 'calls')::int = 2 and (costs -> 'days' -> 0 ->> 'rejected')::int = 1
+  (select (costs -> 'days' -> 0 ->> 'calls')::int = 3 and (costs -> 'days' -> 0 ->> 'rejected')::int = 2
    from (select public.admin_ai_costs(7) as costs) c),
   'An editor reads the costs per day'
 );

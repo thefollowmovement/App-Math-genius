@@ -1,6 +1,6 @@
 import { coachSample } from '@math-genius/exercise-engine';
 
-import { parseCoachRequest } from './request';
+import { parseCoachRequest, parsePreviewRequest } from './request';
 
 const CHILD = '00000000-0000-4000-8000-0000000000c1';
 
@@ -27,5 +27,43 @@ describe('the app’s request after a mistake', () => {
     expect(parseCoachRequest({ ...body, generator_id: 'retired.generator' })).toBeNull();
     expect(parseCoachRequest({ ...body, response: { type: 'choice', index: 1 } })).toBeNull();
     expect(parseCoachRequest(null)).toBeNull();
+  });
+});
+
+describe('the back-office’s prompt test', () => {
+  const body = {
+    skill: 'cm1.perimetre',
+    error: 'area-perimeter',
+    universe: 'minecraft',
+    band: 'cm1-cm2',
+    system: 'Tu es le coach.',
+    user: 'Exercice : {{exercice}}',
+    version: 3,
+  };
+
+  it('reads the prompt being written, the mistake and the age group', () => {
+    expect(parsePreviewRequest(body)).toEqual({
+      skill: 'cm1.perimetre',
+      error: 'area-perimeter',
+      universe: 'minecraft',
+      band: 'cm1-cm2',
+      prompt: { version: 3, system: 'Tu es le coach.', user: 'Exercice : {{exercice}}' },
+      night: false,
+    });
+    expect(parsePreviewRequest({ ...body, error: null, universe: '', version: 'x' })).toMatchObject(
+      {
+        error: null,
+        universe: null,
+        prompt: { version: 0 },
+      },
+    );
+  });
+
+  it('refuses an unknown skill, mistake or age group, and an empty prompt', () => {
+    expect(parsePreviewRequest({ ...body, skill: 'cm1.inconnue' })).toBeNull();
+    expect(parsePreviewRequest({ ...body, error: 'made-up' })).toBeNull();
+    expect(parsePreviewRequest({ ...body, band: 'lycee' })).toBeNull();
+    expect(parsePreviewRequest({ ...body, system: '  ' })).toBeNull();
+    expect(parsePreviewRequest({ ...body, user: 'x'.repeat(8001) })).toBeNull();
   });
 });

@@ -1205,12 +1205,12 @@ function gcd(a, b) {
   while (y !== 0) [x, y] = [y, x % y];
   return x;
 }
-function rational(num, den = 1) {
-  if (!Number.isSafeInteger(num) || !Number.isSafeInteger(den) || den === 0) {
-    throw new RangeError(`Invalid rational ${num}/${den}`);
+function rational(num2, den = 1) {
+  if (!Number.isSafeInteger(num2) || !Number.isSafeInteger(den) || den === 0) {
+    throw new RangeError(`Invalid rational ${num2}/${den}`);
   }
-  const divisor = gcd(num, den) * Math.sign(den);
-  const reducedNum = num / divisor;
+  const divisor = gcd(num2, den) * Math.sign(den);
+  const reducedNum = num2 / divisor;
   return { num: reducedNum === 0 ? 0 : reducedNum, den: den / divisor };
 }
 function decimal(scaled, places) {
@@ -1248,8 +1248,8 @@ function formatDecimal(value) {
   const decimals = digits.slice(digits.length - places);
   return (value.num < 0 ? MINUS : "") + units + (places > 0 ? `,${decimals}` : "");
 }
-function formatFraction(num, den) {
-  return `${num < 0 ? MINUS : ""}${Math.abs(num)}/${den}`;
+function formatFraction(num2, den) {
+  return `${num2 < 0 ? MINUS : ""}${Math.abs(num2)}/${den}`;
 }
 function formatNumber(value) {
   const exact = typeof value === "number" ? rational(value) : value;
@@ -1257,12 +1257,12 @@ function formatNumber(value) {
   return isTerminating(exact) ? formatDecimal(exact) : formatFraction(exact.num, exact.den);
 }
 function formatAnswer(exercise) {
-  const { num, den } = exercise.answer;
-  return exercise.display === "fraction" && den !== 1 ? formatFraction(num, den) : formatNumber(exercise.answer);
+  const { num: num2, den } = exercise.answer;
+  return exercise.display === "fraction" && den !== 1 ? formatFraction(num2, den) : formatNumber(exercise.answer);
 }
 function formatOperand(value) {
-  const text = formatNumber(value);
-  return text.startsWith(MINUS) ? `(${text})` : text;
+  const text2 = formatNumber(value);
+  return text2.startsWith(MINUS) ? `(${text2})` : text2;
 }
 
 // ../../packages/exercise-engine/src/generators/helpers.ts
@@ -1386,13 +1386,13 @@ function chain(terms, operators, minusNegative = false) {
 var endsLikeMultiple = (value, divisor) => value % 10 > 0 && value % 10 % divisor === 0;
 function swapTenths(fractions, answer) {
   const tenth = fractions.findIndex(
-    ([num2, den]) => den === 10 && fractions.some(([k, d]) => k === num2 && d === 100)
+    ([num3, den]) => den === 10 && fractions.some(([k, d]) => k === num3 && d === 100)
   );
-  const num = fractions[tenth]?.[0];
+  const num2 = fractions[tenth]?.[0];
   return swapped(
     answer,
     tenth,
-    fractions.findIndex(([k, d]) => k === num && d === 100)
+    fractions.findIndex(([k, d]) => k === num2 && d === 100)
   );
 }
 
@@ -1643,18 +1643,18 @@ var fractions_droite_graduee_default = defineGenerator({
   generate(rng, difficulty) {
     const units = difficulty >= 4 ? difficulty - 2 : 1;
     const fractions = DENS[difficulty].flatMap((d) => range(1, d * units - 1).map((k) => [k, d]));
-    const [num = 1, den = 2] = rng.pick(fractions.filter(([k = 0, d = 1]) => k % d !== 0));
+    const [num2 = 1, den = 2] = rng.pick(fractions.filter(([k = 0, d = 1]) => k % d !== 0));
     return {
       type: "number-line",
       min: rational(0),
       max: rational(units),
       step: rational(1, den),
-      target: `${num}/${den}`,
-      answer: rational(num, den),
-      mistakes: { "off-by-one-graduation": [rational(num - 1, den), rational(num + 1, den)] },
-      prompt: `Place ${num}/${den} sur la droite gradu\xE9e.`,
+      target: `${num2}/${den}`,
+      answer: rational(num2, den),
+      mistakes: { "off-by-one-graduation": [rational(num2 - 1, den), rational(num2 + 1, den)] },
+      prompt: `Place ${num2}/${den} sur la droite gradu\xE9e.`,
       hint: `L\u2019unit\xE9 est partag\xE9e en ${den} parts \xE9gales : chaque graduation vaut 1/${den}.`,
-      explanation: [`${num}/${den}, c\u2019est ${num} graduations de 1/${den} apr\xE8s 0.`]
+      explanation: [`${num2}/${den}, c\u2019est ${num2} graduations de 1/${den} apr\xE8s 0.`]
     };
   }
 });
@@ -1868,15 +1868,15 @@ var DENS2 = { 1: [10], 2: [10, 100], 3: [10, 100, 2, 4], 4: [100, 4, 5, 20], 5: 
 var fractions_decimaux_equivalences_default = defineGenerator({
   skill: "cm2.fractions-decimaux-equivalences",
   generate(rng, difficulty) {
-    const fractions = DENS2[difficulty].flatMap((den) => range(1, den - 1).map((num) => [num, den]));
+    const fractions = DENS2[difficulty].flatMap((den) => range(1, den - 1).map((num2) => [num2, den]));
     const count = difficulty < 3 ? 3 : 4;
     const picked = distinct(
       count,
       () => rng.pick(fractions),
-      ([num = 0, den = 1]) => num / den
+      ([num2 = 0, den = 1]) => num2 / den
     );
-    const left = picked.map(([num = 0, den = 1]) => formatFraction(num, den));
-    const values = picked.map(([num = 0, den = 1]) => formatDecimal(rational(num, den)));
+    const left = picked.map(([num2 = 0, den = 1]) => formatFraction(num2, den));
+    const values = picked.map(([num2 = 0, den = 1]) => formatDecimal(rational(num2, den)));
     const right = rng.shuffle(values);
     return {
       type: "match",
@@ -2003,19 +2003,19 @@ var fraction_d_une_quantite_default = defineGenerator({
   skill: "6e.fraction-d-une-quantite",
   generate(rng, difficulty) {
     const den = rng.pick(DENS3[difficulty]);
-    const num = difficulty < 3 ? 1 : rng.int(2, den - 1);
+    const num2 = difficulty < 3 ? 1 : rng.int(2, den - 1);
     const part = rng.int(2, difficulty < 4 ? 10 : 25);
     const quantity = den * part;
     return {
       type: "numeric",
-      prompt: `Combien font ${num}/${den} de ${formatNumber(quantity)} ?`,
-      check: `${num}/${den} \xD7 ${formatNumber(quantity)}`,
-      answer: rational(num * part),
+      prompt: `Combien font ${num2}/${den} de ${formatNumber(quantity)} ?`,
+      check: `${num2}/${den} \xD7 ${formatNumber(quantity)}`,
+      answer: rational(num2 * part),
       mistakes: { "divides-only": [rational(part)] },
       hint: `Partage d\u2019abord ${formatNumber(quantity)} en ${den} parts \xE9gales.`,
       explanation: [
         `${formatNumber(quantity)} \xF7 ${den} = ${formatNumber(part)}`,
-        `${formatNumber(part)} \xD7 ${num} = ${formatNumber(num * part)}`
+        `${formatNumber(part)} \xD7 ${num2} = ${formatNumber(num2 * part)}`
       ]
     };
   }
@@ -2286,8 +2286,8 @@ var NUMBER = new RegExp(
   `${MINUS}?(?:(\\d+)/(\\d+)|\\d{1,3}(?:[\\u202f\\u00a0]\\d{3})+(?:,\\d+)?|\\d+(?:,\\d+)?)|[${SUPERSCRIPTS}]+`,
   "g"
 );
-function valueOf(text) {
-  const unsigned = text.startsWith(MINUS) ? text.slice(MINUS.length) : text;
+function valueOf(text2) {
+  const unsigned = text2.startsWith(MINUS) ? text2.slice(MINUS.length) : text2;
   if (SUPERSCRIPTS.includes(unsigned.charAt(0))) {
     return rational(Number([...unsigned].map((digit) => SUPERSCRIPTS.indexOf(digit)).join("")));
   }
@@ -2296,22 +2296,22 @@ function valueOf(text) {
   const [units = "0", decimals = ""] = unsigned.replace(/[  ]/g, "").split(",");
   return rational(Number(units + decimals), 10 ** decimals.length);
 }
-function numberTokens(text) {
-  return [...text.matchAll(NUMBER)].map((match) => ({
+function numberTokens(text2) {
+  return [...text2.matchAll(NUMBER)].map((match) => ({
     text: match[0],
     start: match.index,
     end: match.index + match[0].length,
     value: valueOf(match[0])
   }));
 }
-function numbersOf(text) {
-  return numberTokens(text).flatMap((token) => {
+function numbersOf(text2) {
+  return numberTokens(text2).flatMap((token) => {
     const parts2 = /(\d+)\/(\d+)/.exec(token.text);
     return parts2 ? [token.value, rational(Number(parts2[1])), rational(Number(parts2[2]))] : [token.value];
   });
 }
-function foreignNumbers(text, allowed) {
-  return numberTokens(text).filter((token) => !allowed.some((value) => equals(value, token.value))).map((token) => token.text);
+function foreignNumbers(text2, allowed) {
+  return numberTokens(text2).filter((token) => !allowed.some((value) => equals(value, token.value))).map((token) => token.text);
 }
 
 // ../../packages/exercise-engine/src/coach/frame.ts
@@ -2368,17 +2368,17 @@ function shown(exercise) {
       return exercise.prompt;
   }
 }
-function slotted(text, prefix, slots, first = 1) {
+function slotted(text2, prefix, slots, first = 1) {
   let index = first;
   let out = "";
   let last = 0;
-  for (const token of numberTokens(text)) {
+  for (const token of numberTokens(text2)) {
     const name = `${prefix}${index++}`;
     slots[name] = token.text;
-    out += `${text.slice(last, token.start)}{${name}}`;
+    out += `${text2.slice(last, token.start)}{${name}}`;
     last = token.end;
   }
-  return { text: out + text.slice(last), next: index };
+  return { text: out + text2.slice(last), next: index };
 }
 function coachFrame(exercise, response) {
   const slots = {};
@@ -2398,15 +2398,15 @@ function coachFrame(exercise, response) {
 
 // ../../packages/exercise-engine/src/parse.ts
 var MAX_DIGITS = 15;
-function parseTypedNumber(text) {
-  let normalized = text.replace(/\s/g, "").replace(/−/g, "-");
+function parseTypedNumber(text2) {
+  let normalized = text2.replace(/\s/g, "").replace(/−/g, "-");
   if (/^\(.*\)$/.test(normalized)) normalized = normalized.slice(1, -1);
   const fraction = /^([+-]?\d+)\/([+-]?\d+)$/.exec(normalized);
   if (fraction) {
-    const [num, den] = [Number(fraction[1]), Number(fraction[2])];
+    const [num2, den] = [Number(fraction[1]), Number(fraction[2])];
     if (den === 0 || normalized.length > MAX_DIGITS) return null;
-    const value = rational(num, den);
-    return { value, form: "fraction", irreducible: Math.abs(value.num) === Math.abs(num) };
+    const value = rational(num2, den);
+    return { value, form: "fraction", irreducible: Math.abs(value.num) === Math.abs(num2) };
   }
   const decimal2 = /^([+-]?)(\d*)(?:[.,](\d*))?$/.exec(normalized);
   if (!decimal2) return null;
@@ -2638,7 +2638,7 @@ var parts = (explanation) => EXPLANATION_PARTS.map((part) => explanation[part]);
 var wordCount = (explanation) => parts(explanation).join(" ").split(/\s+/).filter(Boolean).length;
 function renderExplanation(template, slots) {
   let missing = false;
-  const fill = (text) => text.replace(SLOT, (_, name) => {
+  const fill = (text2) => text2.replace(SLOT, (_, name) => {
     const value = slots[name];
     if (value === void 0) missing = true;
     return value ?? "";
@@ -2652,10 +2652,10 @@ function renderExplanation(template, slots) {
 }
 function explanationProblems(template, frame) {
   const problems = /* @__PURE__ */ new Set();
-  for (const text of parts(template)) {
-    if (text.trim().length === 0) problems.add("empty");
-    if (text.length > MAX_PART_LENGTH) problems.add("too-long");
-    const bare = text.replace(SLOT, "");
+  for (const text2 of parts(template)) {
+    if (text2.trim().length === 0) problems.add("empty");
+    if (text2.length > MAX_PART_LENGTH) problems.add("too-long");
+    const bare = text2.replace(SLOT, "");
     if (DIGIT.test(bare)) problems.add("digits");
     if (NUMBER_WORDS.test(bare)) problems.add("number-words");
     if (/[{}]/.test(bare)) problems.add("unknown-slot");
@@ -2665,7 +2665,7 @@ function explanationProblems(template, frame) {
     problems.add("unknown-slot");
   } else {
     if (wordCount(rendered) > MAX_EXPLANATION_WORDS) problems.add("too-long");
-    if (parts(rendered).some((text) => foreignNumbers(text, frame.allowed).length > 0)) {
+    if (parts(rendered).some((text2) => foreignNumbers(text2, frame.allowed).length > 0)) {
       problems.add("foreign-number");
     }
   }
@@ -2694,9 +2694,9 @@ function parseStoredResponse(value) {
     return { type, value: value.value };
   }
   if (type === "number-line" && isObject(value.value)) {
-    const { num, den } = value.value;
-    if (typeof num === "number" && typeof den === "number" && den !== 0) {
-      return { type, value: rational(num, den) };
+    const { num: num2, den } = value.value;
+    if (typeof num2 === "number" && typeof den === "number" && den !== 0) {
+      return { type, value: rational(num2, den) };
     }
   }
   if (type === "order" && isNumberList(value.order)) return { type, order: value.order };
@@ -2717,13 +2717,13 @@ function rebuildExercise(stored) {
 }
 
 // src/checks.ts
-function parseExplanation(text) {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
+function parseExplanation(text2) {
+  const start = text2.indexOf("{");
+  const end = text2.lastIndexOf("}");
   if (start < 0 || end <= start) return null;
   let value;
   try {
-    value = JSON.parse(text.slice(start, end + 1));
+    value = JSON.parse(text2.slice(start, end + 1));
   } catch {
     return null;
   }
@@ -2732,10 +2732,10 @@ function parseExplanation(text) {
   if (typeof what !== "string" || typeof image !== "string" || typeof tip !== "string") return null;
   return { what: what.trim(), image: image.trim(), tip: tip.trim() };
 }
-var normalize = (text) => text.toLocaleLowerCase("fr").normalize("NFD").replace(/\p{M}/gu, "");
-function bannedWordsIn(text, banned) {
-  const words = new Set(normalize(text).split(/[^\p{L}\p{N}'’-]+/u));
-  const plain = normalize(text);
+var normalize = (text2) => text2.toLocaleLowerCase("fr").normalize("NFD").replace(/\p{M}/gu, "");
+function bannedWordsIn(text2, banned) {
+  const words = new Set(normalize(text2).split(/[^\p{L}\p{N}'’-]+/u));
+  const plain = normalize(text2);
   return banned.filter((word) => {
     const term = normalize(word.trim());
     if (!term) return false;
@@ -2746,8 +2746,8 @@ function checkExplanation(template, frame, banned) {
   if (!template) return { problems: ["unreadable"], rendered: null };
   const problems = explanationProblems(template, frame);
   const rendered = renderExplanation(template, frame.slots);
-  const text = [template.what, template.image, template.tip].join(" ");
-  if (bannedWordsIn(text, banned).length > 0) problems.push("banned-word");
+  const text2 = [template.what, template.image, template.tip].join(" ");
+  if (bannedWordsIn(text2, banned).length > 0) problems.push("banned-word");
   return { problems, rendered: problems.length === 0 ? rendered : null };
 }
 var explanationText = (explanation) => [explanation.what, explanation.image, explanation.tip].join("\n");
@@ -2798,7 +2798,7 @@ function buildPrompt(template, context) {
     valeurs: Object.entries(frame.slots).map(([slot, value]) => `{${slot}} = ${value}`).join(" ; "),
     univers: universeText(context.universe)
   };
-  const fill = (text) => text.replace(/\{\{(\w+)\}\}/g, (all, name) => fields[name] ?? all);
+  const fill = (text2) => text2.replace(/\{\{(\w+)\}\}/g, (all, name) => fields[name] ?? all);
   return { system: fill(template.system), user: fill(template.user) };
 }
 
@@ -2853,11 +2853,11 @@ async function chat(provider, request, fetcher = fetch, now = Date.now) {
     latencyMs
   };
 }
-async function moderate(provider, text, fetcher = fetch, timeoutMs = 5e3) {
+async function moderate(provider, text2, fetcher = fetch, timeoutMs = 5e3) {
   const response = await fetcher(endpoint(provider, "moderations"), {
     method: "POST",
     headers: headers(provider),
-    body: JSON.stringify({ model: "mistral-moderation-latest", input: [text] }),
+    body: JSON.stringify({ model: "mistral-moderation-latest", input: [text2] }),
     signal: AbortSignal.timeout(timeoutMs)
   });
   if (!response.ok) throw new ProviderError(`moderation HTTP ${response.status}`, 0);
@@ -2867,9 +2867,167 @@ async function moderate(provider, text, fetcher = fetch, timeoutMs = 5e3) {
 }
 var callCost = (provider, tokensIn, tokensOut) => (tokensIn * provider.price.input + tokensOut * provider.price.output) / 1e6;
 
+// src/context.ts
+var isRow = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
+var num = (value, fallback = 0) => {
+  const parsed = typeof value === "string" ? Number(value) : value;
+  return typeof parsed === "number" && Number.isFinite(parsed) ? parsed : fallback;
+};
+var text = (value) => typeof value === "string" ? value : "";
+function providerOf(value, secrets) {
+  if (!isRow(value)) return null;
+  const model = text(value.model).trim();
+  if (!model) return null;
+  const price = { input: num(value.price_input), output: num(value.price_output) };
+  if (value.kind === "mistral") {
+    if (!secrets.mistralKey) return null;
+    const baseUrl = text(value.base_url) || MISTRAL_URL;
+    return { kind: "mistral", baseUrl, model, apiKey: secrets.mistralKey, price };
+  }
+  if (value.kind === "openai-compatible") {
+    const baseUrl = text(value.base_url).trim();
+    if (!/^https?:\/\//.test(baseUrl)) return null;
+    return {
+      kind: "openai-compatible",
+      baseUrl,
+      model,
+      apiKey: secrets.ownKey || void 0,
+      price
+    };
+  }
+  return null;
+}
+function promptOf(value) {
+  if (!isRow(value)) return DEFAULT_PROMPT;
+  const system = text(value.system);
+  const user = text(value.user);
+  return system && user ? { version: num(value.version, 1), system, user } : DEFAULT_PROMPT;
+}
+var universesOf = (value) => (Array.isArray(value) ? value : []).filter(isRow).map((row) => ({
+  id: text(row.id),
+  name: text(row.name),
+  vocabulary: isRow(row.vocabulary) ? {
+    words: Array.isArray(row.vocabulary.words) ? row.vocabulary.words.filter((w) => typeof w === "string") : [],
+    images: Array.isArray(row.vocabulary.images) ? row.vocabulary.images.filter((w) => typeof w === "string") : []
+  } : {}
+}));
+function readUniverse(value) {
+  const [universe] = universesOf([value]);
+  return universe?.id ? universe : null;
+}
+function readSettings(value, secrets) {
+  const context = isRow(value) ? value : {};
+  const settings = isRow(context.settings) ? context.settings : {};
+  const spent = isRow(context.spent) ? context.spent : {};
+  return {
+    enabled: settings.enabled === true,
+    realtime: providerOf(settings.realtime_provider, secrets),
+    night: providerOf(settings.night_provider, secrets),
+    moderation: settings.moderation === true && secrets.mistralKey ? {
+      kind: "mistral",
+      baseUrl: MISTRAL_URL,
+      model: "mistral-moderation-latest",
+      apiKey: secrets.mistralKey,
+      price: { input: 0, output: 0 }
+    } : null,
+    dailyCapUsd: num(settings.daily_cap_usd),
+    monthlyCapUsd: num(settings.monthly_cap_usd),
+    spentTodayUsd: num(spent.today),
+    spentMonthUsd: num(spent.month),
+    banned: (Array.isArray(context.banned) ? context.banned : []).filter(
+      (word) => typeof word === "string"
+    ),
+    prompt: promptOf(context.prompt)
+  };
+}
+function readChildContext(value, secrets) {
+  if (!isRow(value)) return null;
+  const grade = GRADES.find((item) => item === value.grade);
+  if (!grade) return null;
+  return { grade, universes: universesOf(value.universes), settings: readSettings(value, secrets) };
+}
+function readNightPlan(value, secrets) {
+  const plan = isRow(value) ? value : {};
+  return {
+    settings: readSettings(plan, secrets),
+    occurrences: (Array.isArray(plan.occurrences) ? plan.occurrences : []).filter(isRow).map((row) => ({
+      band: text(row.band),
+      skill: text(row.skill),
+      error: typeof row.error === "string" ? row.error : null,
+      count: num(row.count)
+    })),
+    universes: (Array.isArray(plan.universes) ? plan.universes : []).filter(isRow).flatMap((row) => {
+      const [universe] = universesOf([row.universe]);
+      return universe?.id ? [{ band: text(row.band), universe, count: num(row.count) }] : [];
+    }),
+    existing: new Set(
+      (Array.isArray(plan.existing) ? plan.existing : []).filter(
+        (key) => typeof key === "string"
+      )
+    ),
+    remaining: Math.max(0, Math.floor(num(plan.remaining)))
+  };
+}
+function readTemplate(value) {
+  if (!isRow(value)) return null;
+  const { what, image, tip } = value;
+  return typeof what === "string" && typeof image === "string" && typeof tip === "string" ? { what, image, tip } : null;
+}
+var usageRow = (usage, childId) => ({
+  task: usage.task,
+  provider: usage.provider,
+  model: usage.model,
+  tokens_in: usage.tokensIn,
+  tokens_out: usage.tokensOut,
+  cost_usd: usage.costUsd,
+  latency_ms: Math.round(usage.latencyMs),
+  outcome: usage.outcome,
+  problems: usage.problems,
+  child_id: childId,
+  skill_code: usage.key?.skill ?? null,
+  error_type: usage.key?.error ?? null,
+  universe_id: usage.key?.universe ?? null,
+  grade_band: usage.key?.band ?? null,
+  prompt_version: usage.promptVersion
+});
+
+// src/night.ts
+var keyString = (key) => [key.skill, key.error ?? "", key.universe ?? "", key.band].join("|");
+var BAND_GRADE = {
+  "cp-ce2": "CE2",
+  "cm1-cm2": "CM1",
+  "6e-5e": "6e",
+  "4e-3e": "4e"
+};
+var bandGrade = (band) => BAND_GRADE[band];
+var isBand = (band) => GRADE_BANDS.some((item) => item === band);
+function nightJobs(input) {
+  const jobs = [];
+  for (const occurrence of input.occurrences) {
+    const { band, skill, error } = occurrence;
+    if (!isBand(band) || !isSkillCode(skill) || error !== null && !isErrorTypeCode(error))
+      continue;
+    const mistake = error;
+    const code = skill;
+    const universes = input.universes.filter((item) => item.band === band).sort((a, b) => b.count - a.count);
+    const options = [
+      // Everyday life serves every child of the group.
+      { universe: null, weight: Math.max(1, ...universes.map((item) => item.count)) + 1 },
+      ...universes.map((item) => ({ universe: item.universe, weight: item.count }))
+    ];
+    for (const { universe, weight } of options) {
+      const key = { skill: code, error: mistake, universe: universe?.id ?? null, band };
+      if (input.existing.has(keyString(key))) continue;
+      jobs.push({ key, universe, grade: BAND_GRADE[band], score: occurrence.count * weight });
+    }
+  }
+  return jobs.sort((a, b) => b.score - a.score || keyString(a.key).localeCompare(keyString(b.key))).slice(0, input.limit).map(({ key, universe, grade }) => ({ key, universe, grade }));
+}
+
 // src/gateway.ts
 var REALTIME_TIMEOUT_MS = 8e3;
-var NIGHT_TIMEOUT_MS = 12e4;
+var NIGHT_TIMEOUT_MS = 45e3;
+var NIGHT_RUN_MS = 9e4;
 var MAX_TOKENS = 400;
 var withinBudget = (settings, provider) => provider.price.input === 0 && provider.price.output === 0 || settings.spentTodayUsd < settings.dailyCapUsd && settings.spentMonthUsd < settings.monthlyCapUsd;
 async function generate(input, provider, settings, fetcher = fetch) {
@@ -2905,7 +3063,7 @@ async function generate(input, provider, settings, fetcher = fetch) {
         ...messages,
         maxTokens: MAX_TOKENS,
         temperature: 0.7,
-        timeoutMs: input.task === "night" ? NIGHT_TIMEOUT_MS : REALTIME_TIMEOUT_MS
+        timeoutMs: input.task === "realtime" ? REALTIME_TIMEOUT_MS : NIGHT_TIMEOUT_MS
       },
       fetcher
     );
@@ -2964,7 +3122,15 @@ async function explain(input, settings, store, fetcher = fetch) {
   if (!settings.enabled) return { source: "standard", reason: "off" };
   for (const cached of await store.cached(key, input.exclude)) {
     const explanation = showableExplanation(cached.template, frame);
-    if (explanation) return { source: "cache", id: cached.id, explanation, universe: key.universe };
+    if (explanation) {
+      return {
+        source: "cache",
+        id: cached.id,
+        template: cached.template,
+        explanation,
+        universe: key.universe
+      };
+    }
   }
   const provider = settings.realtime;
   if (!provider) return { source: "standard", reason: "no-provider" };
@@ -2996,19 +3162,28 @@ async function explain(input, settings, store, fetcher = fetch) {
     model: provider.model,
     promptVersion: settings.prompt.version
   });
-  return { source: "ai", id, explanation: generated.rendered, universe: key.universe };
+  return {
+    source: "ai",
+    id,
+    template: generated.template,
+    explanation: generated.rendered,
+    universe: key.universe
+  };
 }
-async function pregenerate(jobs, settings, store, fetcher = fetch) {
+async function pregenerate(jobs, settings, store, fetcher = fetch, clock = {
+  now: Date.now,
+  deadline: Date.now() + NIGHT_RUN_MS
+}) {
   const counts = { kept: 0, rejected: 0, failed: 0, skipped: 0 };
   const provider = settings.night ?? settings.realtime;
   if (!settings.enabled || !provider) return { ...counts, skipped: jobs.length };
   let spent = 0;
   for (const job of jobs) {
-    if (!withinBudget({ ...settings, spentTodayUsd: settings.spentTodayUsd + spent }, provider)) {
-      counts.skipped += 1;
-      continue;
-    }
-    const sample = coachSample(job.key.skill, job.key.error);
+    const affordable = withinBudget(
+      { ...settings, spentTodayUsd: settings.spentTodayUsd + spent },
+      provider
+    );
+    const sample = affordable && clock.now() < clock.deadline ? coachSample(job.key.skill, job.key.error) : null;
     if (!sample) {
       counts.skipped += 1;
       continue;
@@ -3046,37 +3221,33 @@ async function pregenerate(jobs, settings, store, fetcher = fetch) {
   }
   return counts;
 }
-
-// src/night.ts
-var keyString = (key) => [key.skill, key.error ?? "", key.universe ?? "", key.band].join("|");
-var BAND_GRADE = {
-  "cp-ce2": "CE2",
-  "cm1-cm2": "CM1",
-  "6e-5e": "6e",
-  "4e-3e": "4e"
-};
-var isBand = (band) => GRADE_BANDS.some((item) => item === band);
-function nightJobs(input) {
-  const jobs = [];
-  for (const occurrence of input.occurrences) {
-    const { band, skill, error } = occurrence;
-    if (!isBand(band) || !isSkillCode(skill) || error !== null && !isErrorTypeCode(error))
-      continue;
-    const mistake = error;
-    const code = skill;
-    const universes = input.universes.filter((item) => item.band === band).sort((a, b) => b.count - a.count);
-    const options = [
-      // Everyday life serves every child of the group.
-      { universe: null, weight: Math.max(1, ...universes.map((item) => item.count)) + 1 },
-      ...universes.map((item) => ({ universe: item.universe, weight: item.count }))
-    ];
-    for (const { universe, weight } of options) {
-      const key = { skill: code, error: mistake, universe: universe?.id ?? null, band };
-      if (input.existing.has(keyString(key))) continue;
-      jobs.push({ key, universe, grade: BAND_GRADE[band], score: occurrence.count * weight });
-    }
-  }
-  return jobs.sort((a, b) => b.score - a.score || keyString(a.key).localeCompare(keyString(b.key))).slice(0, input.limit).map(({ key, universe, grade }) => ({ key, universe, grade }));
+async function preview(input, settings, store, fetcher = fetch) {
+  const provider = input.night ? settings.night ?? settings.realtime : settings.realtime;
+  if (!provider) return { ok: false, reason: "no-provider" };
+  if (!withinBudget(settings, provider)) return { ok: false, reason: "budget" };
+  const sample = coachSample(input.key.skill, input.key.error);
+  if (!sample) return { ok: false, reason: "no-sample" };
+  const generated = await generate(
+    {
+      ...sample,
+      grade: bandGrade(input.key.band),
+      universe: input.universe,
+      key: input.key,
+      task: "preview",
+      prompt: input.prompt
+    },
+    provider,
+    settings,
+    fetcher
+  );
+  if (generated.usage) await store.logUsage(generated.usage);
+  return {
+    ok: true,
+    exercise: sample.exercise.prompt,
+    given: givenText(sample.exercise, sample.response),
+    solution: answerText(sample.exercise),
+    generated
+  };
 }
 
 // src/request.ts
@@ -3095,13 +3266,40 @@ function parseCoachRequest(body) {
   const exclude = Array.isArray(fields.exclude) ? fields.exclude.filter((id) => typeof id === "string" && UUID.test(id)) : [];
   return { childId, exercise, response: answer, exclude: exclude.slice(0, MAX_EXCLUDED) };
 }
+var MAX_PROMPT_LENGTH = 8e3;
+var promptText = (value) => typeof value === "string" && value.trim() && value.length <= MAX_PROMPT_LENGTH ? value : null;
+function parsePreviewRequest(body) {
+  if (typeof body !== "object" || body === null) return null;
+  const { skill, error, universe, band, system, user, version, night } = body;
+  if (typeof skill !== "string" || !isSkillCode(skill)) return null;
+  if (error != null && (typeof error !== "string" || !isErrorTypeCode(error))) return null;
+  if (universe != null && typeof universe !== "string") return null;
+  const ageGroup = GRADE_BANDS.find((item) => item === band);
+  const systemText = promptText(system);
+  const userText = promptText(user);
+  if (!ageGroup || !systemText || !userText) return null;
+  return {
+    skill,
+    error: error ?? null,
+    universe: universe || null,
+    band: ageGroup,
+    prompt: {
+      version: typeof version === "number" && Number.isInteger(version) && version > 0 ? version : 0,
+      system: systemText,
+      user: userText
+    },
+    night: night === true
+  };
+}
 export {
   DEFAULT_PROMPT,
   EVERYDAY,
   GRADES,
   MISTRAL_URL,
+  NIGHT_RUN_MS,
   ProviderError,
   TONES,
+  bandGrade,
   bannedWordsIn,
   buildPrompt,
   callCost,
@@ -3120,6 +3318,15 @@ export {
   nightJobs,
   parseCoachRequest,
   parseExplanation,
+  parsePreviewRequest,
   pickUniverse,
-  pregenerate
+  pregenerate,
+  preview,
+  providerOf,
+  readChildContext,
+  readNightPlan,
+  readSettings,
+  readTemplate,
+  readUniverse,
+  usageRow
 };

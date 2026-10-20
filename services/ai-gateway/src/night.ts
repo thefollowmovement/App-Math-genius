@@ -25,6 +25,7 @@ const BAND_GRADE: Record<GradeBand, Grade> = {
   '6e-5e': '6e',
   '4e-3e': '4e',
 };
+export const bandGrade = (band: GradeBand): Grade => BAND_GRADE[band];
 
 export type Occurrence = { band: string; skill: string; error: string | null; count: number };
 export type UniverseCount = { band: string; universe: Universe; count: number };

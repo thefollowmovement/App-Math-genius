@@ -8,15 +8,18 @@ import {
   type Exercise,
   type ExerciseResponse,
   type Explanation,
+  answerText,
   coachFrame,
   coachSample,
   diagnoseResponse,
+  givenText,
   gradeResponse,
   showableExplanation,
 } from '@math-genius/exercise-engine';
 import { type Grade, type GradeBand, gradeBand } from '@math-genius/shared';
 
 import { type CheckProblem, checkExplanation, explanationText, parseExplanation } from './checks';
+import { bandGrade } from './night';
 import { type PromptTemplate, type Universe, buildPrompt } from './prompt';
 import {
   type Fetch,
@@ -92,7 +95,9 @@ export type GatewaySettings = {
 };
 
 const REALTIME_TIMEOUT_MS = 8000;
-const NIGHT_TIMEOUT_MS = 120_000;
+/** A night run ends within an Edge Function's 150 s: no call starts after NIGHT_RUN_MS. */
+const NIGHT_TIMEOUT_MS = 45_000;
+export const NIGHT_RUN_MS = 90_000;
 const MAX_TOKENS = 400;
 
 export type Generated =
@@ -151,7 +156,7 @@ export async function generate(
         ...messages,
         maxTokens: MAX_TOKENS,
         temperature: 0.7,
-        timeoutMs: input.task === 'night' ? NIGHT_TIMEOUT_MS : REALTIME_TIMEOUT_MS,
+        timeoutMs: input.task === 'realtime' ? REALTIME_TIMEOUT_MS : NIGHT_TIMEOUT_MS,
       },
       fetcher,
     );
@@ -207,7 +212,14 @@ export type ExplainInput = {
 export type StandardReason = 'correct' | 'off' | 'budget' | 'no-provider' | 'failed' | 'rejected';
 
 export type ExplainResult =
-  | { source: 'cache' | 'ai'; id: string; explanation: Explanation; universe: string | null }
+  | {
+      source: 'cache' | 'ai';
+      id: string;
+      /** With slots: the app renders and checks it again before showing it. */
+      template: Explanation;
+      explanation: Explanation;
+      universe: string | null;
+    }
   | { source: 'standard'; reason: StandardReason };
 
 /** The universe of this explanation: one of the child's, another at each « Explique autrement ». */
@@ -242,7 +254,15 @@ export async function explain(
   // A validated explanation of the same skill, mistake, universe and age group: shown at once.
   for (const cached of await store.cached(key, input.exclude)) {
     const explanation = showableExplanation(cached.template, frame);
-    if (explanation) return { source: 'cache', id: cached.id, explanation, universe: key.universe };
+    if (explanation) {
+      return {
+        source: 'cache',
+        id: cached.id,
+        template: cached.template,
+        explanation,
+        universe: key.universe,
+      };
+    }
   }
 
   const provider = settings.realtime;
@@ -276,31 +296,43 @@ export async function explain(
     model: provider.model,
     promptVersion: settings.prompt.version,
   });
-  return { source: 'ai', id, explanation: generated.rendered, universe: key.universe };
+  return {
+    source: 'ai',
+    id,
+    template: generated.template,
+    explanation: generated.rendered,
+    universe: key.universe,
+  };
 }
 
 export type NightJob = { key: CacheKey; universe: Universe | null; grade: Grade };
 
 /**
  * The night's pre-generation (docs/specs.md): explanations written ahead for the combinations
- * still missing, on our own server when there is one. Returns how many were kept.
+ * still missing, on our own server when there is one. Several short runs a night: the jobs not
+ * started before the deadline are left for the next run.
  */
 export async function pregenerate(
   jobs: readonly NightJob[],
   settings: GatewaySettings,
   store: GatewayStore,
   fetcher: Fetch = fetch,
+  clock: { now: () => number; deadline: number } = {
+    now: Date.now,
+    deadline: Date.now() + NIGHT_RUN_MS,
+  },
 ): Promise<{ kept: number; rejected: number; failed: number; skipped: number }> {
   const counts = { kept: 0, rejected: 0, failed: 0, skipped: 0 };
   const provider = settings.night ?? settings.realtime;
   if (!settings.enabled || !provider) return { ...counts, skipped: jobs.length };
   let spent = 0;
   for (const job of jobs) {
-    if (!withinBudget({ ...settings, spentTodayUsd: settings.spentTodayUsd + spent }, provider)) {
-      counts.skipped += 1;
-      continue;
-    }
-    const sample = coachSample(job.key.skill, job.key.error);
+    const affordable = withinBudget(
+      { ...settings, spentTodayUsd: settings.spentTodayUsd + spent },
+      provider,
+    );
+    const sample =
+      affordable && clock.now() < clock.deadline ? coachSample(job.key.skill, job.key.error) : null;
     if (!sample) {
       counts.skipped += 1;
       continue;
@@ -337,4 +369,63 @@ export async function pregenerate(
     }
   }
   return counts;
+}
+
+export type PreviewInput = {
+  key: CacheKey;
+  universe: Universe | null;
+  /** A version being written in the back-office, saved or not. */
+  prompt: PromptTemplate;
+  /** The night's server instead of the real-time model. */
+  night: boolean;
+};
+
+export type PreviewResult =
+  | { ok: false; reason: 'no-sample' | 'no-provider' | 'budget' }
+  | {
+      ok: true;
+      /** The exercise the prompt was tried on, the wrong answer and the right one. */
+      exercise: string;
+      given: string;
+      solution: string;
+      generated: Generated;
+    };
+
+/**
+ * The back-office tries a prompt on an exercise that shows the mistake (« test en direct »): the
+ * same checks as for a child, nothing kept. Within the budget, even with the coach switched off,
+ * so that a prompt can be fixed before it is switched on again.
+ */
+export async function preview(
+  input: PreviewInput,
+  settings: GatewaySettings,
+  store: Pick<GatewayStore, 'logUsage'>,
+  fetcher: Fetch = fetch,
+): Promise<PreviewResult> {
+  const provider = input.night ? (settings.night ?? settings.realtime) : settings.realtime;
+  if (!provider) return { ok: false, reason: 'no-provider' };
+  if (!withinBudget(settings, provider)) return { ok: false, reason: 'budget' };
+  const sample = coachSample(input.key.skill, input.key.error);
+  if (!sample) return { ok: false, reason: 'no-sample' };
+  const generated = await generate(
+    {
+      ...sample,
+      grade: bandGrade(input.key.band),
+      universe: input.universe,
+      key: input.key,
+      task: 'preview',
+      prompt: input.prompt,
+    },
+    provider,
+    settings,
+    fetcher,
+  );
+  if (generated.usage) await store.logUsage(generated.usage);
+  return {
+    ok: true,
+    exercise: sample.exercise.prompt,
+    given: givenText(sample.exercise, sample.response),
+    solution: answerText(sample.exercise),
+    generated,
+  };
 }

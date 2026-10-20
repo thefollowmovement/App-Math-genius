@@ -2071,6 +2071,7 @@ export type Database = {
       };
       coach_log_usage: { Args: { p_usage: Json }; Returns: undefined };
       coach_night_plan: { Args: Record<PropertyKey, never>; Returns: Json };
+      coach_preview_context: { Args: { p_universe_id: string }; Returns: Json };
       coach_save_explanation: {
         Args: {
           p_content: Json;

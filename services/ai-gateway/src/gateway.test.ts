@@ -9,6 +9,7 @@ import {
   explain,
   pickUniverse,
   pregenerate,
+  preview,
 } from './gateway';
 import { keyString, nightJobs } from './night';
 import { DEFAULT_PROMPT, EVERYDAY, buildPrompt, type Universe } from './prompt';
@@ -352,5 +353,61 @@ describe('the night', () => {
         fakeServer([]).fetcher,
       ),
     ).toEqual({ kept: 0, rejected: 0, failed: 0, skipped: 2 });
+  });
+
+  it('leaves for the next run what it cannot start before the deadline', async () => {
+    const { store } = memoryStore();
+    let time = 0;
+    const clock = { now: () => time, deadline: 2 };
+    const fetcher: Fetch = async (url, init) => {
+      time += 1;
+      return fakeServer([GOOD]).fetcher(url, init);
+    };
+    const job = { key: KEY, universe: null, grade: 'CE2' as const };
+    const counts = await pregenerate([job, job, job], settings(), store, fetcher, clock);
+    expect(counts).toEqual({ kept: 2, rejected: 0, failed: 0, skipped: 1 });
+  });
+});
+
+describe('the back-office’s prompt test', () => {
+  it('tries a prompt on an exercise that shows the mistake, keeps nothing', async () => {
+    const { store, rows, usage } = memoryStore();
+    const { fetcher, calls } = fakeServer([GOOD]);
+    const prompt = { ...DEFAULT_PROMPT, version: 0, system: 'Version en cours' };
+    const result = await preview(
+      { key: KEY, universe: MINECRAFT, prompt, night: false },
+      settings({ enabled: false }),
+      store,
+      fetcher,
+    );
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.exercise).toBe(sample().exercise.prompt);
+    expect(result.generated.ok).toBe(true);
+    expect(calls[0]?.body.messages).toEqual(
+      expect.arrayContaining([{ role: 'system', content: 'Version en cours' }]),
+    );
+    expect(rows).toHaveLength(0);
+    expect(usage.map((entry) => [entry.task, entry.promptVersion])).toEqual([['preview', 0]]);
+  });
+
+  it('shows what the checks refuse, and stays within the budget', async () => {
+    const { store } = memoryStore();
+    const refused = await preview(
+      { key: KEY, universe: null, prompt: DEFAULT_PROMPT, night: true },
+      settings({ night: OWN }),
+      store,
+      fakeServer([{ ...GOOD, image: 'Il y a 3 blocs.' }]).fetcher,
+    );
+    expect(refused.ok && !refused.generated.ok && refused.generated.problems).toEqual(
+      expect.arrayContaining(['digits']),
+    );
+    expect(
+      await preview(
+        { key: KEY, universe: null, prompt: DEFAULT_PROMPT, night: false },
+        settings({ spentTodayUsd: 5 }),
+        store,
+        fakeServer([]).fetcher,
+      ),
+    ).toEqual({ ok: false, reason: 'budget' });
   });
 });
