@@ -26,6 +26,40 @@ const planned: DayPlan = { kind: 'planned', start: 17 * 60, deadline: 18 * 60 };
 const today = { plan: planned, goal } as const;
 
 describe('ChildHome', () => {
+  it('offers the placement test before the mission, and resumes it in its place', async () => {
+    const onStartPlacement = jest.fn();
+    const user = userEvent.setup();
+    const { rerender } = await renderWithTheme(
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'ready' }}
+        placement="first"
+        onStartPlacement={onStartPlacement}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(strings.placement.card.firstText)).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: t.mission.daily })).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: strings.placement.card.start }));
+    expect(onStartPlacement).toHaveBeenCalledTimes(1);
+
+    await rerender(
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'ready' }}
+        placement="resume"
+        onStartPlacement={onStartPlacement}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: strings.placement.card.resume })).toBeOnTheScreen();
+    expect(screen.queryByRole('header', { name: t.mission.daily })).toBeNull();
+  });
+
   it('plays, resumes or offers bonus training', async () => {
     const onStart = jest.fn();
     const user = userEvent.setup();

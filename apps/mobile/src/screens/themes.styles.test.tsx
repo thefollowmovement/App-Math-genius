@@ -17,6 +17,10 @@ import { PracticeScreen } from './practice';
 import { WorldMap } from './world-map';
 import { LookEditor } from './look';
 import { HeroIntro } from './hero-intro';
+import { PlacementScreen } from './placement';
+import { PlacementIntro } from './placement/placement-intro';
+import { PlacementResult } from './placement/placement-result';
+import { currentStop } from '@/data/mission-model';
 import { SessionSummary } from './session-summary';
 
 const globalCss = compileGlobalCss();
@@ -104,6 +108,46 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
         onFightBoss={jest.fn()}
       />
     ),
+  },
+  {
+    name: 'PlacementIntro',
+    render: () => (
+      <PlacementIntro childName="Léa" recheck onStart={jest.fn()} onLater={jest.fn()} />
+    ),
+  },
+  {
+    name: 'PlacementScreen',
+    render: () => (
+      <PlacementScreen
+        exercise={exerciseOfType('choice')}
+        progress={0.6}
+        recheck={false}
+        notice={null}
+        onSubmit={jest.fn()}
+        onSkip={jest.fn()}
+        onPause={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'PlacementResult',
+    render: () => {
+      const islands = worldMap({
+        grade: 'CM1',
+        mastery: {},
+        at: '2026-10-20T17:00:00Z',
+        defeated: [],
+      });
+      return (
+        <PlacementResult
+          islands={islands}
+          stop={currentStop(islands)}
+          onPlay={jest.fn()}
+          onOpenMap={jest.fn()}
+          onHome={jest.fn()}
+        />
+      );
+    },
   },
   {
     name: 'HeroIntro',

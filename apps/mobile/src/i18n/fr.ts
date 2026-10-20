@@ -110,6 +110,7 @@ export const fr = {
     title: 'Détail de la séance',
     question: (position: number, skill: string) => `Question ${position} · ${skill}`,
     answer: (text: string) => `Réponse\u00a0: ${text}`,
+    skipped: '«\u00a0Je ne sais pas\u00a0»',
     rightAnswer: (text: string) => `Bonne réponse\u00a0: ${text}`,
     meta: (correct: boolean, seconds: number, hintUsed: boolean) =>
       [
@@ -152,6 +153,24 @@ export const fr = {
     noDevices: 'Aucun appareil relié pour l’instant.',
     pairedOn: (date: string) => `Relié depuis le ${date}`,
     revoke: 'Retirer',
+    placement: {
+      title: 'Test de départ',
+      none: 'Pas encore passé\u00a0: il est proposé à l’enfant sur son accueil.',
+      unavailable: 'Le test arrive bientôt pour cette classe.',
+      takenOn: (date: string, grade: string) => `Passé le ${date}, en ${grade}`,
+      inProgress: 'Test en cours sur l’appareil de l’enfant.',
+      levels: {
+        ahead: 'En avance',
+        on_track: 'Au niveau',
+        to_consolidate: 'À consolider',
+      },
+      untested: 'Pas encore évalué',
+      priorities: 'Les 3 priorités',
+      noPriority: 'Aucune lacune repérée\u00a0: les prochaines séances suivent le programme.',
+      recheck: 'Un nouveau test est proposé tous les 3 mois et à chaque rentrée.',
+      gradeChanged: (grade: string) =>
+        `Résultat établi en ${grade}\u00a0: le prochain test tiendra compte de la nouvelle classe.`,
+    },
     push: {
       enabled: 'Notifications activées.',
       denied:
@@ -365,6 +384,72 @@ export const fr = {
       part: (position: number, shaded: boolean) =>
         shaded ? `Part ${position}, coloriée` : `Part ${position}`,
       answer: (count: number, parts: number) => `${count} parts coloriées sur ${parts}`,
+    },
+  },
+  /** The placement test (docs/specs.md, Test de positionnement): no score, no timer. */
+  placement: {
+    strands: {
+      numeration: 'Nombres',
+      calcul: 'Calcul',
+      fractions: 'Fractions',
+      mesures: 'Mesures',
+      geometrie: 'Géométrie',
+      problemes: 'Problèmes et données',
+    },
+    intro: {
+      first: {
+        label: 'Aventure de départ',
+        title: (name: string) => `En route pour l’aventure, ${name}\u00a0!`,
+        text: 'Quelques questions pour savoir par où commencer ton voyage sur la carte du monde.',
+      },
+      recheck: {
+        label: 'Point d’étape',
+        title: (name: string) => `On fait le point, ${name}\u00a0?`,
+        text: 'Quelques questions pour voir tout le chemin que tu as parcouru.',
+      },
+      points: [
+        'Ce n’est pas une interro\u00a0: pas de note, pas de chrono.',
+        'Prends ton temps et fais de ton mieux.',
+        'Tu ne sais pas\u00a0? Touche «\u00a0Je ne sais pas\u00a0», c’est permis\u00a0!',
+      ],
+      start: 'C’est parti',
+      later: 'Plus tard',
+    },
+    card: {
+      firstText: 'Réponds à quelques questions pour découvrir ta carte du monde.',
+      recheckText: 'Quelques questions pour faire le point sur tes progrès.',
+      resumeText: 'Ton aventure t’attend\u00a0: reprends où tu en étais.',
+      start: 'Commencer',
+      resume: 'Reprendre',
+    },
+    test: {
+      label: 'Aventure de départ',
+      labelRecheck: 'Point d’étape',
+      progress: (percent: number) => `Aventure faite à ${percent}\u00a0%`,
+      pauseLabel: 'Faire une pause\u00a0: l’aventure t’attendra',
+      submit: 'Valider',
+      skip: 'Je ne sais pas',
+      cheers: [
+        'Prends ton temps, je suis là.',
+        'Fais de ton mieux, c’est tout ce qui compte.',
+        'Chaque réponse m’aide à préparer ta carte.',
+        'On avance bien\u00a0!',
+        'Pas de stress\u00a0: il n’y a pas de note.',
+        'Tu ne connais pas encore\u00a0? Pas grave, on l’apprendra ensemble.',
+      ],
+    },
+    result: {
+      label: 'Ta carte du monde',
+      title: 'Ton aventure commence\u00a0!',
+      hero: 'Aventure terminée, bravo\u00a0! Voici ta carte\u00a0: ta première mission t’attend.',
+      islands: 'Tes îles',
+      soon: 'Bientôt',
+      mission: 'Ta première mission',
+      allDone:
+        'Tu as déjà tout franchi sur la carte de ta classe\u00a0: entraîne-toi pour garder ton niveau\u00a0!',
+      play: 'Jouer',
+      map: 'Voir ma carte',
+      close: 'Retour à l’accueil',
     },
   },
   summary: {

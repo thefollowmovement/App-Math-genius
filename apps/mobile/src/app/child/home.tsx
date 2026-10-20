@@ -5,6 +5,7 @@ import { LoadingScreen } from '@/components/loading-screen';
 import { useChild } from '@/data/children';
 import { useIsOnline } from '@/data/network';
 import { currentStop } from '@/data/mission-model';
+import { placementOffer } from '@/data/placement-model';
 import { currentMastery, hasUnsentAnswers, usePracticeStore } from '@/data/practice/practice-store';
 import { practiceStatus } from '@/data/practice/summary';
 import { usePracticeSync } from '@/data/practice/sync';
@@ -55,8 +56,11 @@ export default function ChildHomeRoute() {
           mastery: practice ? currentMastery(practice) : {},
           at: new Date().toISOString(),
           defeated: islands.data ?? [],
+          placed: Boolean(practice?.placedAt),
         }),
       )}
+      placement={placementOffer(practice, child.data.grade, date, new Date())}
+      onStartPlacement={() => router.push({ pathname: '/child/placement', params: { id } })}
       rewards={rewards.data}
       challenge={challenge.data}
       nextReward={nextReward(

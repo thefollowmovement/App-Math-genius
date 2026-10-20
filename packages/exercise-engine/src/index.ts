@@ -96,9 +96,12 @@ export { gradeResponse, type ExerciseResponse, type Verdict } from './grade';
 export { parseTypedNumber, type NumberForm, type TypedNumber } from './parse';
 export { createRng, deriveSeed, type Rng } from './random';
 export {
+  SKIPPED_ANSWER,
+  isSkippedAnswer,
   parseStoredResponse,
   rebuildExercise,
   regrade,
+  type SkippedAnswer,
   type ServerVerdict,
   type StoredAnswer,
 } from './regrade';

@@ -1988,6 +1988,8 @@ function gradeResponse(exercise, response) {
 // src/regrade.ts
 var isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 var isNumberList = (value) => Array.isArray(value) && value.every((item) => typeof item === "number");
+var SKIPPED_ANSWER = { type: "skipped" };
+var isSkippedAnswer = (value) => isObject(value) && value.type === SKIPPED_ANSWER.type;
 function parseStoredResponse(value) {
   if (!isObject(value)) return null;
   const { type } = value;
@@ -2027,6 +2029,8 @@ function regrade(answers) {
   });
 }
 export {
+  SKIPPED_ANSWER,
+  isSkippedAnswer,
   parseStoredResponse,
   rebuildExercise,
   regrade

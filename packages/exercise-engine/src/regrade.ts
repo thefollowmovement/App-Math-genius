@@ -28,6 +28,16 @@ const isObject = (value: unknown): value is JsonObject =>
 const isNumberList = (value: unknown): value is number[] =>
   Array.isArray(value) && value.every((item) => typeof item === 'number');
 
+/**
+ * « Je ne sais pas » in the placement test: stored instead of an answer, it is wrong, and the
+ * server's grading finds it wrong too (no known shape).
+ */
+export const SKIPPED_ANSWER = { type: 'skipped' } as const;
+export type SkippedAnswer = typeof SKIPPED_ANSWER;
+
+export const isSkippedAnswer = (value: unknown): value is SkippedAnswer =>
+  isObject(value) && value.type === SKIPPED_ANSWER.type;
+
 /** The answer stored with an attempt, if it has a known shape. */
 export function parseStoredResponse(value: unknown): ExerciseResponse | null {
   if (!isObject(value)) return null;

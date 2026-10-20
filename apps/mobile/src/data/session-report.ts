@@ -1,7 +1,12 @@
 import { getSkill, isSkillCode } from '@math-genius/curriculum';
-import { parseStoredResponse, rebuildExercise } from '@math-genius/exercise-engine';
+import {
+  isSkippedAnswer,
+  parseStoredResponse,
+  rebuildExercise,
+} from '@math-genius/exercise-engine';
 import type { DayPlan } from '@math-genius/shared';
 
+import { strings } from '@/i18n';
 import { responseText, rightAnswerText } from '@/utils/exercise-text';
 
 import type { AttemptRow, SessionRow } from './family-sessions';
@@ -100,7 +105,11 @@ export function attemptViews(rows: readonly AttemptRow[]): AttemptView[] {
       position: row.position,
       skill: isSkillCode(row.skill_code) ? getSkill(row.skill_code).title : row.skill_code,
       prompt: exercise?.prompt ?? null,
-      answer: exercise && response ? responseText(exercise, response) : null,
+      answer: isSkippedAnswer(row.answer)
+        ? strings.sessionDetail.skipped
+        : exercise && response
+          ? responseText(exercise, response)
+          : null,
       rightAnswer: exercise && !row.is_correct ? rightAnswerText(exercise) : null,
       correct: row.is_correct,
       hintUsed: row.hint_used,

@@ -1,7 +1,13 @@
 import { generatorId } from './generator';
 import { generators } from './generators';
 import { buildExercise } from './adaptive/planner';
-import { type StoredAnswer, parseStoredResponse, regrade } from './regrade';
+import {
+  SKIPPED_ANSWER,
+  type StoredAnswer,
+  isSkippedAnswer,
+  parseStoredResponse,
+  regrade,
+} from './regrade';
 import { rightResponse, wrongResponse } from './testing/responses';
 
 /** An answer as it comes back from the database: JSON, numbers as plain numerators and denominators. */
@@ -49,6 +55,15 @@ describe('server-side regrading', () => {
     expect(
       regrade([{ position: 3, generator_id: id, difficulty: 2, seed: 5, answer: { type: 'x' } }]),
     ).toEqual([{ position: 3, correct: false }]);
+  });
+
+  it('marks « Je ne sais pas » as wrong', () => {
+    const id = generatorId(generators[0]!);
+    const answer = stored(SKIPPED_ANSWER);
+    expect(isSkippedAnswer(answer)).toBe(true);
+    expect(regrade([{ position: 0, generator_id: id, difficulty: 2, seed: 5, answer }])).toEqual([
+      { position: 0, correct: false },
+    ]);
   });
 
   it('reads every stored response shape', () => {

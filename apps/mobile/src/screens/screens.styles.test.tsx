@@ -4,6 +4,7 @@ import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
 import { badgeGroups } from '@/data/badges-model';
+import { currentStop } from '@/data/mission-model';
 import type { Child } from '@/data/children';
 import { shopGroups } from '@/data/rewards-model';
 import type { VacationRow } from '@/data/routine-plan';
@@ -31,6 +32,9 @@ import { ChildHome } from './child-home';
 import { LookEditor } from './look';
 import { HeroIntro } from './hero-intro';
 import { PairDevice } from './pair-device';
+import { PlacementScreen } from './placement';
+import { PlacementIntro } from './placement/placement-intro';
+import { PlacementResult } from './placement/placement-result';
 import { ParentHome } from './parent-home';
 import { PracticeScreen } from './practice';
 import { ProfilePicker } from './profile-picker';
@@ -202,6 +206,62 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
         onSwitchProfile={jest.fn()}
       />
     ),
+  },
+  {
+    name: 'ChildHome (placement test)',
+    render: () => (
+      <ChildHome
+        child={lea}
+        practice={{ status: 'ready' }}
+        plan={{ kind: 'planned', start: 17 * 60, deadline: 18 * 60 }}
+        goal={{ type: 'duration', minutes: 15 }}
+        placement="first"
+        onStartPlacement={jest.fn()}
+        sync="idle"
+        onStart={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'PlacementIntro',
+    render: () => (
+      <PlacementIntro childName="Léa" recheck={false} onStart={jest.fn()} onLater={jest.fn()} />
+    ),
+  },
+  {
+    name: 'PlacementScreen',
+    render: () => (
+      <PlacementScreen
+        exercise={exerciseOfType('numeric')}
+        progress={0.3}
+        recheck={false}
+        notice="Je n’arrive pas à lire ta réponse."
+        onSubmit={jest.fn()}
+        onSkip={jest.fn()}
+        onPause={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'PlacementResult',
+    tall: true,
+    render: () => {
+      const islands = worldMap({
+        grade: 'CM1',
+        mastery: {},
+        at: '2026-10-20T17:00:00Z',
+        defeated: [],
+      });
+      return (
+        <PlacementResult
+          islands={islands}
+          stop={currentStop(islands)}
+          onPlay={jest.fn()}
+          onOpenMap={jest.fn()}
+          onHome={jest.fn()}
+        />
+      );
+    },
   },
   {
     name: 'HeroIntro (choose)',
