@@ -5,6 +5,7 @@ import type { Child } from '@/data/children';
 import type { PairedDevice } from '@/data/devices';
 import type { SessionRow } from '@/data/family-sessions';
 import type { ErrorKind } from '@/data/errors';
+import type { PlacementReport } from '@/data/placement-report';
 import type { ProgressView } from '@/data/rewards-model';
 import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
@@ -12,6 +13,7 @@ import { strings } from '@/i18n';
 import { TodaySessions } from '../today-sessions';
 import { NudgePanel, type NudgeResult } from './nudge-panel';
 import { PairingPanel, type PairingState } from './pairing-panel';
+import { PlacementPanel } from './placement-panel';
 import { RewardsPanel, type ParentRewardsState } from './rewards-panel';
 import { RoutinePanel } from './routine-panel';
 
@@ -36,6 +38,10 @@ type ChildDetailProps = {
   /** The child's sessions today. */
   sessions: readonly SessionRow[];
   onOpenSession: (sessionId: string) => void;
+  /** The last placement test; missing while loading. */
+  placement?: PlacementReport;
+  /** The child's grade has exercises to place the child with. */
+  placementAvailable?: boolean;
   routine: Routine | null;
   /** Current and coming holidays. */
   vacations: readonly VacationRow[];
@@ -59,6 +65,8 @@ export function ChildDetail({
   badges = 0,
   sessions,
   onOpenSession,
+  placement,
+  placementAvailable = true,
   routine,
   vacations,
   onEditRoutine,
@@ -89,6 +97,7 @@ export function ChildDetail({
         ) : null}
       </View>
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
+      <PlacementPanel report={placement} grade={child.grade} available={placementAvailable} />
       <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
       <RewardsPanel {...rewards} />
       {devices.length > 0 ? (

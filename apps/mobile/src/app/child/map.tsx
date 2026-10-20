@@ -28,6 +28,7 @@ export default function MapRoute() {
         mastery: practice ? currentMastery(practice) : {},
         at: new Date().toISOString(),
         defeated: islands.data ?? [],
+        placed: Boolean(practice?.placedAt),
       })}
       busy={practiceStatus(practice, child.data.grade, date).status === 'in-progress'}
       onFightBoss={(island) => start('push', island)}

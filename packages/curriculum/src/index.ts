@@ -5,7 +5,14 @@ import { cm2Skills } from './grades/cm2';
 import { sixiemeSkills } from './grades/sixieme';
 import type { Skill } from './types';
 
-export { DOMAINS, type Domain, type Skill, type SkillDefinition } from './types';
+export {
+  DOMAINS,
+  STRANDS,
+  type Domain,
+  type Skill,
+  type SkillDefinition,
+  type Strand,
+} from './types';
 
 /** Skill referential, CE2 → 5e for now; CP, CE1, 4e and 3e come later. */
 export const skills = [

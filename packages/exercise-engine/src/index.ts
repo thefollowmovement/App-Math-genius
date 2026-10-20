@@ -10,6 +10,23 @@ export {
   type SkillNode,
 } from './adaptive/islands';
 export {
+  PLACED_ELO,
+  PLACEMENT_MAX_QUESTIONS,
+  PLACEMENT_RECHECK_DAYS,
+  placementDue,
+  placementMastery,
+  placementProgress,
+  placementResult,
+  placementRungs,
+  placementState,
+  type PlacementResult,
+  type Rung,
+  type StrandLevel,
+  type StrandResult,
+  type StrandState,
+  type TestAnswer,
+} from './adaptive/placement';
+export {
   MASTERY_THRESHOLD,
   SESSIONS_TO_MASTER,
   isAcquired,
@@ -79,9 +96,12 @@ export { gradeResponse, type ExerciseResponse, type Verdict } from './grade';
 export { parseTypedNumber, type NumberForm, type TypedNumber } from './parse';
 export { createRng, deriveSeed, type Rng } from './random';
 export {
+  SKIPPED_ANSWER,
+  isSkippedAnswer,
   parseStoredResponse,
   rebuildExercise,
   regrade,
+  type SkippedAnswer,
   type ServerVerdict,
   type StoredAnswer,
 } from './regrade';

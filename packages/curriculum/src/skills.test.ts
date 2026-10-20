@@ -1,6 +1,6 @@
 import { gradeRank as gradeIndex, type Grade } from '@math-genius/shared';
 
-import { DOMAINS, getSkill, isSkillCode, skills } from '.';
+import { DOMAINS, STRANDS, type Domain, type Strand, getSkill, isSkillCode, skills } from '.';
 
 const codePrefix: Partial<Record<Grade, string>> = {
   CE2: 'ce2.',
@@ -66,5 +66,19 @@ describe('skill referential', () => {
     const automatisms = skills.filter((skill) => 'automatism' in skill && skill.automatism);
     expect(automatisms.map((skill) => skill.grade)).toContain('CE2');
     expect(automatisms.every((skill) => skill.domain === 'numbers')).toBe(true);
+    expect(automatisms.every((skill) => skill.strand === 'calcul')).toBe(true);
+  });
+
+  it('places each skill in a strand of the placement test that fits its domain', () => {
+    const fits: Record<Domain, readonly Strand[]> = {
+      // Word problems sit with numbers in the programme.
+      numbers: ['numeration', 'calcul', 'fractions', 'problemes'],
+      measures: ['mesures'],
+      geometry: ['geometrie'],
+      // Algebra is calculation; data, proportionality and probabilities are problems.
+      data: ['problemes', 'calcul'],
+    };
+    for (const skill of skills) expect(fits[skill.domain]).toContain(skill.strand);
+    expect(new Set(skills.map((skill) => skill.strand))).toEqual(new Set(STRANDS));
   });
 });

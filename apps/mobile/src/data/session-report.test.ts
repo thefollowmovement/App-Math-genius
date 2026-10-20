@@ -5,7 +5,13 @@ import { exerciseOfType } from '@/test-utils/exercises';
 import { attemptRow, sessionRow } from '@/test-utils/family';
 import { rightResponse, wrongResponse } from '@/test-utils/responses';
 
-import { attemptViews, childDay, familyDay, sessionState } from './session-report';
+import {
+  attemptViews,
+  childDay,
+  familyDay,
+  sessionState,
+  showsFastAnswers,
+} from './session-report';
 
 const PLANNED: DayPlan = { kind: 'planned', start: 17 * 60, deadline: 20 * 60 + 30 };
 const AT = (hours: number, minutes = 0) => hours * 60 + minutes;
@@ -66,6 +72,19 @@ describe('a child’s day', () => {
     expect(sessionState(sessionRow({ completed_at: null }))).toBe('in_progress');
     expect(sessionState(sessionRow({ goal_met: true }))).toBe('validated');
     expect(sessionState(sessionRow({ goal_met: false }))).toBe('not_validated');
+    expect(sessionState(sessionRow({ kind: 'placement', goal_met: false }))).toBe('finished');
+  });
+
+  it('does not count a placement test as the day’s session', () => {
+    const test = sessionRow({ id: 'test', kind: 'placement' });
+    expect(childDay([test], PLANNED, AT(18)).status).toBe('not_started');
+    expect(childDay([test], PLANNED, AT(21)).status).toBe('missed');
+    expect(childDay([test, sessionRow()], PLANNED, AT(21)).status).toBe('done');
+  });
+
+  it('warns of fast answers, except in a placement test (« Je ne sais pas »)', () => {
+    expect(showsFastAnswers(sessionRow({ flagged: true }))).toBe(true);
+    expect(showsFastAnswers(sessionRow({ flagged: true, kind: 'placement' }))).toBe(false);
   });
 });
 

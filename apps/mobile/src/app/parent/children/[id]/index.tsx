@@ -6,6 +6,9 @@ import { useChild } from '@/data/children';
 import { errorKind } from '@/data/errors';
 import { useRevokeDevice } from '@/data/devices';
 import { useTodaySessions } from '@/data/family-sessions';
+import { usePlacement } from '@/data/placement';
+import { placementAvailable } from '@/data/placement-model';
+import { placementReport } from '@/data/placement-report';
 import { useRewards } from '@/data/rewards';
 import { routineOf, vacationsOf } from '@/data/routine-plan';
 import { useRoutines } from '@/data/routines';
@@ -24,6 +27,7 @@ export default function ChildDetailRoute() {
   const rewards = useRewards(id);
   const message = useSendChildMessage(id);
   const parentRewards = useParentRewardsPanel(id);
+  const placement = usePlacement(id);
 
   if (!child.data) return <LoadingScreen />;
 
@@ -38,6 +42,8 @@ export default function ChildDetailRoute() {
         onOpenSession={(sessionId) =>
           router.push({ pathname: '/parent/sessions/[id]', params: { id: sessionId } })
         }
+        placement={placementReport(placement.data)}
+        placementAvailable={placementAvailable(child.data.grade)}
         routine={routineOf(routines.data, id)}
         vacations={vacationsOf(routines.data, id)}
         onEditRoutine={() =>

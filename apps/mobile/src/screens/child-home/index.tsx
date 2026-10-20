@@ -8,6 +8,7 @@ import { HeroBust } from '@/components/hero/hero-bust';
 import { SpeechBubble } from '@/components/hero/hero-says';
 import type { Child } from '@/data/children';
 import type { Stop } from '@/data/mission-model';
+import type { PlacementOffer } from '@/data/placement-model';
 import type { ParentRewardView } from '@/data/parent-rewards-model';
 import type { PracticeStatus } from '@/data/practice/summary';
 import { progressView, type Rewards, type WeeklyChallenge } from '@/data/rewards-model';
@@ -19,6 +20,7 @@ import { ChallengeCard } from '../rewards/challenge-card';
 import { NextRewardCard } from '../rewards/next-reward-card';
 import { ChildNav, type NavLink } from './child-nav';
 import { MissionCard } from './mission-card';
+import { PlacementCard } from './placement-card';
 import { TopBar } from './top-bar';
 
 const t = strings.childHome;
@@ -34,6 +36,9 @@ type ChildHomeProps = {
   goal: SessionGoal;
   /** Where the child stands on the world map: the mission's topic. */
   stop?: Stop | null;
+  /** The placement test to take, or to resume. */
+  placement?: PlacementOffer;
+  onStartPlacement?: () => void;
   /** Missing until the first award, or while loading. */
   rewards?: Rewards;
   /** This week's challenge, once known. */
@@ -68,6 +73,8 @@ export function ChildHome({
   plan,
   goal,
   stop = null,
+  placement = null,
+  onStartPlacement,
   rewards,
   challenge,
   nextReward,
@@ -103,7 +110,16 @@ export function ChildHome({
         progress={rewards?.progress ?? progressView(null)}
         badges={rewards?.badges ?? 0}
       />
-      <MissionCard practice={practice} plan={plan} goal={goal} stop={stop} onStart={onStart} />
+      {/* The first test comes before the day's mission; a test under way takes its place. */}
+      {placement && placement !== 'recheck' && onStartPlacement ? (
+        <PlacementCard offer={placement} onStart={onStartPlacement} />
+      ) : null}
+      {placement === 'resume' ? null : (
+        <MissionCard practice={practice} plan={plan} goal={goal} stop={stop} onStart={onStart} />
+      )}
+      {placement === 'recheck' && onStartPlacement ? (
+        <PlacementCard offer={placement} onStart={onStartPlacement} />
+      ) : null}
       {chest && onOpenChest ? (
         <View className="flex-row items-center gap-3 rounded-lg border-2 border-accent bg-surface p-3 glow-accent">
           <View className="h-14 w-16">

@@ -2,7 +2,10 @@ import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
 import { useChild, type Child } from '@/data/children';
-import { markIntroSeen } from '@/data/practice/practice-store';
+import { placementOffer } from '@/data/placement-model';
+import { markIntroSeen, usePracticeStore } from '@/data/practice/practice-store';
+import { usePracticeSync } from '@/data/practice/sync';
+import { localDate } from '@/utils/local-date';
 import { useHeroIntro } from '@/hooks/use-hero-intro';
 import { HeroIntro } from '@/screens/hero-intro';
 
@@ -18,11 +21,17 @@ export default function IntroRoute() {
 function Intro({ child }: { child: Child }) {
   const router = useRouter();
   const intro = useHeroIntro(child);
+  const practice = usePracticeStore((state) => state.children[child.id]);
+  // While the hero presents the app: a test taken on another device is known before the end.
+  usePracticeSync(child.id);
   const home = { pathname: '/child/home', params: { id: child.id } } as const;
   const done = () => {
     markIntroSeen(child.id);
     router.replace(home);
   };
+  // Then the « aventure de départ » (docs/specs.md, onboarding), unless taken on another device.
+  const now = new Date();
+  const firstTest = placementOffer(practice, child.grade, localDate(now), now) === 'first';
 
   return (
     <HeroIntro
@@ -35,7 +44,11 @@ function Intro({ child }: { child: Child }) {
       onPickHero={intro.pickHero}
       onConfirmHero={intro.confirmHero}
       onNext={intro.next}
-      onStart={done}
+      onStart={() => {
+        if (!firstTest) return done();
+        markIntroSeen(child.id);
+        router.replace({ pathname: '/child/placement', params: { id: child.id } });
+      }}
       onCustomize={() => {
         done();
         router.push({ pathname: '/child/look', params: { id: child.id } });

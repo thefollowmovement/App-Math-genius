@@ -44,7 +44,13 @@ export function sessionPayload(session: StoredSession): SyncPayload {
   const mastery = session.completedAt
     ? finishSession(context, session.attempts, { at, completed: true })
     : liveMastery(context, session.attempts);
-  const practised = [...new Set(session.attempts.map((attempt) => attempt.skill))];
+  // A finished placement test also sends what it concluded on the skills it did not ask.
+  const practised =
+    session.kind === 'placement' && session.completedAt
+      ? (Object.keys(mastery) as (keyof MasteryMap)[]).filter(
+          (code) => mastery[code] !== session.masteryAtStart[code],
+        )
+      : [...new Set(session.attempts.map((attempt) => attempt.skill))];
 
   return {
     id: session.id,

@@ -11,12 +11,14 @@ var cinquiemeSkills = defineGradeSkills("5e", "2026", [
   {
     code: "5e.relatifs-reperage",
     domain: "numbers",
+    strand: "numeration",
     title: "Rep\xE9rer et comparer des nombres relatifs",
     prerequisites: ["6e.fractions-droite"]
   },
   {
     code: "5e.relatifs-addition-soustraction",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Additionner et soustraire des nombres relatifs",
     prerequisites: ["5e.relatifs-reperage"]
@@ -24,36 +26,42 @@ var cinquiemeSkills = defineGradeSkills("5e", "2026", [
   {
     code: "5e.fractions-comparer",
     domain: "numbers",
+    strand: "fractions",
     title: "Comparer des fractions",
     prerequisites: ["6e.fractions-egales"]
   },
   {
     code: "5e.fractions-addition",
     domain: "numbers",
+    strand: "fractions",
     title: "Additionner et soustraire des fractions",
     prerequisites: ["6e.fractions-egales"]
   },
   {
     code: "5e.fractions-multiplication",
     domain: "numbers",
+    strand: "fractions",
     title: "Multiplier des fractions",
     prerequisites: ["6e.fraction-d-une-quantite", "6e.fractions-egales"]
   },
   {
     code: "5e.puissances-de-10",
     domain: "numbers",
+    strand: "numeration",
     title: "Calculer avec les puissances de 10",
     prerequisites: ["6e.multiplication-decimaux"]
   },
   {
     code: "5e.enchainer-calculs",
     domain: "numbers",
+    strand: "calcul",
     title: "Encha\xEEner des calculs avec des relatifs en respectant les priorit\xE9s",
     prerequisites: ["6e.priorites-operatoires", "5e.relatifs-addition-soustraction"]
   },
   {
     code: "5e.facteurs-premiers",
     domain: "numbers",
+    strand: "calcul",
     title: "D\xE9composer un nombre en produit de facteurs premiers",
     prerequisites: ["6e.nombres-premiers"]
   },
@@ -61,24 +69,28 @@ var cinquiemeSkills = defineGradeSkills("5e", "2026", [
   {
     code: "5e.volumes-prisme-cylindre",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer le volume d\u2019un prisme droit et d\u2019un cylindre",
     prerequisites: ["6e.volume-pave", "6e.aire-disque"]
   },
   {
     code: "5e.vitesses",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer une vitesse moyenne, une distance ou une dur\xE9e",
     prerequisites: ["6e.proportionnalite", "6e.durees-conversions"]
   },
   {
     code: "5e.conversions-aires-volumes",
     domain: "measures",
+    strand: "mesures",
     title: "Convertir des aires et des volumes",
     prerequisites: ["6e.aires-figures", "6e.volume-pave"]
   },
   {
     code: "5e.angles-triangle",
     domain: "measures",
+    strand: "mesures",
     title: "Utiliser la somme des angles d\u2019un triangle",
     prerequisites: ["6e.angles-degres"]
   },
@@ -86,30 +98,35 @@ var cinquiemeSkills = defineGradeSkills("5e", "2026", [
   {
     code: "5e.symetrie-centrale",
     domain: "geometry",
+    strand: "geometrie",
     title: "Construire et utiliser la sym\xE9trie centrale",
     prerequisites: ["6e.symetrie-axiale"]
   },
   {
     code: "5e.triangles-construction",
     domain: "geometry",
+    strand: "geometrie",
     title: "Construire un triangle et utiliser l\u2019in\xE9galit\xE9 triangulaire",
     prerequisites: ["6e.constructions"]
   },
   {
     code: "5e.parallelogrammes",
     domain: "geometry",
+    strand: "geometrie",
     title: "Reconna\xEEtre et utiliser les propri\xE9t\xE9s du parall\xE9logramme",
     prerequisites: ["5e.symetrie-centrale", "cm2.quadrilateres-particuliers"]
   },
   {
     code: "5e.angles-paralleles",
     domain: "geometry",
+    strand: "geometrie",
     title: "Utiliser les angles alternes-internes et correspondants",
     prerequisites: ["6e.angles-degres", "cm1.perpendiculaires-paralleles"]
   },
   {
     code: "5e.reperage-plan",
     domain: "geometry",
+    strand: "geometrie",
     title: "Se rep\xE9rer dans le plan avec des coordonn\xE9es",
     prerequisites: ["5e.relatifs-reperage"]
   },
@@ -117,48 +134,56 @@ var cinquiemeSkills = defineGradeSkills("5e", "2026", [
   {
     code: "5e.calcul-litteral-simplifier",
     domain: "data",
+    strand: "calcul",
     title: "Simplifier une expression litt\xE9rale",
     prerequisites: ["6e.expressions-litterales"]
   },
   {
     code: "5e.tester-egalite",
     domain: "data",
+    strand: "calcul",
     title: "Tester une \xE9galit\xE9 pour une valeur donn\xE9e",
     prerequisites: ["6e.expressions-litterales", "5e.relatifs-addition-soustraction"]
   },
   {
     code: "5e.distributivite",
     domain: "data",
+    strand: "calcul",
     title: "D\xE9velopper avec la distributivit\xE9 simple",
     prerequisites: ["5e.calcul-litteral-simplifier"]
   },
   {
     code: "5e.ratios",
     domain: "data",
+    strand: "problemes",
     title: "Utiliser des ratios et partager une quantit\xE9",
     prerequisites: ["6e.proportionnalite"]
   },
   {
     code: "5e.proportionnalite-pourcentages",
     domain: "data",
+    strand: "problemes",
     title: "R\xE9soudre des probl\xE8mes de proportionnalit\xE9 et de pourcentages",
     prerequisites: ["6e.pourcentages"]
   },
   {
     code: "5e.probabilites",
     domain: "data",
+    strand: "problemes",
     title: "Calculer des probabilit\xE9s dans des exp\xE9riences al\xE9atoires",
     prerequisites: ["6e.probabilites"]
   },
   {
     code: "5e.moyenne",
     domain: "data",
+    strand: "problemes",
     title: "Calculer et interpr\xE9ter une moyenne",
     prerequisites: ["6e.graphiques"]
   },
   {
     code: "5e.representations-donnees",
     domain: "data",
+    strand: "problemes",
     title: "Lire et choisir une repr\xE9sentation de donn\xE9es",
     prerequisites: ["6e.graphiques"]
   }
@@ -170,24 +195,28 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.nombres-jusqua-10000",
     domain: "numbers",
+    strand: "numeration",
     title: "Lire, \xE9crire et d\xE9composer les nombres jusqu\u2019\xE0 10 000",
     prerequisites: []
   },
   {
     code: "ce2.comparer-ranger-nombres",
     domain: "numbers",
+    strand: "numeration",
     title: "Comparer, encadrer et ranger des nombres jusqu\u2019\xE0 10 000",
     prerequisites: ["ce2.nombres-jusqua-10000"]
   },
   {
     code: "ce2.droite-graduee-entiers",
     domain: "numbers",
+    strand: "numeration",
     title: "Rep\xE9rer des nombres entiers sur une droite gradu\xE9e",
     prerequisites: ["ce2.nombres-jusqua-10000"]
   },
   {
     code: "ce2.complements",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Trouver les compl\xE9ments \xE0 la dizaine, \xE0 la centaine et \xE0 1 000",
     prerequisites: []
@@ -195,6 +224,7 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.calcul-mental-additif",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Additionner et soustraire mentalement",
     prerequisites: ["ce2.complements"]
@@ -202,18 +232,21 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.addition-posee",
     domain: "numbers",
+    strand: "calcul",
     title: "Poser et calculer une addition",
     prerequisites: ["ce2.nombres-jusqua-10000"]
   },
   {
     code: "ce2.soustraction-posee",
     domain: "numbers",
+    strand: "calcul",
     title: "Poser et calculer une soustraction",
     prerequisites: ["ce2.addition-posee"]
   },
   {
     code: "ce2.doubles-moities",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Conna\xEEtre les doubles et les moiti\xE9s des nombres usuels",
     prerequisites: ["ce2.calcul-mental-additif"]
@@ -221,6 +254,7 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.tables-multiplication",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Conna\xEEtre les tables de multiplication de 2 \xE0 10",
     prerequisites: ["ce2.doubles-moities"]
@@ -228,6 +262,7 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.multiplier-par-10-100",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Multiplier un nombre entier par 10 ou par 100",
     prerequisites: ["ce2.nombres-jusqua-10000"]
@@ -235,24 +270,28 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.multiplication-posee",
     domain: "numbers",
+    strand: "calcul",
     title: "Poser une multiplication par un nombre \xE0 un chiffre",
     prerequisites: ["ce2.tables-multiplication", "ce2.addition-posee"]
   },
   {
     code: "ce2.division-partage",
     domain: "numbers",
+    strand: "calcul",
     title: "Comprendre la division comme un partage ou un groupement",
     prerequisites: ["ce2.tables-multiplication"]
   },
   {
     code: "ce2.fractions-unitaires",
     domain: "numbers",
+    strand: "fractions",
     title: "Comprendre les fractions unitaires (un demi, un tiers, un quart\u2026)",
     prerequisites: ["ce2.division-partage"]
   },
   {
     code: "ce2.problemes-deux-etapes",
     domain: "numbers",
+    strand: "problemes",
     title: "R\xE9soudre des probl\xE8mes en deux \xE9tapes",
     prerequisites: ["ce2.addition-posee", "ce2.soustraction-posee"]
   },
@@ -260,30 +299,35 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.longueurs-conversions",
     domain: "measures",
+    strand: "mesures",
     title: "Mesurer et convertir des longueurs (km, m, cm, mm)",
     prerequisites: ["ce2.multiplier-par-10-100"]
   },
   {
     code: "ce2.masses",
     domain: "measures",
+    strand: "mesures",
     title: "Comparer et convertir des masses (g, kg)",
     prerequisites: ["ce2.multiplier-par-10-100"]
   },
   {
     code: "ce2.contenances",
     domain: "measures",
+    strand: "mesures",
     title: "Comparer et convertir des contenances (L, cL)",
     prerequisites: ["ce2.multiplier-par-10-100"]
   },
   {
     code: "ce2.heures-durees",
     domain: "measures",
+    strand: "mesures",
     title: "Lire l\u2019heure et calculer des dur\xE9es simples",
     prerequisites: []
   },
   {
     code: "ce2.monnaie",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer avec la monnaie (euros et centimes)",
     prerequisites: ["ce2.addition-posee"]
   },
@@ -291,30 +335,35 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.polygones",
     domain: "geometry",
+    strand: "geometrie",
     title: "Reconna\xEEtre et nommer des polygones (triangle, carr\xE9, rectangle, losange)",
     prerequisites: []
   },
   {
     code: "ce2.angle-droit",
     domain: "geometry",
+    strand: "geometrie",
     title: "Rep\xE9rer et tracer des angles droits avec l\u2019\xE9querre",
     prerequisites: []
   },
   {
     code: "ce2.cube-pave",
     domain: "geometry",
+    strand: "geometrie",
     title: "D\xE9crire le cube et le pav\xE9 droit (faces, ar\xEAtes, sommets)",
     prerequisites: ["ce2.polygones"]
   },
   {
     code: "ce2.quadrillage",
     domain: "geometry",
+    strand: "geometrie",
     title: "Reproduire une figure sur quadrillage",
     prerequisites: []
   },
   {
     code: "ce2.symetrie-axiale",
     domain: "geometry",
+    strand: "geometrie",
     title: "Compl\xE9ter une figure par sym\xE9trie axiale",
     prerequisites: ["ce2.quadrillage"]
   },
@@ -322,6 +371,7 @@ var ce2Skills = defineGradeSkills("CE2", "2025", [
   {
     code: "ce2.tableaux-graphiques",
     domain: "data",
+    strand: "problemes",
     title: "Lire et compl\xE9ter des tableaux et des graphiques simples",
     prerequisites: ["ce2.nombres-jusqua-10000"]
   }
@@ -333,48 +383,56 @@ var cm1Skills = defineGradeSkills("CM1", "2025", [
   {
     code: "cm1.grands-nombres",
     domain: "numbers",
+    strand: "numeration",
     title: "Lire, \xE9crire et d\xE9composer les nombres jusqu\u2019au million",
     prerequisites: ["ce2.nombres-jusqua-10000"]
   },
   {
     code: "cm1.comparer-grands-nombres",
     domain: "numbers",
+    strand: "numeration",
     title: "Comparer, encadrer et ranger les grands nombres",
     prerequisites: ["cm1.grands-nombres", "ce2.comparer-ranger-nombres"]
   },
   {
     code: "cm1.fractions-simples",
     domain: "numbers",
+    strand: "fractions",
     title: "Lire, \xE9crire et repr\xE9senter des fractions simples",
     prerequisites: ["ce2.fractions-unitaires"]
   },
   {
     code: "cm1.fractions-droite-graduee",
     domain: "numbers",
+    strand: "fractions",
     title: "Placer des fractions sur une droite gradu\xE9e",
     prerequisites: ["cm1.fractions-simples", "ce2.droite-graduee-entiers"]
   },
   {
     code: "cm1.fractions-decimales",
     domain: "numbers",
+    strand: "fractions",
     title: "Utiliser les fractions d\xE9cimales (dixi\xE8mes, centi\xE8mes)",
     prerequisites: ["cm1.fractions-simples"]
   },
   {
     code: "cm1.nombres-decimaux",
     domain: "numbers",
+    strand: "numeration",
     title: "Lire, \xE9crire et d\xE9composer des nombres d\xE9cimaux",
     prerequisites: ["cm1.fractions-decimales"]
   },
   {
     code: "cm1.comparer-decimaux",
     domain: "numbers",
+    strand: "numeration",
     title: "Comparer et ranger des nombres d\xE9cimaux",
     prerequisites: ["cm1.nombres-decimaux"]
   },
   {
     code: "cm1.calcul-mental",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Calculer mentalement avec des strat\xE9gies et des faits num\xE9riques",
     prerequisites: ["ce2.calcul-mental-additif", "ce2.tables-multiplication"]
@@ -382,30 +440,35 @@ var cm1Skills = defineGradeSkills("CM1", "2025", [
   {
     code: "cm1.multiplication-posee",
     domain: "numbers",
+    strand: "calcul",
     title: "Poser une multiplication de deux nombres entiers",
     prerequisites: ["ce2.multiplication-posee"]
   },
   {
     code: "cm1.division-euclidienne",
     domain: "numbers",
+    strand: "calcul",
     title: "Trouver le quotient et le reste d\u2019une division euclidienne",
     prerequisites: ["ce2.division-partage", "ce2.tables-multiplication"]
   },
   {
     code: "cm1.division-posee",
     domain: "numbers",
+    strand: "calcul",
     title: "Poser une division par un nombre \xE0 un chiffre",
     prerequisites: ["cm1.division-euclidienne"]
   },
   {
     code: "cm1.multiples",
     domain: "numbers",
+    strand: "calcul",
     title: "Reconna\xEEtre les multiples de 2, 5 et 10",
     prerequisites: ["ce2.tables-multiplication"]
   },
   {
     code: "cm1.problemes",
     domain: "numbers",
+    strand: "problemes",
     title: "R\xE9soudre des probl\xE8mes \xE0 plusieurs \xE9tapes",
     prerequisites: ["ce2.problemes-deux-etapes"]
   },
@@ -413,24 +476,28 @@ var cm1Skills = defineGradeSkills("CM1", "2025", [
   {
     code: "cm1.perimetre",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer le p\xE9rim\xE8tre d\u2019un polygone",
     prerequisites: ["ce2.polygones", "ce2.addition-posee"]
   },
   {
     code: "cm1.aire-comptage",
     domain: "measures",
+    strand: "mesures",
     title: "Mesurer une aire en comptant des unit\xE9s",
     prerequisites: ["ce2.quadrillage"]
   },
   {
     code: "cm1.conversions",
     domain: "measures",
+    strand: "mesures",
     title: "Convertir des longueurs, des masses et des contenances",
     prerequisites: ["ce2.longueurs-conversions", "ce2.masses", "ce2.contenances"]
   },
   {
     code: "cm1.durees",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer des dur\xE9es (heures, minutes, secondes)",
     prerequisites: ["ce2.heures-durees"]
   },
@@ -438,24 +505,28 @@ var cm1Skills = defineGradeSkills("CM1", "2025", [
   {
     code: "cm1.cercle",
     domain: "geometry",
+    strand: "geometrie",
     title: "Tracer un cercle et utiliser centre, rayon et diam\xE8tre",
     prerequisites: []
   },
   {
     code: "cm1.perpendiculaires-paralleles",
     domain: "geometry",
+    strand: "geometrie",
     title: "Reconna\xEEtre et tracer des droites perpendiculaires et parall\xE8les",
     prerequisites: ["ce2.angle-droit"]
   },
   {
     code: "cm1.symetrie-axiale",
     domain: "geometry",
+    strand: "geometrie",
     title: "Construire le sym\xE9trique d\u2019une figure par rapport \xE0 un axe",
     prerequisites: ["ce2.symetrie-axiale"]
   },
   {
     code: "cm1.figures-usuelles",
     domain: "geometry",
+    strand: "geometrie",
     title: "D\xE9crire et construire des figures usuelles",
     prerequisites: ["ce2.polygones"]
   },
@@ -463,24 +534,28 @@ var cm1Skills = defineGradeSkills("CM1", "2025", [
   {
     code: "cm1.proportionnalite",
     domain: "data",
+    strand: "problemes",
     title: "R\xE9soudre des situations simples de proportionnalit\xE9",
     prerequisites: ["ce2.tables-multiplication", "ce2.problemes-deux-etapes"]
   },
   {
     code: "cm1.probabilites-vocabulaire",
     domain: "data",
+    strand: "problemes",
     title: "Utiliser le vocabulaire des probabilit\xE9s (certain, possible, impossible)",
     prerequisites: []
   },
   {
     code: "cm1.suites-motifs",
     domain: "data",
+    strand: "calcul",
     title: "Prolonger des suites et des motifs (pens\xE9e alg\xE9brique)",
     prerequisites: ["ce2.calcul-mental-additif"]
   },
   {
     code: "cm1.tableaux-diagrammes",
     domain: "data",
+    strand: "problemes",
     title: "Lire et produire des tableaux et des diagrammes",
     prerequisites: ["ce2.tableaux-graphiques"]
   }
@@ -492,30 +567,35 @@ var cm2Skills = defineGradeSkills("CM2", "2026", [
   {
     code: "cm2.grands-nombres",
     domain: "numbers",
+    strand: "numeration",
     title: "Lire, \xE9crire et comparer les nombres jusqu\u2019au milliard",
     prerequisites: ["cm1.comparer-grands-nombres"]
   },
   {
     code: "cm2.decimaux-milliemes",
     domain: "numbers",
+    strand: "numeration",
     title: "Utiliser les nombres d\xE9cimaux jusqu\u2019aux milli\xE8mes",
     prerequisites: ["cm1.comparer-decimaux"]
   },
   {
     code: "cm2.addition-soustraction-decimaux",
     domain: "numbers",
+    strand: "calcul",
     title: "Additionner et soustraire des nombres d\xE9cimaux",
     prerequisites: ["cm1.nombres-decimaux", "ce2.soustraction-posee"]
   },
   {
     code: "cm2.multiplication-decimaux",
     domain: "numbers",
+    strand: "calcul",
     title: "Multiplier un nombre d\xE9cimal par un nombre entier",
     prerequisites: ["cm1.multiplication-posee", "cm1.nombres-decimaux"]
   },
   {
     code: "cm2.multiplier-diviser-10-100-1000",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Multiplier et diviser par 10, 100 et 1 000",
     prerequisites: ["cm1.nombres-decimaux"]
@@ -523,36 +603,42 @@ var cm2Skills = defineGradeSkills("CM2", "2026", [
   {
     code: "cm2.division-decimale",
     domain: "numbers",
+    strand: "calcul",
     title: "Diviser un nombre par un entier avec un quotient d\xE9cimal",
     prerequisites: ["cm1.division-posee"]
   },
   {
     code: "cm2.fractions-comparer",
     domain: "numbers",
+    strand: "fractions",
     title: "Comparer des fractions entre elles et \xE0 l\u2019unit\xE9",
     prerequisites: ["cm1.fractions-simples"]
   },
   {
     code: "cm2.fractions-addition-meme-denominateur",
     domain: "numbers",
+    strand: "fractions",
     title: "Ajouter et soustraire des fractions de m\xEAme d\xE9nominateur",
     prerequisites: ["cm1.fractions-simples"]
   },
   {
     code: "cm2.fractions-decimaux-equivalences",
     domain: "numbers",
+    strand: "numeration",
     title: "Passer d\u2019une fraction d\xE9cimale \xE0 l\u2019\xE9criture d\xE9cimale",
     prerequisites: ["cm1.fractions-decimales", "cm1.nombres-decimaux"]
   },
   {
     code: "cm2.multiples-diviseurs",
     domain: "numbers",
+    strand: "calcul",
     title: "Utiliser multiples, diviseurs et crit\xE8res de divisibilit\xE9",
     prerequisites: ["cm1.multiples", "cm1.division-euclidienne"]
   },
   {
     code: "cm2.calcul-mental",
     domain: "numbers",
+    strand: "calcul",
     automatism: true,
     title: "Calculer mentalement avec des nombres d\xE9cimaux",
     prerequisites: ["cm1.calcul-mental"]
@@ -560,6 +646,7 @@ var cm2Skills = defineGradeSkills("CM2", "2026", [
   {
     code: "cm2.problemes",
     domain: "numbers",
+    strand: "problemes",
     title: "R\xE9soudre des probl\xE8mes \xE0 plusieurs \xE9tapes avec des d\xE9cimaux",
     prerequisites: ["cm1.problemes"]
   },
@@ -567,30 +654,35 @@ var cm2Skills = defineGradeSkills("CM2", "2026", [
   {
     code: "cm2.aire-rectangle",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer l\u2019aire du carr\xE9 et du rectangle",
     prerequisites: ["cm1.aire-comptage", "ce2.tables-multiplication"]
   },
   {
     code: "cm2.perimetre-aire",
     domain: "measures",
+    strand: "mesures",
     title: "Distinguer p\xE9rim\xE8tre et aire",
     prerequisites: ["cm2.aire-rectangle", "cm1.perimetre"]
   },
   {
     code: "cm2.conversions",
     domain: "measures",
+    strand: "mesures",
     title: "Convertir des mesures exprim\xE9es avec des nombres d\xE9cimaux",
     prerequisites: ["cm1.conversions", "cm2.multiplier-diviser-10-100-1000"]
   },
   {
     code: "cm2.volumes-comptage",
     domain: "measures",
+    strand: "mesures",
     title: "Mesurer un volume en comptant des cubes unit\xE9s",
     prerequisites: ["cm1.aire-comptage"]
   },
   {
     code: "cm2.angles-comparer",
     domain: "measures",
+    strand: "mesures",
     title: "Comparer des angles et reconna\xEEtre angle aigu, droit et obtus",
     prerequisites: ["cm1.perpendiculaires-paralleles"]
   },
@@ -598,18 +690,21 @@ var cm2Skills = defineGradeSkills("CM2", "2026", [
   {
     code: "cm2.triangles-particuliers",
     domain: "geometry",
+    strand: "geometrie",
     title: "Reconna\xEEtre et construire des triangles particuliers",
     prerequisites: ["cm1.figures-usuelles"]
   },
   {
     code: "cm2.quadrilateres-particuliers",
     domain: "geometry",
+    strand: "geometrie",
     title: "Reconna\xEEtre et construire des quadrilat\xE8res particuliers",
     prerequisites: ["cm1.figures-usuelles", "cm1.perpendiculaires-paralleles"]
   },
   {
     code: "cm2.programmes-construction",
     domain: "geometry",
+    strand: "geometrie",
     title: "Suivre et r\xE9diger un programme de construction",
     prerequisites: ["cm1.cercle", "cm1.perpendiculaires-paralleles"]
   },
@@ -617,36 +712,42 @@ var cm2Skills = defineGradeSkills("CM2", "2026", [
   {
     code: "cm2.pourcentages",
     domain: "data",
+    strand: "problemes",
     title: "Calculer des pourcentages simples (10 %, 25 %, 50 %\u2026)",
     prerequisites: ["cm1.proportionnalite"]
   },
   {
     code: "cm2.echelles",
     domain: "data",
+    strand: "problemes",
     title: "Utiliser une \xE9chelle sur un plan ou une carte",
     prerequisites: ["cm1.proportionnalite"]
   },
   {
     code: "cm2.proportionnalite",
     domain: "data",
+    strand: "problemes",
     title: "R\xE9soudre des probl\xE8mes de proportionnalit\xE9 (passage \xE0 l\u2019unit\xE9, coefficient)",
     prerequisites: ["cm1.proportionnalite"]
   },
   {
     code: "cm2.probabilites",
     domain: "data",
+    strand: "problemes",
     title: "Comparer des chances dans des exp\xE9riences al\xE9atoires simples",
     prerequisites: ["cm1.probabilites-vocabulaire", "cm1.fractions-simples"]
   },
   {
     code: "cm2.expressions-inconnue",
     domain: "data",
+    strand: "calcul",
     title: "Trouver un nombre inconnu dans une \xE9galit\xE9",
     prerequisites: ["cm1.suites-motifs", "cm1.calcul-mental"]
   },
   {
     code: "cm2.graphiques",
     domain: "data",
+    strand: "problemes",
     title: "Lire et interpr\xE9ter des graphiques",
     prerequisites: ["cm1.tableaux-diagrammes"]
   }
@@ -658,60 +759,70 @@ var sixiemeSkills = defineGradeSkills("6e", "2025", [
   {
     code: "6e.fractions-quotient",
     domain: "numbers",
+    strand: "fractions",
     title: "Comprendre une fraction comme un quotient",
     prerequisites: ["cm2.division-decimale", "cm2.fractions-comparer"]
   },
   {
     code: "6e.fractions-egales",
     domain: "numbers",
+    strand: "fractions",
     title: "Reconna\xEEtre des fractions \xE9gales et simplifier une fraction",
     prerequisites: ["6e.fractions-quotient", "cm2.multiples-diviseurs"]
   },
   {
     code: "6e.fraction-d-une-quantite",
     domain: "numbers",
+    strand: "fractions",
     title: "Calculer une fraction d\u2019une quantit\xE9",
     prerequisites: ["cm1.fractions-simples", "cm1.division-euclidienne"]
   },
   {
     code: "6e.fractions-droite",
     domain: "numbers",
+    strand: "fractions",
     title: "Rep\xE9rer des fractions sur une demi-droite gradu\xE9e",
     prerequisites: ["cm1.fractions-droite-graduee"]
   },
   {
     code: "6e.division-decimaux",
     domain: "numbers",
+    strand: "calcul",
     title: "Diviser un nombre d\xE9cimal par un nombre entier",
     prerequisites: ["cm2.division-decimale"]
   },
   {
     code: "6e.multiplication-decimaux",
     domain: "numbers",
+    strand: "calcul",
     title: "Multiplier deux nombres d\xE9cimaux",
     prerequisites: ["cm2.multiplication-decimaux"]
   },
   {
     code: "6e.priorites-operatoires",
     domain: "numbers",
+    strand: "calcul",
     title: "Appliquer les priorit\xE9s op\xE9ratoires et les parenth\xE8ses",
     prerequisites: ["cm2.calcul-mental"]
   },
   {
     code: "6e.nombres-premiers",
     domain: "numbers",
+    strand: "calcul",
     title: "Reconna\xEEtre un nombre premier",
     prerequisites: ["cm2.multiples-diviseurs"]
   },
   {
     code: "6e.divisibilite",
     domain: "numbers",
+    strand: "calcul",
     title: "Utiliser les crit\xE8res de divisibilit\xE9 par 2, 3, 4, 5, 9 et 10",
     prerequisites: ["cm2.multiples-diviseurs"]
   },
   {
     code: "6e.arrondis-ordres-grandeur",
     domain: "numbers",
+    strand: "numeration",
     title: "Arrondir un nombre et estimer un ordre de grandeur",
     prerequisites: ["cm2.decimaux-milliemes"]
   },
@@ -719,30 +830,35 @@ var sixiemeSkills = defineGradeSkills("6e", "2025", [
   {
     code: "6e.aires-figures",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer l\u2019aire d\u2019un triangle et de figures compos\xE9es",
     prerequisites: ["cm2.aire-rectangle"]
   },
   {
     code: "6e.aire-disque",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer le p\xE9rim\xE8tre et l\u2019aire d\u2019un disque",
     prerequisites: ["cm1.cercle", "6e.aires-figures", "6e.multiplication-decimaux"]
   },
   {
     code: "6e.volume-pave",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer le volume d\u2019un pav\xE9 droit",
     prerequisites: ["cm2.volumes-comptage", "cm1.multiplication-posee"]
   },
   {
     code: "6e.angles-degres",
     domain: "measures",
+    strand: "mesures",
     title: "Mesurer, construire et nommer des angles en degr\xE9s",
     prerequisites: ["cm2.angles-comparer"]
   },
   {
     code: "6e.durees-conversions",
     domain: "measures",
+    strand: "mesures",
     title: "Calculer et convertir des dur\xE9es",
     prerequisites: ["cm1.durees"]
   },
@@ -750,24 +866,28 @@ var sixiemeSkills = defineGradeSkills("6e", "2025", [
   {
     code: "6e.symetrie-axiale",
     domain: "geometry",
+    strand: "geometrie",
     title: "Utiliser les propri\xE9t\xE9s de la sym\xE9trie axiale",
     prerequisites: ["cm1.symetrie-axiale"]
   },
   {
     code: "6e.constructions",
     domain: "geometry",
+    strand: "geometrie",
     title: "Construire triangles, m\xE9diatrice et figures \xE0 la r\xE8gle et au compas",
     prerequisites: ["cm2.programmes-construction"]
   },
   {
     code: "6e.solides-patrons",
     domain: "geometry",
+    strand: "geometrie",
     title: "Reconna\xEEtre des solides et construire des patrons",
     prerequisites: ["ce2.cube-pave", "cm2.volumes-comptage"]
   },
   {
     code: "6e.droites-segments",
     domain: "geometry",
+    strand: "geometrie",
     title: "Utiliser le vocabulaire droite, segment, demi-droite et appartenance",
     prerequisites: ["cm1.perpendiculaires-paralleles"]
   },
@@ -775,30 +895,35 @@ var sixiemeSkills = defineGradeSkills("6e", "2025", [
   {
     code: "6e.proportionnalite",
     domain: "data",
+    strand: "problemes",
     title: "Reconna\xEEtre la proportionnalit\xE9 et calculer une quatri\xE8me proportionnelle",
     prerequisites: ["cm2.proportionnalite"]
   },
   {
     code: "6e.pourcentages",
     domain: "data",
+    strand: "problemes",
     title: "Appliquer un pourcentage",
     prerequisites: ["cm2.pourcentages", "6e.proportionnalite"]
   },
   {
     code: "6e.probabilites",
     domain: "data",
+    strand: "problemes",
     title: "Calculer une probabilit\xE9 dans une situation simple",
     prerequisites: ["cm2.probabilites", "6e.fractions-quotient"]
   },
   {
     code: "6e.expressions-litterales",
     domain: "data",
+    strand: "calcul",
     title: "Calculer une expression litt\xE9rale pour une valeur donn\xE9e",
     prerequisites: ["cm2.expressions-inconnue", "6e.priorites-operatoires"]
   },
   {
     code: "6e.graphiques",
     domain: "data",
+    strand: "problemes",
     title: "Lire et construire des tableaux et des graphiques",
     prerequisites: ["cm2.graphiques"]
   }
@@ -1863,6 +1988,8 @@ function gradeResponse(exercise, response) {
 // src/regrade.ts
 var isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 var isNumberList = (value) => Array.isArray(value) && value.every((item) => typeof item === "number");
+var SKIPPED_ANSWER = { type: "skipped" };
+var isSkippedAnswer = (value) => isObject(value) && value.type === SKIPPED_ANSWER.type;
 function parseStoredResponse(value) {
   if (!isObject(value)) return null;
   const { type } = value;
@@ -1902,6 +2029,8 @@ function regrade(answers) {
   });
 }
 export {
+  SKIPPED_ANSWER,
+  isSkippedAnswer,
   parseStoredResponse,
   rebuildExercise,
   regrade

@@ -55,6 +55,11 @@ function ChildStack() {
         <Stack.Screen name="intro" options={{ headerShown: false }} />
         <Stack.Screen name="practice" options={{ headerShown: false }} />
         <Stack.Screen name="summary" options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="placement" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="placement-result"
+          options={{ headerShown: false, gestureEnabled: false }}
+        />
         <Stack.Screen name="chest" options={{ headerShown: false, presentation: 'modal' }} />
         {/* These screens show their own title. */}
         <Stack.Screen name="badges" />

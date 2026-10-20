@@ -94,4 +94,18 @@ describe('mastery', () => {
     const mastered = { ...start, attempts: 20, masteredAt: day(0), practicedAt: day(0) };
     expect(isAcquired(mastered, decimals, 'CM1', day(90))).toBe(true);
   });
+
+  it('trusts the placement test once the child is placed', () => {
+    const start = startingRecord(tables, 'CM1');
+    // Two errors in the test: not acquired for a placed child, still presumed otherwise.
+    const failed = practise(start, [false, false], day(0));
+    expect(isAcquired(failed, tables, 'CM1', day(0))).toBe(true);
+    expect(isAcquired(failed, tables, 'CM1', day(0), true)).toBe(false);
+    // A skill the test could not reach is still presumed.
+    expect(isAcquired(undefined, tables, 'CM1', day(0), true)).toBe(true);
+    // Found acquired by the test: mastered before any practice, and it does not fade.
+    const found = { ...start, masteredAt: day(0) };
+    expect(isAcquired(found, tables, 'CM1', day(0), true)).toBe(true);
+    expect(masteryStatus(found, day(60))).toBe('mastered');
+  });
 });

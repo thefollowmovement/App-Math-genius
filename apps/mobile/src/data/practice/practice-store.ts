@@ -1,5 +1,6 @@
 import {
   DEFAULT_SESSION_GOAL,
+  PLACEMENT_MAX_QUESTIONS,
   bossLength,
   finishSession,
   liveMastery,
@@ -11,6 +12,7 @@ import {
   type PlannerContext,
   type SessionAttempt,
   type SessionGoal,
+  type SkippedAnswer,
 } from '@math-genius/exercise-engine';
 import type { Grade } from '@math-genius/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,10 +27,11 @@ import { localDate } from '@/utils/local-date';
  * in progress (resumable after the app is closed) and the sessions waiting to be sent.
  */
 
-/** A boss session evaluates one island of the world map. */
-export type SessionKind = 'daily' | 'bonus' | 'boss';
+/** A boss session evaluates one island of the world map; a placement test places the child. */
+export type SessionKind = 'daily' | 'bonus' | 'boss' | 'placement';
 
-export type StoredAttempt = SessionAttempt & { response: ExerciseResponse };
+/** The answer given, or « Je ne sais pas » in the placement test. */
+export type StoredAttempt = SessionAttempt & { response: ExerciseResponse | SkippedAnswer };
 
 export type StoredSession = {
   id: string;
@@ -43,6 +46,8 @@ export type StoredSession = {
   seed: number;
   /** Planner inputs frozen at the start, so the session replays identically when resumed. */
   masteryAtStart: MasteryMap;
+  /** The child had taken the placement test when the session started (PlannerContext.placed). */
+  placed?: boolean;
   itemRatings: ItemRatings;
   attempts: StoredAttempt[];
   completedAt: string | null;
@@ -60,6 +65,8 @@ export type ChildPractice = {
   lastDailyDate: string | null;
   /** Last finished session, for its summary (it may already have left the outbox). */
   lastCompleted: StoredSession | null;
+  /** End of the last placement test, on this device or another (from the server). */
+  placedAt?: string | null;
 };
 
 type PracticeState = {
@@ -75,6 +82,7 @@ const EMPTY_CHILD: ChildPractice = {
   outbox: [],
   lastDailyDate: null,
   lastCompleted: null,
+  placedAt: null,
 };
 
 export const usePracticeStore = create<PracticeState>()(
@@ -104,6 +112,8 @@ export const plannerContext = (session: StoredSession): PlannerContext => ({
   startedAt: session.startedAt,
   seed: session.seed,
   boss: session.boss,
+  placement: session.kind === 'placement',
+  placed: session.placed === true,
 });
 
 export const childPractice = (childId: string): ChildPractice =>
@@ -125,9 +135,16 @@ function archive(child: ChildPractice, session: StoredSession): ChildPractice {
   return { ...child, mastery, active: null, outbox: [...child.outbox, session] };
 }
 
+/** The goal of a new session: a boss or a test asks a number of exercises. */
+function goalOf(input: { goal?: SessionGoal; boss?: Island; placement?: boolean }): SessionGoal {
+  if (input.boss) return { type: 'count', count: bossLength(input.boss) };
+  if (input.placement) return { type: 'count', count: PLACEMENT_MAX_QUESTIONS };
+  return input.goal ?? DEFAULT_SESSION_GOAL;
+}
+
 /**
- * Today's session in progress, or a new one: daily first, then bonus training, or the boss of an
- * island (as many exercises as bossLength).
+ * Today's session in progress, or a new one: daily first, then bonus training, the boss of an
+ * island (as many exercises as bossLength), or the placement test.
  */
 export function openSession(input: {
   childId: string;
@@ -137,33 +154,47 @@ export function openSession(input: {
   seed: number;
   goal?: SessionGoal;
   boss?: Island;
+  placement?: boolean;
 }): StoredSession {
   const today = localDate(input.now);
   let opened: StoredSession | undefined;
 
+  // A boss or a test asked for explicitly takes the place of a session not started yet.
+  const wanted: SessionKind | null = input.boss ? 'boss' : input.placement ? 'placement' : null;
   updateChild(input.childId, (current) => {
+    const stale = current.active && current.active.localDate !== today;
+    const idle =
+      wanted !== null && current.active?.kind !== wanted && current.active?.attempts.length === 0;
     const child =
-      current.active && current.active.localDate !== today
+      current.active && stale
         ? archive(current, current.active)
-        : current;
+        : idle
+          ? { ...current, active: null }
+          : current;
     if (child.active) {
       opened = child.active;
       return child;
     }
     const { boss } = input;
+    const kind: SessionKind = boss
+      ? 'boss'
+      : input.placement
+        ? 'placement'
+        : child.lastDailyDate === today
+          ? 'bonus'
+          : 'daily';
     opened = {
       id: input.id,
       childId: input.childId,
-      kind: boss ? 'boss' : child.lastDailyDate === today ? 'bonus' : 'daily',
+      kind,
       ...(boss ? { boss } : {}),
       localDate: today,
       grade: input.grade,
-      goal: boss
-        ? { type: 'count', count: bossLength(boss) }
-        : (input.goal ?? DEFAULT_SESSION_GOAL),
+      goal: goalOf(input),
       startedAt: input.now.toISOString(),
       seed: input.seed,
       masteryAtStart: child.mastery,
+      placed: Boolean(child.placedAt),
       itemRatings: usePracticeStore.getState().itemRatings,
       attempts: [],
       completedAt: null,
@@ -184,7 +215,10 @@ export function recordAnswer(childId: string, sessionId: string, attempt: Stored
   );
 }
 
-/** Ends the active session: mastery takes its answers and it waits in the outbox. */
+/**
+ * Ends the active session: mastery takes its answers and it waits in the outbox. A placement test
+ * leaves its conclusions on every skill (placementMastery) and places the child.
+ */
 export function completeSession(childId: string, sessionId: string, at: string) {
   updateChild(childId, (child) => {
     const session = child.active;
@@ -196,8 +230,19 @@ export function completeSession(childId: string, sessionId: string, at: string) 
       outbox: [...child.outbox, completed],
       lastDailyDate: session.kind === 'daily' ? session.localDate : child.lastDailyDate,
       lastCompleted: completed,
+      placedAt: session.kind === 'placement' ? at : (child.placedAt ?? null),
     };
   });
+}
+
+/** Keeps the latest placement test, from this device or another one. */
+export function mergePlacedAt(childId: string, placedAt: string | null) {
+  if (!placedAt) return;
+  updateChild(childId, (child) =>
+    child.placedAt && Date.parse(child.placedAt) >= Date.parse(placedAt)
+      ? child
+      : { ...child, placedAt },
+  );
 }
 
 const fullySynced = (session: StoredSession) =>

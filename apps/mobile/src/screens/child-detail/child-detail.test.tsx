@@ -1,3 +1,4 @@
+import { getSkill } from '@math-genius/curriculum';
 import { DEFAULT_ROUTINE } from '@math-genius/shared';
 import { screen, userEvent } from '@testing-library/react-native';
 import type { ComponentProps } from 'react';
@@ -54,6 +55,63 @@ describe('ChildDetail', () => {
   it('sums up the child’s streak, level and gems', async () => {
     await renderDetail({ progress: rewards().progress });
     expect(screen.getByText(strings.rewards.parentLine(4, 6, 5, 45, 0))).toBeOnTheScreen();
+  });
+
+  it('shows the placement test: a level per strand and the three priorities', async () => {
+    await renderDetail({
+      placement: {
+        inProgress: false,
+        last: {
+          takenAt: '2026-10-20T17:12:00Z',
+          grade: 'CE2',
+          strands: [
+            { strand: 'numeration', level: 'ahead', placedRank: 3, answered: 4 },
+            { strand: 'fractions', level: 'to_consolidate', placedRank: 0, answered: 4 },
+            { strand: 'geometrie', level: null, placedRank: null, answered: 0 },
+          ],
+          priorities: ['ce2.fractions-unitaires', 'ce2.tables-multiplication'],
+        },
+      },
+    });
+    const p = t.placement;
+    expect(screen.getByRole('header', { name: p.title })).toBeOnTheScreen();
+    expect(screen.getByText(p.takenOn('20 octobre 2026', strings.grades.CE2))).toBeOnTheScreen();
+    expect(screen.getByText(p.levels.ahead)).toBeOnTheScreen();
+    expect(screen.getByText(p.levels.to_consolidate)).toBeOnTheScreen();
+    expect(screen.getByText(p.untested)).toBeOnTheScreen();
+    expect(screen.getByText(`1. ${getSkill('ce2.fractions-unitaires').title}`)).toBeOnTheScreen();
+    expect(screen.getByText(`2. ${getSkill('ce2.tables-multiplication').title}`)).toBeOnTheScreen();
+  });
+
+  it('says the test was not taken yet, or was taken in another grade', async () => {
+    const { rerender } = await renderDetail({ placement: { inProgress: false, last: null } });
+    expect(screen.getByText(t.placement.none)).toBeOnTheScreen();
+    await rerender(
+      <ChildDetail
+        child={{ ...lea, grade: 'CM1' }}
+        sessions={[]}
+        onOpenSession={jest.fn()}
+        placement={{
+          inProgress: true,
+          last: { takenAt: '2026-06-20T17:00:00Z', grade: 'CE2', strands: [], priorities: [] },
+        }}
+        routine={null}
+        vacations={[]}
+        onEditRoutine={jest.fn()}
+        rewards={parentRewards()}
+        nudge={{ onSend: jest.fn(), sending: false, result: null, error: null }}
+        pairing={{ status: 'idle' }}
+        creatingCode={false}
+        pairingError={null}
+        onCreateCode={jest.fn()}
+        devices={[]}
+        revokingDeviceId={null}
+        onRevokeDevice={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(t.placement.inProgress)).toBeOnTheScreen();
+    expect(screen.getByText(t.placement.gradeChanged(strings.grades.CE2))).toBeOnTheScreen();
+    expect(screen.getByText(t.placement.noPriority)).toBeOnTheScreen();
   });
 
   it('offers to set a routine', async () => {

@@ -1,13 +1,25 @@
-import { bossLength, bossSkills, planNext } from '@math-genius/exercise-engine';
+import {
+  PLACEMENT_MAX_QUESTIONS,
+  SKIPPED_ANSWER,
+  bossLength,
+  bossSkills,
+  buildExercise,
+  planNext,
+  recordAttempt,
+} from '@math-genius/exercise-engine';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { playSession } from '@/test-utils/play-session';
+import { rightResponse } from '@/test-utils/responses';
 
 import {
   childPractice,
+  completeSession,
   markIntroSeen,
   mergeMastery,
+  mergePlacedAt,
   openSession,
+  recordAnswer,
   pendingSessions,
   plannerContext,
   usePracticeStore,
@@ -59,6 +71,93 @@ describe('a boss session', () => {
     expect(finished?.attempts.every((attempt) => skills.has(attempt.skill))).toBe(true);
     expect(child.lastDailyDate).toBeNull();
     expect(finished && sessionPayload(finished).kind).toBe('boss');
+  });
+});
+
+describe('a placement test', () => {
+  /** Answers right on the grades below CM1, « Je ne sais pas » on the rest. */
+  function playTest(session: StoredSession) {
+    const context = plannerContext(session);
+    for (let i = 0; ; i++) {
+      const current = childPractice(CHILD).active;
+      const planned = current && planNext(context, current.attempts);
+      if (!current || !planned) break;
+      const below = planned.skill.startsWith('ce2.');
+      const answeredAt = new Date(Date.parse(session.startedAt) + (i + 1) * 25_000).toISOString();
+      const attempt = recordAttempt(context, current.attempts, planned, {
+        correct: below,
+        hintUsed: false,
+        timeMs: 12_000,
+        answeredAt,
+      });
+      const response = below ? rightResponse(buildExercise(planned)) : SKIPPED_ANSWER;
+      recordAnswer(CHILD, session.id, { ...attempt, response });
+      if (!planNext(context, [...current.attempts, attempt])) {
+        completeSession(CHILD, session.id, answeredAt);
+      }
+    }
+  }
+  const openTest = (now = evening(20)) =>
+    openSession({ childId: CHILD, grade: 'CM1', now, id: 'test-1', seed: 5, placement: true });
+
+  it('asks its own questions, places the child and is not the daily mission', () => {
+    const session = openTest();
+    expect(session).toMatchObject({
+      kind: 'placement',
+      goal: { type: 'count', count: PLACEMENT_MAX_QUESTIONS },
+      placed: false,
+    });
+    expect(plannerContext(session).placement).toBe(true);
+    playTest(session);
+
+    const child = childPractice(CHILD);
+    const [finished] = child.outbox;
+    expect(finished?.attempts.length).toBeGreaterThanOrEqual(15);
+    expect(child.placedAt).toBe(finished?.completedAt);
+    expect(child.lastDailyDate).toBeNull();
+    // A CE2 calculation skill it did not ask (the rung asks two of four) is acquired too.
+    const asked = new Set<string>(finished?.attempts.map((attempt) => attempt.skill));
+    const calculation = [
+      'ce2.addition-posee',
+      'ce2.doubles-moities',
+      'ce2.tables-multiplication',
+      'ce2.multiplication-posee',
+    ] as const;
+    const unasked = calculation.find((code) => !asked.has(code)) ?? 'ce2.addition-posee';
+    expect(child.mastery[unasked]).toMatchObject({ attempts: 0 });
+    expect(child.mastery[unasked]?.masteredAt).toBe(finished?.completedAt);
+    // The next daily session trusts the test.
+    expect(open(evening(21)).placed).toBe(true);
+  });
+
+  it('sends what it concluded on the skills it did not ask, and « Je ne sais pas »', () => {
+    playTest(openTest());
+    const [finished] = childPractice(CHILD).outbox;
+    if (!finished) throw new Error('no test');
+    const payload = sessionPayload(finished);
+    expect(payload.kind).toBe('placement');
+    const codes = payload.mastery.map((row) => JSON.stringify(row));
+    const sent = (code: string) => codes.some((row) => row.includes(`"skill_code":"${code}"`));
+    // Every skill it can practise, asked or not.
+    expect(sent('ce2.comparer-ranger-nombres') && sent('cm1.perimetre')).toBe(true);
+    expect(codes.length).toBeGreaterThan(finished.attempts.length / 3);
+    expect(finished.attempts.every((attempt) => sent(attempt.skill))).toBe(true);
+    expect(payload.attempts.some((row) => JSON.stringify(row).includes('"skipped"'))).toBe(true);
+  });
+
+  it('takes the place of a daily session not started yet, never of one under way', () => {
+    const daily = open(evening(20));
+    expect(openTest().kind).toBe('placement');
+    expect(childPractice(CHILD).active?.id).toBe('test-1');
+    play(open(evening(22)), 3);
+    expect(openTest(evening(22)).kind).not.toBe('placement');
+    expect(daily.kind).toBe('daily');
+  });
+
+  it('keeps the latest test, from this device or another one', () => {
+    mergePlacedAt(CHILD, '2026-09-01T10:00:00.000Z');
+    mergePlacedAt(CHILD, '2026-08-01T10:00:00.000Z');
+    expect(childPractice(CHILD).placedAt).toBe('2026-09-01T10:00:00.000Z');
   });
 });
 

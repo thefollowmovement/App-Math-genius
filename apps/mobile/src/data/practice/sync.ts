@@ -4,7 +4,7 @@ import { AppState } from 'react-native';
 import { requestAwards } from '@/data/rewards';
 import { supabase } from '@/lib/supabase';
 
-import { mergeMastery, setItemRatings } from './practice-store';
+import { mergeMastery, mergePlacedAt, setItemRatings } from './practice-store';
 import {
   itemRatingsFromRows,
   masteryFromRows,
@@ -69,16 +69,27 @@ async function pull(childId: string) {
   await syncNow();
   // Catches up on sessions finished elsewhere or whose award failed.
   await award(childId);
-  const [mastery, ratings] = await Promise.all([
+  const [mastery, ratings, placement] = await Promise.all([
     supabase
       .from('child_skill_mastery')
       .select('skill_code, elo, attempts_count, sessions_streak, mastered_at, last_practiced_at')
       .eq('child_id', childId),
     supabase.from('item_ratings').select('generator_id, difficulty, rating'),
+    // The last placement test, maybe taken on another device.
+    supabase
+      .from('sessions')
+      .select('completed_at')
+      .eq('child_id', childId)
+      .eq('kind', 'placement')
+      .not('completed_at', 'is', null)
+      .order('completed_at', { ascending: false })
+      .limit(1),
   ]);
   if (mastery.error) throw mastery.error;
   if (ratings.error) throw ratings.error;
+  if (placement.error) throw placement.error;
   mergeMastery(childId, masteryFromRows(mastery.data));
+  mergePlacedAt(childId, placement.data[0]?.completed_at ?? null);
   setItemRatings(itemRatingsFromRows(ratings.data));
   return Date.now();
 }

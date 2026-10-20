@@ -68,6 +68,8 @@ export function worldMap(input: {
   at: string;
   /** Islands whose boss the server says was beaten (islandKey). */
   defeated: readonly string[];
+  /** The child took the placement test (isAcquired). */
+  placed?: boolean;
   generators?: readonly Generator[];
 }): IslandView[] {
   const { grade, mastery, at } = input;
@@ -75,14 +77,15 @@ export function worldMap(input: {
   const withGenerator = new Set<string>(generators.map((generator) => generator.skill));
   // As for the planner: a prerequisite without exercises does not block.
   const acquired = (code: SkillCode) =>
-    !withGenerator.has(code) || isAcquired(mastery[code], getSkill(code), grade, at);
+    !withGenerator.has(code) || isAcquired(mastery[code], getSkill(code), grade, at, input.placed);
 
   return DOMAINS.map((domain) => {
     const island = { grade, domain };
     const nodes = islandCodes(island).map((code): SkillNode => {
       const record = mastery[code];
       if (!withGenerator.has(code)) return { code, status: 'coming_soon', mastery: null };
-      if (record && record.attempts > 0) {
+      // Practised, or found acquired by the placement test.
+      if (record && (record.attempts > 0 || record.masteredAt)) {
         return { code, status: masteryStatus(record, at), mastery: masteryOf(record, at) };
       }
       const open = getSkill(code).prerequisites.every(
