@@ -10,6 +10,7 @@
     "ios": "pnpm --filter @math-genius/mobile ios",
     "android": "pnpm --filter @math-genius/mobile android",
     "web": "pnpm --filter @math-genius/mobile web",
+    "admin": "pnpm --filter @math-genius/admin dev",
     "typecheck": "pnpm -r --parallel typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",

@@ -1,0 +1,79 @@
+@import 'tailwindcss';
+
+/*
+ * The back-office's tokens: screens use these semantic colors only (the default palette is
+ * removed), light and dark.
+ */
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-background: #f5f6fa;
+  --color-surface: #ffffff;
+  --color-raised: #eceef5;
+  --color-border: #d6d9e4;
+  --color-foreground: #1a1c28;
+  --color-muted: #585d70;
+  --color-primary: #5534c0;
+  --color-on-primary: #ffffff;
+  --color-primary-soft: #ebe6fb;
+  --color-success: #1d7348;
+  --color-success-soft: #e2f3e9;
+  --color-warning: #875700;
+  --color-warning-soft: #fcf0d6;
+  --color-danger: #b0261b;
+  --color-danger-soft: #fce7e4;
+  /* The radar's heatmap: one hue, light to dark (more children, darker), and the ink on each step. */
+  --color-heat-1: #cde2fb;
+  --color-heat-2: #86b6ef;
+  --color-heat-3: #3987e5;
+  --color-heat-4: #1c5cab;
+  --color-heat-5: #0d366b;
+  --color-heat-ink-1: #0b1a33;
+  --color-heat-ink-2: #0b1a33;
+  --color-heat-ink-3: #0b1a33;
+  --color-heat-ink-4: #ffffff;
+  --color-heat-ink-5: #ffffff;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #12131b;
+    --color-surface: #1b1d28;
+    --color-raised: #252836;
+    --color-border: #363a4c;
+    --color-foreground: #eceef6;
+    --color-muted: #a3a8bd;
+    --color-primary: #a78bfa;
+    --color-on-primary: #160d33;
+    --color-primary-soft: #2c2350;
+    --color-success: #5fd39a;
+    --color-success-soft: #173426;
+    --color-warning: #f2c35b;
+    --color-warning-soft: #3a2e12;
+    --color-danger: #ff8a7a;
+    --color-danger-soft: #3d1b18;
+    /* On the dark surface the scale starts dark: more children, lighter. */
+    --color-heat-1: #0d366b;
+    --color-heat-2: #1c5cab;
+    --color-heat-3: #3987e5;
+    --color-heat-4: #86b6ef;
+    --color-heat-5: #cde2fb;
+    --color-heat-ink-1: #eceef6;
+    --color-heat-ink-2: #ffffff;
+    --color-heat-ink-3: #0b1a33;
+    --color-heat-ink-4: #0b1a33;
+    --color-heat-ink-5: #0b1a33;
+  }
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}

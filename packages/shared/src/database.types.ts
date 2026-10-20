@@ -1987,6 +1987,23 @@ export type Database = {
           universe_id: string;
         }[];
       };
+      admin_moderation_log: {
+        Args: { p_limit?: number };
+        Returns: {
+          created_at: string;
+          error_type: string;
+          grade_band: string;
+          id: string;
+          model: string;
+          outcome: string;
+          problems: string[];
+          prompt_version: number;
+          provider: string;
+          skill_code: string;
+          task: string;
+          universe_id: string;
+        }[];
+      };
       admin_other_answers: {
         Args: { p_status?: Database['public']['Enums']['moderation_status'] };
         Returns: {

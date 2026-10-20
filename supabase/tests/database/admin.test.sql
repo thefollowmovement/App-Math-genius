@@ -2,7 +2,7 @@
 -- Run with `pnpm supabase:test`.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(20);
+select plan(24);
 
 -- Sam (super-admin), Eva (editor), Mo (moderator) have no family; Alice is a parent with Léa (CM1,
 -- personalization on) and Léa's device.
@@ -59,6 +59,13 @@ select throws_ok(
   'A parent cannot add a universe'
 );
 select is((select count(*)::int from public.admin_other_answers()), 0, 'A parent reads no « Autre » answer');
+reset role;
+select public.coach_log_usage('{"task": "realtime", "provider": "mistral", "model": "ministral-8b-latest",
+  "outcome": "rejected", "problems": ["digits"], "child_id": "00000000-0000-4000-8000-0000000000c1",
+  "skill_code": "cm1.perimetre", "grade_band": "cm1-cm2", "prompt_version": 1}');
+set local role authenticated;
+select pg_temp.as_user('00000000-0000-4000-8000-0000000000a1');
+select is((select count(*)::int from public.admin_moderation_log()), 0, 'A parent reads no moderation log');
 
 -- The moderator ------------------------------------------------------------------------------------
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000f3');
@@ -74,6 +81,11 @@ select is(
   'Zelda cm1-cm2',
   'A moderator reads the « Autre » answers, with their age group and not the child'
 );
+select is(
+  (select outcome || ' ' || array_to_string(problems, ',') || ' ' || skill_code from public.admin_moderation_log()),
+  'rejected digits cm1.perimetre',
+  'A moderator reads the moderation log, without the child'
+);
 select lives_ok(
   $$ select public.admin_review_other((select id from public.interest_other_answers limit 1), 'approved') $$,
   'A moderator approves an « Autre » answer'
@@ -87,7 +99,7 @@ select throws_ok(
 -- The editor adds a trend: the app offers it at once ----------------------------------------------
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000f2');
 insert into public.universes (id, name, category, grades, pegi, vocabulary, review_at)
-values ('zelda', 'Zelda', 'game', '{CM1,CM2}', 12, '{"words": ["rubis", "épée"]}', '2027-01-20');
+values ('zelda', 'Zelda', 'game', '{CM1,CM2}', 7, '{"words": ["rubis", "épée"]}', '2027-01-20');
 insert into public.interest_options (question_id, universe_id, icon, position)
 values ('games', 'zelda', '🗡️', 20);
 update public.universes set status = 'retired' where id = 'roblox';
@@ -100,6 +112,19 @@ select is(
   (select children from public.admin_interest_counts() where universe_id = 'minecraft'),
   1,
   'An editor reads how many children chose each universe'
+);
+
+select throws_ok(
+  $$ insert into public.universes (id, name, category, grades, pegi, review_at)
+     values ('gta', 'GTA', 'game', '{4e,3e}', 18, '2027-01-20') $$,
+  '23514', null,
+  'A PEGI 18 game is never a reference'
+);
+select throws_ok(
+  $$ insert into public.universes (id, name, category, grades, pegi, review_at)
+     values ('valorant', 'Valorant', 'game', '{CM2,6e,5e}', 12, '2027-01-20') $$,
+  '23514', null,
+  'A PEGI 12 game only from 5e'
 );
 
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000d1', true);
