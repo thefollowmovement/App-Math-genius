@@ -285,12 +285,24 @@ select is(
   (select gems from public.progress where child_id = '00000000-0000-4000-8000-0000000000c3'),
   'A chest pays once'
 );
+-- buy_freeze counts from today (now()), not from the simulated days: the freezes left depend on
+-- the days missed since then (the free one comes back on Monday). Zoé gets the gems for three,
+-- and the test starts from the freezes she has today.
+reset role;
+insert into public.gem_transactions (child_id, amount, reason, ref_id, local_date)
+values ('00000000-0000-4000-8000-0000000000c3', 90, 'chest', gen_random_uuid(), current_date);
+create temp table zoe_freezes as
+  select (private.refresh_progress('00000000-0000-4000-8000-0000000000c3',
+    private.child_today('00000000-0000-4000-8000-0000000000c3', now()))).freezes as before;
+grant select on zoe_freezes to authenticated;
+set local role authenticated;
 select is(
   (public.buy_freeze('00000000-0000-4000-8000-0000000000c3')).freezes,
-  2::smallint,
+  (select before + 1 from zoe_freezes)::smallint,
   'Gems buy a freeze'
 );
-select public.buy_freeze('00000000-0000-4000-8000-0000000000c3');
+select public.buy_freeze('00000000-0000-4000-8000-0000000000c3')
+from generate_series(1, 2 - (select before from zoe_freezes));
 select throws_ok(
   $$ select public.buy_freeze('00000000-0000-4000-8000-0000000000c3') $$,
   'PT409', 'too_many_freezes',

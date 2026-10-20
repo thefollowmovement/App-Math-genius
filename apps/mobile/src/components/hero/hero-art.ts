@@ -1,4 +1,4 @@
-import type { HeroId, HeroPose } from '@math-genius/shared';
+import type { HeroId, HeroLook, HeroPose, OutfitId } from '@math-genius/shared';
 
 import novaBust from '../../../assets/heroes/nova/bust.webp';
 import novaVictory from '../../../assets/heroes/nova/victory.webp';
@@ -31,10 +31,13 @@ import leoEncourage from '../../../assets/heroes/leo/encourage.webp';
 import leoThink from '../../../assets/heroes/leo/think.webp';
 import leoCard from '../../../assets/heroes/leo/card.webp';
 
+import { HERO_OUTFITS } from './hero-outfits';
+
 /**
- * How each hero is drawn. Today: one still picture per pose, and the hero on stage for the hero
- * picker's card (WebP in three densities, made by `pnpm heroes:images` from
- * docs/design/personnages). Tomorrow a hero may be an animation:
+ * How each hero is drawn. Today: one still picture per pose in its stage outfit, the same poses
+ * in each outfit (hero-outfits.ts), and the hero on stage for the hero picker's card (WebP in
+ * three densities, made by `pnpm heroes:images` from docs/design/personnages and
+ * docs/design/tenues). Tomorrow a hero may be an animation:
  *
  *   { kind: 'rive'; file: number; artboard: string; stateMachine: string }
  *
@@ -43,37 +46,54 @@ import leoCard from '../../../assets/heroes/leo/card.webp';
  * not change.
  */
 /** An image is a bundled asset id (see src/types/images.d.ts). */
-export type HeroArt = { kind: 'images'; poses: Record<HeroPose, number>; card: number };
+export type HeroArt = {
+  kind: 'images';
+  poses: Record<HeroPose, number>;
+  outfits: Record<OutfitId, Record<HeroPose, number>>;
+  card: number;
+};
 
 export const HERO_ART: Record<HeroId, HeroArt> = {
   nova: {
     kind: 'images',
     poses: { bust: novaBust, victory: novaVictory, encourage: novaEncourage, think: novaThink },
+    outfits: HERO_OUTFITS.nova,
     card: novaCard,
   },
   juno: {
     kind: 'images',
     poses: { bust: junoBust, victory: junoVictory, encourage: junoEncourage, think: junoThink },
+    outfits: HERO_OUTFITS.juno,
     card: junoCard,
   },
   mika: {
     kind: 'images',
     poses: { bust: mikaBust, victory: mikaVictory, encourage: mikaEncourage, think: mikaThink },
+    outfits: HERO_OUTFITS.mika,
     card: mikaCard,
   },
   kai: {
     kind: 'images',
     poses: { bust: kaiBust, victory: kaiVictory, encourage: kaiEncourage, think: kaiThink },
+    outfits: HERO_OUTFITS.kai,
     card: kaiCard,
   },
   taro: {
     kind: 'images',
     poses: { bust: taroBust, victory: taroVictory, encourage: taroEncourage, think: taroThink },
+    outfits: HERO_OUTFITS.taro,
     card: taroCard,
   },
   leo: {
     kind: 'images',
     poses: { bust: leoBust, victory: leoVictory, encourage: leoEncourage, think: leoThink },
+    outfits: HERO_OUTFITS.leo,
     card: leoCard,
   },
 };
+
+/** The picture of a pose of the hero, in the outfit it wears. */
+export function heroPicture({ hero, outfit }: HeroLook, pose: HeroPose): number {
+  const art = HERO_ART[hero];
+  return outfit ? art.outfits[outfit][pose] : art.poses[pose];
+}

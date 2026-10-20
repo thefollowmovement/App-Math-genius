@@ -1428,7 +1428,7 @@ export type Database = {
       session_goal_type: 'duration' | 'count';
       session_kind: 'daily' | 'bonus' | 'placement' | 'boss';
       session_slot: 'current' | 'review' | 'automatism' | 'challenge';
-      shop_item_kind: 'companion' | 'accessory' | 'effect';
+      shop_item_kind: 'companion' | 'outfit' | 'accessory' | 'effect';
       skill_domain: 'numbers' | 'measures' | 'geometry' | 'data';
     };
     CompositeTypes: {
@@ -1564,7 +1564,7 @@ export const Constants = {
       session_goal_type: ['duration', 'count'],
       session_kind: ['daily', 'bonus', 'placement', 'boss'],
       session_slot: ['current', 'review', 'automatism', 'challenge'],
-      shop_item_kind: ['companion', 'accessory', 'effect'],
+      shop_item_kind: ['companion', 'outfit', 'accessory', 'effect'],
       skill_domain: ['numbers', 'measures', 'geometry', 'data'],
     },
   },

@@ -15,6 +15,7 @@ const hero = (id: keyof typeof strings.heroes.items) =>
   strings.heroes.label(strings.heroes.items[id].name, strings.heroes.items[id].role);
 const props = {
   look,
+  savedOutfit: null,
   unlocked: { badges: new Set<string>(), owned: new Set<string>() },
   hint: null,
   changed: false,
@@ -112,6 +113,72 @@ describe('LookEditor', () => {
     expect(
       screen.getByText(t.lockedBadge('Phénix', strings.badges.items['level-10'].title)),
     ).toBeOnTheScreen();
+  });
+
+  it('dresses the hero in an outfit, and previews one before it is unlocked', async () => {
+    const o = strings.outfits;
+    const onCosmetic = jest.fn();
+    const user = userEvent.setup();
+    const sporty = { ...look, avatar: { hero: 'nova', wear: { outfit: 'sport' } } } as const;
+    const { rerender } = await renderWithTheme(
+      <LookEditor
+        {...props}
+        look={sporty}
+        savedOutfit="sport"
+        unlocked={{ badges: new Set(), owned: new Set(['sport']) }}
+        onCosmetic={onCosmetic}
+      />,
+    );
+    // The portrait and the preview show Nova in her sports outfit.
+    expect(
+      screen.getByRole('image', { name: strings.heroes.portrait('Nova', [], o.items.sport.worn) }),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByRole('image', { name: o.previewLabel('Nova', o.items.sport.worn) }),
+    ).toBeOnTheScreen();
+    expect(screen.getByText(o.worn)).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: o.items.sport.name })).toBeChecked();
+    // The stage outfit is always there; Magie is bought, the astronaut earned with an island.
+    await user.press(screen.getByRole('radio', { name: o.stage.name }));
+    expect(onCosmetic).toHaveBeenCalledWith('outfit', null);
+    await user.press(screen.getByRole('radio', { name: t.lockedLabel(o.items.astronaute.name) }));
+    expect(onCosmetic).toHaveBeenCalledWith('outfit', 'astronaute');
+    expect(
+      screen.getByRole('radio', { name: t.lockedLabel(o.items.magie.name) }),
+    ).toBeOnTheScreen();
+
+    // Tried before it is unlocked: the hero wears it in the preview, which says what it waits for.
+    await rerender(
+      <LookEditor
+        {...props}
+        look={sporty}
+        savedOutfit="sport"
+        unlocked={{ badges: new Set(), owned: new Set(['sport']) }}
+        hint={{ cosmetic: 'astronaute', missing: { kind: 'badge', badge: 'island-1' } }}
+      />,
+    );
+    expect(
+      screen.getByRole('image', { name: o.previewLabel('Nova', o.items.astronaute.worn) }),
+    ).toBeOnTheScreen();
+    const reason = t.lockedBadge(o.items.astronaute.name, strings.badges.items['island-1'].title);
+    // Once, on the preview.
+    expect(screen.getAllByText(reason)).toHaveLength(1);
+    // The saved look keeps the sports outfit.
+    expect(
+      screen.getByRole('image', { name: strings.heroes.portrait('Nova', [], o.items.sport.worn) }),
+    ).toBeOnTheScreen();
+
+    // Picked once unlocked, it is the hero's outfit only once saved.
+    await rerender(
+      <LookEditor
+        {...props}
+        look={{ ...look, avatar: { hero: 'nova', wear: { outfit: 'astronaute' } } }}
+        savedOutfit="sport"
+        unlocked={{ badges: new Set(['island-1']), owned: new Set(['sport']) }}
+      />,
+    );
+    expect(screen.getByText(o.toSave)).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: o.items.astronaute.name })).toBeChecked();
   });
 
   it('says what a locked cosmetic waits for, and why saving failed', async () => {

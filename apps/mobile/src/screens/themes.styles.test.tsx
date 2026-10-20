@@ -112,6 +112,7 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
         childName="Léa"
         step={0}
         hero="taro"
+        outfit={null}
         saving={false}
         error={null}
         onPickHero={jest.fn()}
@@ -204,6 +205,7 @@ describe.each(Object.values(themes))('theme $id with native styles', (theme) => 
     const look = { theme: theme.id as keyof typeof themes, avatar: DEFAULT_LOOKS.girl.avatar };
     const { toJSON } = await renderWithTheme(
       <LookEditor
+        savedOutfit={null}
         look={look}
         unlocked={{ badges: new Set(), owned: new Set() }}
         hint={null}

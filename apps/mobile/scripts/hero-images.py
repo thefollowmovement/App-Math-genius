@@ -1,9 +1,14 @@
-"""Optimises the heroes' and companions' pictures for the app (`pnpm heroes:images`, needs Pillow
-with WebP).
+"""Optimises the pictures of the heroes, their outfits and the companions for the app
+(`pnpm heroes:images`, needs Pillow with WebP).
 
 Heroes: reads the concept art of docs/design/personnages/poses/<hero>-<pose>.png (1024 px,
 transparent background) and the hero on stage, docs/design/personnages/<hero>.png (the hero
 picker's card), and writes apps/mobile/assets/heroes/<hero>/<picture>.webp.
+
+Outfits: reads docs/design/tenues/<hero>-<outfit>-<pose>.png and writes
+apps/mobile/assets/heroes/<hero>/<outfit>/<pose>.webp, the same poses as the stage outfit. Their
+bust is a portrait (2 × 3): it is set at the top of a square 1.2 times as wide, as the stage bust
+frames the hero.
 
 Companions: reads docs/design/compagnons/<companion>.png (transparent background), crops it to
 the drawing, centers it in a square and writes apps/mobile/assets/companions/<companion>/
@@ -22,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[3]
 ART = ROOT / "docs/design/personnages"
 SOURCE = ART / "poses"
 TARGET = ROOT / "apps/mobile/assets/heroes"
+OUTFIT_ART = ROOT / "docs/design/tenues"
 COMPANION_ART = ROOT / "docs/design/compagnons"
 COMPANION_TARGET = ROOT / "apps/mobile/assets/companions"
 
@@ -30,6 +36,9 @@ HEROES = ["nova", "juno", "mika", "kai", "taro", "leo"]
 POSES = {"bust": "buste", "victory": "victoire", "encourage": "encouragement", "think": "reflexion"}
 # Height at 1x, in points: the largest size a screen shows (the bust is square).
 HEIGHTS = {"bust": 160, "victory": 240, "encourage": 240, "think": 240, "card": 160}
+OUTFITS = ["sport", "astronaute", "magie"]
+# Width of the square an outfit's bust is set in, against the picture's.
+OUTFIT_BUST_SQUARE = 1.2
 COMPANIONS = ["hibou", "lapin", "dragon", "licorne", "tigre", "renard", "chat", "phenix"]
 # Companions are square, the largest one shown on their sheet.
 COMPANION_SIZE = 160
@@ -60,6 +69,31 @@ def heroes() -> int:
     return total
 
 
+def bust_square(source: Image.Image) -> Image.Image:
+    """A portrait bust at the top of a square, centered, the sides transparent."""
+    side = round(source.width * OUTFIT_BUST_SQUARE)
+    canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    canvas.alpha_composite(source, ((side - source.width) // 2, 0))
+    return canvas
+
+
+def outfits() -> int:
+    total = 0
+    for hero in HEROES:
+        for outfit in OUTFITS:
+            (TARGET / hero / outfit).mkdir(parents=True, exist_ok=True)
+            for pose, art in POSES.items():
+                source = Image.open(OUTFIT_ART / f"{hero}-{outfit}-{art}.png").convert("RGBA")
+                if pose == "bust":
+                    source = bust_square(source)
+                for suffix, scale in DENSITIES.items():
+                    height = HEIGHTS[pose] * scale
+                    width = round(source.width * height / source.height)
+                    image = source.resize((width, height), Image.Resampling.LANCZOS)
+                    total += save(image, TARGET / hero / outfit / f"{pose}{suffix}.webp")
+    return total
+
+
 def square(source: Image.Image) -> Image.Image:
     """The drawing alone (the faint halo of the cut-out left out), centered in a square."""
     alpha = source.getchannel("A").point(lambda value: 255 if value > 16 else 0)
@@ -86,6 +120,9 @@ def main() -> None:
     total = heroes()
     count = len(HEROES) * (len(POSES) + 1) * len(DENSITIES)
     print(f"{count} images, {total // 1024} KB in {TARGET}")
+    total = outfits()
+    count = len(HEROES) * len(OUTFITS) * len(POSES) * len(DENSITIES)
+    print(f"{count} outfit images, {total // 1024} KB in {TARGET}")
     total = companions()
     count = len(COMPANIONS) * len(DENSITIES)
     print(f"{count} images, {total // 1024} KB in {COMPANION_TARGET}")

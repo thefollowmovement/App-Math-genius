@@ -1,12 +1,12 @@
 /**
  * The shop: items bought with gems, never with real money (docs/specs.md, Gamification). The last
- * migration that writes the catalog (*_companions.sql) holds the same one, in the same order
+ * migration that writes the catalog (*_outfits.sql) holds the same one, in the same order
  * (shop.test.ts compares them). Codes are stored with each child's items: never rename one.
- * Streak freezes are sold too, by buy_freeze (FREEZE_PRICE in rewards.ts). Companions sold here
- * are those of companions.ts unlocked in the shop.
+ * Streak freezes are sold too, by buy_freeze (FREEZE_PRICE in rewards.ts). Companions and
+ * outfits sold here are those of companions.ts and outfits.ts unlocked in the shop.
  */
 
-export const SHOP_KINDS = ['companion', 'accessory', 'effect'] as const;
+export const SHOP_KINDS = ['companion', 'outfit', 'accessory', 'effect'] as const;
 export type ShopKind = (typeof SHOP_KINDS)[number];
 
 type ShopItemDefinition = { code: string; kind: ShopKind; price: number };
@@ -16,6 +16,8 @@ export const SHOP_ITEMS = [
   { code: 'dragon', kind: 'companion', price: 120 },
   { code: 'licorne', kind: 'companion', price: 150 },
   { code: 'renard', kind: 'companion', price: 250 },
+  { code: 'sport', kind: 'outfit', price: 100 },
+  { code: 'magie', kind: 'outfit', price: 200 },
   { code: 'bow', kind: 'accessory', price: 30 },
   { code: 'cap', kind: 'accessory', price: 30 },
   { code: 'sunglasses', kind: 'accessory', price: 40 },

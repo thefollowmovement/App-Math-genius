@@ -1,4 +1,4 @@
-import type { Award } from '@math-genius/shared';
+import { heroLook, type Award } from '@math-genius/shared';
 import { ThemedText, View } from '@math-genius/ui';
 import type { ViewStyle } from 'react-native';
 import Animated, {
@@ -24,7 +24,7 @@ type VictorySceneProps = {
 
 /** The hero in its victory pose next to the chest it earned (docs/design/maquettes/Victoire.html). */
 export function VictoryScene({ won, chest }: VictorySceneProps) {
-  const { hero } = useChildHero();
+  const look = heroLook(useChildHero());
   const reduced = useReducedMotion();
   const pose = won ? 'victory' : 'encourage';
   return (
@@ -40,7 +40,7 @@ export function VictoryScene({ won, chest }: VictorySceneProps) {
           >
             <ChestArt />
             <View className="absolute -bottom-1 -left-18 h-50 w-34">
-              <HeroPicture hero={hero} pose={pose} />
+              <HeroPicture look={look} pose={pose} />
             </View>
             {chest.kind === 'rare' ? (
               <View className="absolute right-0 top-1 rotate-8 rounded-full bg-accent px-3 py-1">
@@ -52,7 +52,7 @@ export function VictoryScene({ won, chest }: VictorySceneProps) {
           </View>
         ) : (
           <View className="h-52 w-36">
-            <HeroPicture hero={hero} pose={pose} />
+            <HeroPicture look={look} pose={pose} />
           </View>
         )}
       </View>

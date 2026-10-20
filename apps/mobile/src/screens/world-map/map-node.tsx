@@ -1,5 +1,6 @@
 import { getSkill } from '@math-genius/curriculum';
 import type { BossState, SkillNode } from '@math-genius/exercise-engine';
+import { heroLook } from '@math-genius/shared';
 import { Pressable, ThemedText, View, cx } from '@math-genius/ui';
 
 import { GlitchArt } from '@/components/game/glitch-art';
@@ -24,7 +25,7 @@ const closed = (node: SkillNode) => node.status === 'locked' || node.status === 
 
 /** A stop of the path: a mastered skill shines gold, an open one shows its number, a closed one its lock. */
 export function MapNode({ node, number, current, selected, onPress }: MapNodeProps) {
-  const { hero } = useChildHero();
+  const look = heroLook(useChildHero());
   const title = getSkill(node.code).title;
   const label = t.node(title, t.status[node.status], node.mastery);
   return (
@@ -56,7 +57,7 @@ export function MapNode({ node, number, current, selected, onPress }: MapNodePro
       >
         {current ? (
           <View className="size-full overflow-hidden rounded-full">
-            <HeroPicture hero={hero} pose="bust" />
+            <HeroPicture look={look} pose="bust" />
           </View>
         ) : node.status === 'mastered' ? (
           <Icon name="star" color="onAccent" size="lg" />

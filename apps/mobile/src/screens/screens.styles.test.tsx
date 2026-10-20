@@ -64,6 +64,7 @@ const vacation: VacationRow = {
 const introProps = {
   childName: 'Léa',
   hero: 'mika',
+  outfit: null,
   saving: false,
   error: null,
   onPickHero: jest.fn(),
@@ -214,6 +215,7 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
     name: 'LookEditor',
     render: () => (
       <LookEditor
+        savedOutfit={null}
         look={{
           theme: 'space',
           avatar: {

@@ -4,6 +4,7 @@ import {
   type Avatar,
   type CosmeticId,
   type CosmeticSlot,
+  type OutfitId,
   type Unlocked,
 } from '@math-genius/shared';
 import { Pressable, ThemedText, View, cx } from '@math-genius/ui';
@@ -20,11 +21,12 @@ import { strings } from '@/i18n';
 import { cosmeticName } from '@/i18n/cosmetic-names';
 
 import { CompanionPicker } from './companion-picker';
+import { OutfitPicker } from './outfit-picker';
 
 const t = strings.look;
 
 /** The slots the catalog has cosmetics for, in the editor's order. */
-const SLOTS = (['aura', 'frame', 'companion', 'accessory'] as const).filter(
+const SLOTS = (['outfit', 'aura', 'frame', 'companion', 'accessory'] as const).filter(
   (slot) => cosmeticsOf(slot).length > 0,
 );
 
@@ -33,14 +35,23 @@ type CosmeticPickerProps = {
   unlocked: Unlocked;
   /** The cosmetic just tried before it was unlocked. */
   tried: CosmeticId | null;
+  /** The outfit the hero wears as saved. */
+  savedOutfit: OutfitId | null;
   onPick: (slot: CosmeticSlot, id: CosmeticId | null) => void;
 };
 
 /**
- * What surrounds the hero, a card per slot (docs/design/maquettes/Avatars.html): each cosmetic as
- * a small drawing, a lock on what is not unlocked yet; companions on cards of their own.
+ * What the hero wears and what surrounds it, a card per slot (docs/design/maquettes/Avatars.html):
+ * each cosmetic as a small drawing, a lock on what is not unlocked yet; outfits and companions
+ * on cards of their own.
  */
-export function CosmeticPicker({ avatar, unlocked, tried, onPick }: CosmeticPickerProps) {
+export function CosmeticPicker({
+  avatar,
+  unlocked,
+  tried,
+  savedOutfit,
+  onPick,
+}: CosmeticPickerProps) {
   return (
     <View className="gap-3">
       {SLOTS.map((slot) => (
@@ -51,7 +62,16 @@ export function CosmeticPicker({ avatar, unlocked, tried, onPick }: CosmeticPick
           className="gap-3 rounded-lg border-2 border-border bg-surface p-3"
         >
           <ThemedText variant="label">{t.slots[slot]}</ThemedText>
-          {slot === 'companion' ? (
+          {slot === 'outfit' ? (
+            <OutfitPicker
+              hero={avatar.hero}
+              worn={avatar.wear.outfit}
+              saved={savedOutfit}
+              unlocked={unlocked}
+              tried={tried}
+              onPick={(id) => onPick(slot, id)}
+            />
+          ) : slot === 'companion' ? (
             <CompanionPicker
               worn={avatar.wear.companion}
               unlocked={unlocked}

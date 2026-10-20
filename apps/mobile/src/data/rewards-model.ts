@@ -88,7 +88,7 @@ export function shopGroups(items: readonly ItemRow[], wear: Avatar['wear']): Sho
     ).map(view),
   });
   // In the order of SHOP_KINDS.
-  return [ofKind('companion'), ofKind('accessory'), ofKind('effect')];
+  return [ofKind('companion'), ofKind('outfit'), ofKind('accessory'), ofKind('effect')];
 }
 
 export type EffectCode = Extract<ShopItem, { kind: 'effect' }>['code'];

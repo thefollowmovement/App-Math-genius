@@ -1,4 +1,10 @@
-import { companionLook, cosmeticOf, type Avatar, type CosmeticSlot } from '@math-genius/shared';
+import {
+  companionLook,
+  cosmeticOf,
+  heroLook,
+  type Avatar,
+  type CosmeticSlot,
+} from '@math-genius/shared';
 import { ThemedText, View, cx } from '@math-genius/ui';
 import { useId } from 'react';
 
@@ -56,7 +62,7 @@ export function HeroBust({ avatar, size = 'lg', label, className }: HeroBustProp
         </View>
       ) : null}
       <View className="size-full overflow-hidden rounded-full border border-border bg-surface">
-        <HeroPicture hero={avatar.hero} pose="bust" />
+        <HeroPicture look={heroLook(avatar)} pose="bust" />
       </View>
       {frame?.kind === 'frame' ? (
         <View className="absolute -inset-[15%]">

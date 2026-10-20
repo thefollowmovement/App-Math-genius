@@ -59,7 +59,7 @@ select ok(
    where oid in ('public.shop_items'::regclass, 'public.child_items'::regclass)),
   'RLS is enabled on the shop and the children''s items'
 );
-select is((select count(*)::int from public.shop_items), 13, 'The shop sells 13 items');
+select is((select count(*)::int from public.shop_items), 15, 'The shop sells 15 items');
 
 set local role authenticated;
 select pg_temp.as_user('00000000-0000-4000-8000-0000000000d1', true);

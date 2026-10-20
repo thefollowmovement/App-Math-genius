@@ -5,6 +5,7 @@ import type {
   CosmeticSlot,
   EarnedCosmeticId,
   HeroId,
+  OutfitId,
   ParentRewardGoal,
   Rarity,
   ShopItemCode,
@@ -529,11 +530,13 @@ export const fr = {
     intro: 'Tout s’achète avec les gemmes gagnées en t’entraînant.',
     kinds: {
       companion: 'Compagnons',
+      outfit: 'Tenues',
       accessory: 'Accessoires',
       effect: 'Effets de victoire',
     },
     kindHints: {
       companion: 'Il t’accompagne dans tes missions et t’aide quand tu bloques.',
+      outfit: 'Ton héros la porte partout\u00a0: accueil, missions, carte.',
       accessory: 'Il décore le portrait de ton héros.',
       effect: 'Il fête la fin de tes séances.',
     },
@@ -566,7 +569,10 @@ export const fr = {
       sparkles: { icon: '✨', name: 'Étincelles' },
       rainbow: { icon: '🌈', name: 'Arc-en-ciel' },
       fireworks: { icon: '🎆', name: 'Feu d’artifice' },
-    } satisfies Record<Exclude<ShopItemCode, CompanionId>, { icon: string; name: string }>,
+    } satisfies Record<
+      Exclude<ShopItemCode, CompanionId | OutfitId>,
+      { icon: string; name: string }
+    >,
   },
   map: {
     title: 'Carte du monde',
@@ -802,10 +808,10 @@ export const fr = {
       leo: { name: 'Leo', role: 'Héros de la scène' },
     } satisfies Record<HeroId, { name: string; role: string }>,
     label: (name: string, role: string) => `${name}, ${role}`,
-    portrait: (name: string, wearing: string[] = []) =>
-      wearing.length > 0
-        ? `Ton héros, ${name}, avec ${wearing.join(' et ')}`
-        : `Ton héros, ${name}`,
+    portrait: (name: string, wearing: string[] = [], outfit?: string) =>
+      [`Ton héros, ${name}`, outfit, wearing.length > 0 ? `avec ${wearing.join(' et ')}` : null]
+        .filter((part) => part)
+        .join(', '),
     // What the child's hero says. Never a reproach: the firm reminders go to the parent.
     encourage: [
       'Pas grave\u00a0! C’est en se trompant qu’on apprend.',
@@ -820,6 +826,44 @@ export const fr = {
     ],
     proud: 'Tu as bien travaillé. On réessaie demain\u00a0?',
     hint: 'Réfléchissons ensemble…',
+  },
+  /** The heroes' outfits (packages/shared/src/outfits.ts, docs/design/tenues). */
+  outfits: {
+    /** The outfit every hero wears until it chooses another. */
+    stage: {
+      name: 'Tenue de scène',
+      short: 'Scène',
+      worn: 'en tenue de scène',
+      description: 'La tenue de star de ton héros, toujours à toi.',
+    },
+    items: {
+      sport: {
+        name: 'Tenue de sport',
+        short: 'Sport',
+        worn: 'en tenue de sport',
+        description: 'Un survêtement néon rose et cyan, parfait pour les défis chrono.',
+      },
+      astronaute: {
+        name: 'Tenue d’astronaute',
+        short: 'Astronaute',
+        worn: 'en tenue d’astronaute',
+        description: 'Une combinaison spatiale blanche et lilas, pour partir explorer les îles.',
+      },
+      magie: {
+        name: 'Tenue de magie',
+        short: 'Magie',
+        worn: 'en tenue de magie',
+        description:
+          'Une cape étoilée et une baguette dorée\u00a0: abracadabra, les calculs\u00a0!',
+      },
+    } satisfies Record<
+      OutfitId,
+      { name: string; short: string; worn: string; description: string }
+    >,
+    preview: 'Aperçu',
+    previewLabel: (hero: string, outfit: string) => `${hero} ${outfit}`,
+    worn: 'C’est la tenue de ton héros.',
+    toSave: 'Enregistre pour la garder.',
   },
   /** The companions beside the hero (packages/shared/src/companions.ts, docs/design/compagnons.md). */
   companions: {
@@ -1057,9 +1101,10 @@ export const fr = {
     intro:
       'Choisis ton héros, ce qui l’entoure et ton thème\u00a0: tu vois le résultat avant d’enregistrer.',
     hero: 'Ton héros',
-    style: 'Autour de ton héros',
+    style: 'Sa tenue et son style',
     themes: 'Ton thème',
     slots: {
+      outfit: 'Tenue',
       aura: 'Aura',
       frame: 'Cadre',
       companion: 'Compagnon',

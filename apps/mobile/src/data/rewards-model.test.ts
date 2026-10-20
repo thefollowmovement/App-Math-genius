@@ -64,7 +64,12 @@ describe('shop', () => {
 
   it('lists the catalog by kind with what the child owns, and what the hero wears', () => {
     const groups = shopGroups(items, { companion: 'dragon' });
-    expect(groups.map((group) => group.kind)).toEqual(['companion', 'accessory', 'effect']);
+    expect(groups.map((group) => group.kind)).toEqual([
+      'companion',
+      'outfit',
+      'accessory',
+      'effect',
+    ]);
     const all = groups.flatMap((group): ShopItemView[] => group.items);
     expect(all.find((item) => item.code === 'dragon')).toMatchObject({ owned: true, worn: true });
     expect(all.find((item) => item.code === 'bow')).toMatchObject({ owned: true, worn: false });
