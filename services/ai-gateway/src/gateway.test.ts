@@ -185,6 +185,11 @@ describe('an explanation after a mistake', () => {
     const result = await explain(input(), settings(), store, fetcher);
     expect(result).toMatchObject({ source: 'cache', id: 'cached-0', universe: 'minecraft' });
     expect(calls).toHaveLength(0);
+    // The emergency switch cuts the cache too.
+    expect(await explain(input(), settings({ enabled: false }), store, fetcher)).toEqual({
+      source: 'standard',
+      reason: 'off',
+    });
   });
 
   it('is written by the model, checked, kept and shown with the exercise’s numbers', async () => {

@@ -236,6 +236,8 @@ export async function explain(
     band: gradeBand(input.grade),
   };
   const frame = coachFrame(exercise, response);
+  // The emergency switch leaves only the generators' corrections, cached explanations included.
+  if (!settings.enabled) return { source: 'standard', reason: 'off' };
 
   // A validated explanation of the same skill, mistake, universe and age group: shown at once.
   for (const cached of await store.cached(key, input.exclude)) {
@@ -243,7 +245,6 @@ export async function explain(
     if (explanation) return { source: 'cache', id: cached.id, explanation, universe: key.universe };
   }
 
-  if (!settings.enabled) return { source: 'standard', reason: 'off' };
   const provider = settings.realtime;
   if (!provider) return { source: 'standard', reason: 'no-provider' };
   if (!withinBudget(settings, provider)) return { source: 'standard', reason: 'budget' };

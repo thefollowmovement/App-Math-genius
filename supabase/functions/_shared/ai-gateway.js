@@ -2961,11 +2961,11 @@ async function explain(input, settings, store, fetcher = fetch) {
     band: gradeBand(input.grade)
   };
   const frame = coachFrame(exercise, response);
+  if (!settings.enabled) return { source: "standard", reason: "off" };
   for (const cached of await store.cached(key, input.exclude)) {
     const explanation = showableExplanation(cached.template, frame);
     if (explanation) return { source: "cache", id: cached.id, explanation, universe: key.universe };
   }
-  if (!settings.enabled) return { source: "standard", reason: "off" };
   const provider = settings.realtime;
   if (!provider) return { source: "standard", reason: "no-provider" };
   if (!withinBudget(settings, provider)) return { source: "standard", reason: "budget" };
