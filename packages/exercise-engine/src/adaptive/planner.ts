@@ -129,7 +129,7 @@ export function finishSession(
   return map;
 }
 
-type Pool = { current: SkillCode[]; review: SkillCode[]; automatism: SkillCode[] };
+export type Pool = { current: SkillCode[]; review: SkillCode[]; automatism: SkillCode[] };
 
 /**
  * Fading skills first, then the longest unpractised and the weakest; among equals, the most
@@ -141,7 +141,8 @@ function reviewPriority(record: MasteryRecord, at: string, gradesBack: number): 
   return fading + Math.min(30, days) + (100 - masteryOf(record, at)) / 5 - 4 * gradesBack;
 }
 
-function skillPool(context: PlannerContext, mastery: MasteryMap): Pool {
+/** The skills a session draws from (also the mini-games, games/plan.ts). */
+export function skillPool(context: PlannerContext, mastery: MasteryMap): Pool {
   const { childGrade, startedAt: at } = context;
   const generators = generatorsOf(context);
   const withGenerator = new Set<string>(generators.map((generator) => generator.skill));

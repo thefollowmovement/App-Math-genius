@@ -152,3 +152,26 @@ export {
   sub,
   type Rational,
 } from './rational';
+export {
+  GAME_PATTERN,
+  planGameQuestion,
+  type GameQuestionRequest,
+  type PlannedGameQuestion,
+} from './games/plan';
+export {
+  GAME_CARD_MAX,
+  GAME_LABEL_MAX,
+  GAME_PROMPT_MAX,
+  choiceQuestion,
+  gamePrompt,
+  pairQuestion,
+  sumQuestion,
+  sumResponse,
+  type ChoiceQuestion,
+  type GameChoice,
+  type GameQuestion,
+  type GameQuestionKind,
+  type PairQuestion,
+  type SumOperator,
+  type SumQuestion,
+} from './games/questions';
