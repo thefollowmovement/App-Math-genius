@@ -47,4 +47,16 @@ describe('GameRoom', () => {
       screen.getByRole('button', { name: t.room.play(t.items['peche-eclair'].name) }),
     ).toBeDisabled();
   });
+
+  it('says when the parent turned the games off, without a playing time', async () => {
+    const view = gameRoomView({
+      server: undefined,
+      local: undefined,
+      today: TODAY,
+      limitMinutes: 0,
+    });
+    await renderWithTheme(<GameRoom view={view} companion={hibou} onPlay={jest.fn()} />);
+    expect(screen.getByText(t.room.off)).toBeOnTheScreen();
+    expect(screen.queryByText(t.room.playtime(0, 0))).toBeNull();
+  });
 });

@@ -1,4 +1,4 @@
-import type { GradeBand } from '@math-genius/shared';
+import type { GradeBand, MiniGameId } from '@math-genius/shared';
 
 import type { AdminRole, PageId } from '@/models/navigation';
 
@@ -54,6 +54,7 @@ export const strings = {
     tendances: 'Tendances et univers',
     radar: 'Radar des tendances',
     questionnaire: 'Questionnaire',
+    jeux: 'Mini-jeux',
     ia: 'IA : modèles et budget',
     prompts: 'IA : prompts',
     relecture: 'IA : relecture',
@@ -168,6 +169,42 @@ export const strings = {
     down: 'Descendre',
     noOptions: 'Aucun choix.',
     pick: 'Choisir une référence…',
+  },
+
+  games: {
+    intro:
+      'Les mini-jeux de la salle de jeux, dans l’ordre où l’enfant les voit. L’app lit cette liste dans la base : un jeu désactivé disparaît sans mise à jour (une partie déjà commencée se termine).',
+    on: 'Proposé',
+    off: 'Désactivé',
+    offered: 'Proposé aux enfants',
+    up: 'Monter',
+    down: 'Descendre',
+    items: {
+      'peche-eclair': {
+        name: 'Pêche éclair',
+        pitch: 'Pêcher le poisson qui porte la bonne réponse quand le bouchon plonge.',
+      },
+      'pluie-de-gemmes': {
+        name: 'Pluie de gemmes',
+        pitch: 'Attraper la gemme de la bonne réponse, éviter les bombes (3 cœurs).',
+      },
+      'vol-du-chaton': {
+        name: 'Vol du Chaton',
+        pitch: 'Voler entre les piliers de nuages, passer par la bulle de la bonne réponse.',
+      },
+      'bulles-magiques': {
+        name: 'Bulles magiques',
+        pitch: 'Toucher deux bulles qui font le nombre cible (somme ou produit).',
+      },
+      'memory-du-compagnon': {
+        name: 'Memory du compagnon',
+        pitch: 'Retrouver les paires calcul ↔ résultat.',
+      },
+      'course-des-croquettes': {
+        name: 'Course des croquettes',
+        pitch: 'Changer de couloir pour passer la porte de la bonne réponse.',
+      },
+    } satisfies Record<MiniGameId, { name: string; pitch: string }>,
   },
 
   ai: {

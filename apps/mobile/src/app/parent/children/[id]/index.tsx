@@ -6,6 +6,8 @@ import { useChild } from '@/data/children';
 import { errorKind } from '@/data/errors';
 import { useRevokeDevice } from '@/data/devices';
 import { useTodaySessions } from '@/data/family-sessions';
+import { useGameRoom, useSetGameLimit } from '@/data/games';
+import { gameRoomView } from '@/data/games-model';
 import { usePlacement } from '@/data/placement';
 import { placementAvailable } from '@/data/placement-model';
 import { placementReport } from '@/data/placement-report';
@@ -29,11 +31,22 @@ export default function ChildDetailRoute() {
   const message = useSendChildMessage(id);
   const parentRewards = useParentRewardsPanel(id);
   const placement = usePlacement(id);
+  const gameRoom = useGameRoom(id);
+  const gameLimit = useSetGameLimit(id);
   const profile = useProfilePanel(child.data, () =>
     router.push({ pathname: '/parent/children/[id]/universe', params: { id } }),
   );
 
   if (!child.data) return <LoadingScreen />;
+  // The child's day, as the server counts it (the family's time zone).
+  const games = gameRoom.data
+    ? gameRoomView({
+        server: gameRoom.data,
+        local: undefined,
+        today: gameRoom.data.localDate,
+        limitMinutes: child.data.game_minutes_limit,
+      })
+    : undefined;
 
   return (
     <>
@@ -54,6 +67,19 @@ export default function ChildDetailRoute() {
           router.push({ pathname: '/parent/children/[id]/routine', params: { id } })
         }
         rewards={parentRewards}
+        games={{
+          limitMinutes: gameLimit.isPending
+            ? (gameLimit.variables ?? child.data.game_minutes_limit)
+            : child.data.game_minutes_limit,
+          today: games && {
+            playedMinutes: games.playedMinutes,
+            gems: games.gemsToday,
+            gemsCap: games.gemsCap,
+          },
+          saving: gameLimit.isPending,
+          error: gameLimit.error ? errorKind(gameLimit.error) : null,
+          onChangeLimit: (minutes) => gameLimit.mutate(minutes),
+        }}
         profile={profile}
         nudge={{
           onSend: (text) => message.mutate(text),

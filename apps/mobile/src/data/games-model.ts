@@ -51,6 +51,17 @@ export function parseGameRoom(value: unknown): GameRoomData | null {
   };
 }
 
+/**
+ * The child's daily limit: from the profile (children.game_minutes_limit) or from the game room,
+ * whichever the server sent last (the parent may have changed it in between).
+ */
+export function latestLimit(
+  child: { minutes: number; at: number },
+  room: { minutes: number; at: number } | null,
+): number {
+  return room && room.at >= child.at ? room.minutes : child.minutes;
+}
+
 export type GameCard = {
   id: MiniGameId;
   record: number | null;
@@ -80,7 +91,7 @@ export function gameRoomView(input: {
   server: GameRoomData | null | undefined;
   local: ChildGames | undefined;
   today: string;
-  /** The child's limit (children.game_minutes_limit), the server's when it is newer. */
+  /** The child's limit (latestLimit), or the server's when the profile is not known. */
   limitMinutes: number | null | undefined;
 }): GameRoomView {
   const server = input.server && input.server.localDate === input.today ? input.server : null;

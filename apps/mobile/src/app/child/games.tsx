@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LoadingScreen } from '@/components/loading-screen';
 import { useChild } from '@/data/children';
 import { useGameRoom } from '@/data/games';
-import { gameCompanion, gameRoomView } from '@/data/games-model';
+import { gameCompanion, gameRoomView, latestLimit } from '@/data/games-model';
 import { lookOf } from '@/data/look-model';
 import { usePracticeStore } from '@/data/practice/practice-store';
 import { GameRoom } from '@/screens/game-room';
@@ -21,7 +21,10 @@ export default function GamesRoute() {
     server: room.data,
     local,
     today: localDate(),
-    limitMinutes: child.data.game_minutes_limit,
+    limitMinutes: latestLimit(
+      { minutes: child.data.game_minutes_limit, at: child.updatedAt },
+      room.data ? { minutes: room.data.limitMinutes, at: room.dataUpdatedAt } : null,
+    ),
   });
   return (
     <GameRoom

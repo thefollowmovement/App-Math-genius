@@ -4,6 +4,7 @@ import {
   gameAwardOf,
   gameCompanion,
   gameRoomView,
+  latestLimit,
   parseGameRoom,
   roundLength,
   type GameRoomData,
@@ -79,6 +80,12 @@ describe('the game room', () => {
     });
     expect(view.cards).toHaveLength(6);
     expect(view).toMatchObject({ state: 'open', limitMinutes: 20 });
+  });
+
+  it('takes the limit the server sent last: the profile’s or the room’s', () => {
+    expect(latestLimit({ minutes: 20, at: 100 }, { minutes: 0, at: 200 })).toBe(0);
+    expect(latestLimit({ minutes: 30, at: 300 }, { minutes: 0, at: 200 })).toBe(30);
+    expect(latestLimit({ minutes: 20, at: 100 }, null)).toBe(20);
   });
 
   it('shortens the last round of the day, never under 30 seconds', () => {

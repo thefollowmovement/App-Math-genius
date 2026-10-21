@@ -47,6 +47,8 @@ export function useChild(childId: string | undefined) {
     isPending: children.isPending,
     data: children.data?.find((child) => child.id === childId),
     allProfiles: children.data ?? [],
+    /** When the profiles were read from the server (0: never). */
+    updatedAt: children.dataUpdatedAt,
   };
 }
 

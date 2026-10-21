@@ -159,6 +159,13 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
         vacations={[vacation]}
         onEditRoutine={jest.fn()}
         rewards={parentRewards({ error: 'network' })}
+        games={{
+          limitMinutes: 20,
+          today: { playedMinutes: 12, gems: 6, gemsCap: 20 },
+          saving: false,
+          error: null,
+          onChangeLimit: jest.fn(),
+        }}
         profile={{
           enabled: true,
           profile: {

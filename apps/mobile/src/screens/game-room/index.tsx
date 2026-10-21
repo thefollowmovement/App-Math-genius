@@ -35,15 +35,19 @@ export function GameRoom({ view, companion, onPlay }: GameRoomProps) {
         </View>
         <View className="flex-1 gap-2">
           <ThemedText variant="headline">{t.intro(name)}</ThemedText>
-          <ProgressBar
-            value={view.limitMinutes > 0 ? view.playedMinutes / view.limitMinutes : 1}
-            fill="primary"
-            size="sm"
-            label={t.playtime(view.playedMinutes, view.limitMinutes)}
-          />
-          <ThemedText variant="caption">
-            {t.playtime(view.playedMinutes, view.limitMinutes)}
-          </ThemedText>
+          {view.state === 'off' ? null : (
+            <>
+              <ProgressBar
+                value={view.playedMinutes / view.limitMinutes}
+                fill="primary"
+                size="sm"
+                label={t.playtime(view.playedMinutes, view.limitMinutes)}
+              />
+              <ThemedText variant="caption">
+                {t.playtime(view.playedMinutes, view.limitMinutes)}
+              </ThemedText>
+            </>
+          )}
           <ThemedText variant="caption">
             {view.gemsToday >= view.gemsCap ? t.gemsFull : t.gems(view.gemsToday, view.gemsCap)}
           </ThemedText>

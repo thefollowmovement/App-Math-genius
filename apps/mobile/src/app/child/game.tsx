@@ -13,6 +13,7 @@ import {
   gameAwardOf,
   gameCompanion,
   gameRoomView,
+  latestLimit,
   roundLength,
   type GameRoomView,
 } from '@/data/games-model';
@@ -43,7 +44,10 @@ export default function GameRoute() {
     server: room.data,
     local,
     today: localDate(),
-    limitMinutes: child.data.game_minutes_limit,
+    limitMinutes: latestLimit(
+      { minutes: child.data.game_minutes_limit, at: child.updatedAt },
+      room.data ? { minutes: room.data.limitMinutes, at: room.dataUpdatedAt } : null,
+    ),
   });
   // A game turned off by the team, or no time left today: back to the room.
   if (!view.cards.some((card) => card.id === rules.id)) return <Redirect href={home} />;

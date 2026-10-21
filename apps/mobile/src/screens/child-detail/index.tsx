@@ -11,6 +11,7 @@ import type { VacationRow } from '@/data/routine-plan';
 import { strings } from '@/i18n';
 
 import { TodaySessions } from '../today-sessions';
+import { GamesPanel, type GamesPanelState } from './games-panel';
 import { NudgePanel, type NudgeResult } from './nudge-panel';
 import { PairingPanel, type PairingState } from './pairing-panel';
 import { PlacementPanel } from './placement-panel';
@@ -18,7 +19,7 @@ import { ProfilePanel, type ProfilePanelState } from './profile-panel';
 import { RewardsPanel, type ParentRewardsState } from './rewards-panel';
 import { RoutinePanel } from './routine-panel';
 
-export type { NudgeResult, PairingState, ParentRewardsState, ProfilePanelState };
+export type { GamesPanelState, NudgeResult, PairingState, ParentRewardsState, ProfilePanelState };
 
 export type NudgeState = {
   onSend: (message: string) => void;
@@ -49,6 +50,8 @@ type ChildDetailProps = {
   onEditRoutine: () => void;
   /** Real-life rewards set by the parent. */
   rewards: ParentRewardsState;
+  /** The mini-games' daily limit and today's games. */
+  games: GamesPanelState;
   /** Personalization: consent, learning profile and universe. Missing: not shown. */
   profile?: ProfilePanelState;
   /** Messages to the child, once a device is paired. */
@@ -74,6 +77,7 @@ export function ChildDetail({
   vacations,
   onEditRoutine,
   rewards,
+  games,
   profile,
   nudge,
   pairing,
@@ -105,6 +109,7 @@ export function ChildDetail({
       {profile ? <ProfilePanel childName={child.display_name} {...profile} /> : null}
       <RoutinePanel routine={routine} vacations={vacations} onEdit={onEditRoutine} />
       <RewardsPanel {...rewards} />
+      <GamesPanel {...games} />
       {devices.length > 0 ? (
         <NudgePanel
           childName={child.display_name}

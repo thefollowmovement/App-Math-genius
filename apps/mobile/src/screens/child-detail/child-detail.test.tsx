@@ -9,7 +9,7 @@ import { strings } from '@/i18n';
 import { renderWithTheme } from '@/test-utils/render';
 import { parentReward, parentRewards, rewards } from '@/test-utils/rewards';
 
-import { ChildDetail } from '.';
+import { ChildDetail, type GamesPanelState } from '.';
 
 const t = strings.childDetail;
 const phone = (push_status: PairedDevice['push_status']): PairedDevice => ({
@@ -31,6 +31,13 @@ const lea: Child = {
   game_minutes_limit: 20,
 };
 
+const GAMES: GamesPanelState = {
+  limitMinutes: 20,
+  saving: false,
+  error: null,
+  onChangeLimit: jest.fn(),
+};
+
 function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
   return renderWithTheme(
     <ChildDetail
@@ -41,6 +48,7 @@ function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {
       vacations={[]}
       onEditRoutine={jest.fn()}
       rewards={parentRewards()}
+      games={GAMES}
       nudge={{ onSend: jest.fn(), sending: false, result: null, error: null }}
       pairing={{ status: 'idle' }}
       creatingCode={false}
@@ -102,6 +110,7 @@ describe('ChildDetail', () => {
         vacations={[]}
         onEditRoutine={jest.fn()}
         rewards={parentRewards()}
+        games={GAMES}
         nudge={{ onSend: jest.fn(), sending: false, result: null, error: null }}
         pairing={{ status: 'idle' }}
         creatingCode={false}
@@ -115,6 +124,26 @@ describe('ChildDetail', () => {
     expect(screen.getByText(t.placement.inProgress)).toBeOnTheScreen();
     expect(screen.getByText(t.placement.gradeChanged(strings.grades.CE2))).toBeOnTheScreen();
     expect(screen.getByText(t.placement.noPriority)).toBeOnTheScreen();
+  });
+
+  it('sets how long the child may play each day, and tells today’s games', async () => {
+    const onChangeLimit = jest.fn();
+    const user = userEvent.setup();
+    const p = strings.games.parent;
+    await renderDetail({
+      games: { ...GAMES, today: { playedMinutes: 12, gems: 6, gemsCap: 20 }, onChangeLimit },
+    });
+    expect(screen.getByRole('header', { name: p.title })).toBeOnTheScreen();
+    expect(screen.getByText(p.today(12, 20))).toBeOnTheScreen();
+    expect(screen.getByText(p.gems(6, 20))).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: p.choice(20) })).toBeSelected();
+    await user.press(screen.getByRole('radio', { name: p.choice(0) }));
+    expect(onChangeLimit).toHaveBeenCalledWith(0);
+  });
+
+  it('keeps a limit set outside the usual choices', async () => {
+    await renderDetail({ games: { ...GAMES, limitMinutes: 120 } });
+    expect(screen.getByRole('radio', { name: strings.games.parent.choice(120) })).toBeSelected();
   });
 
   it('offers to set a routine', async () => {

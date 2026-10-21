@@ -491,6 +491,19 @@ export const fr = {
       limitReached: 'C’est tout pour les jeux aujourd’hui. À demain\u00a0!',
       cheer: (companion: string) => `${companion} a adoré jouer avec toi\u00a0!`,
     },
+    parent: {
+      title: 'Mini-jeux',
+      intro:
+        'Des jeux de maths avec son compagnon. Ils comptent au plus pour 30\u00a0% de la séance du jour, puis restent ouverts jusqu’à la limite que vous choisissez.',
+      limit: 'Temps de jeu par jour',
+      choice: (minutes: number) =>
+        minutes === 0 ? 'Pas de mini-jeux' : `${minutes}\u00a0minutes par jour`,
+      saving: 'Enregistrement…',
+      today: (played: number, limit: number) =>
+        `Aujourd’hui\u00a0: ${played}\u00a0min de jeu sur ${limit}`,
+      gems: (gems: number, cap: number) =>
+        `Gemmes gagnées aux jeux aujourd’hui\u00a0: ${gems} sur ${cap}`,
+    },
   },
   practice: {
     pause: 'Pause',
