@@ -17,10 +17,12 @@ export type Child = Pick<
   // Personalization (phase 7b): the parent's consent, and when « Ton univers » was last asked.
   | 'personalization_consent_at'
   | 'universe_asked_at'
+  // Minutes of mini-games a day, set by the parent (phase 9b).
+  | 'game_minutes_limit'
 >;
 
 const CHILD_COLUMNS =
-  'id, display_name, gender, grade, birth_year, theme_id, avatar, personalization_consent_at, universe_asked_at';
+  'id, display_name, gender, grade, birth_year, theme_id, avatar, personalization_consent_at, universe_asked_at, game_minutes_limit';
 
 /** A parent gets their family's children; a paired device gets its own (RLS decides). */
 export function useChildren() {
@@ -45,6 +47,8 @@ export function useChild(childId: string | undefined) {
     isPending: children.isPending,
     data: children.data?.find((child) => child.id === childId),
     allProfiles: children.data ?? [],
+    /** When the profiles were read from the server (0: never). */
+    updatedAt: children.dataUpdatedAt,
   };
 }
 

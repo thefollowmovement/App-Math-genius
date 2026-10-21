@@ -26,5 +26,10 @@ export const awardSchema = z.object({
   challenge: z.object({ code: z.string(), gems: z.int() }).nullable().default(null),
   /** The parent's rewards this session unlocked (*_parent_rewards.sql). */
   parent_rewards: z.array(z.object({ id: z.string(), title: z.string() })).default([]),
+  /** A mini-game round only: its gems, and the day's against their cap (*_mini_games.sql). */
+  game: z
+    .object({ id: z.string(), gems: z.int(), gems_today: z.int(), gems_cap: z.int() })
+    .nullable()
+    .default(null),
 });
 export type Award = z.infer<typeof awardSchema>;

@@ -44,6 +44,19 @@ export {
 } from './routine';
 export { CHILD_MESSAGE_MAX_LENGTH, childMessageSchema } from './notifications';
 export {
+  GAME_ANSWERS_PER_GEM,
+  GAME_DAILY_GEMS,
+  GAME_MINUTES_CHOICES,
+  GAME_MINUTES_DEFAULT,
+  GAME_MINUTES_MAX,
+  GAME_ROUND_MAX_SECONDS,
+  GAME_STARS_MAX,
+  MINI_GAME_IDS,
+  gameGems,
+  isMiniGameId,
+  type MiniGameId,
+} from './games';
+export {
   BOSS_MAX_EXERCISES,
   BOSS_MIN_EXERCISES,
   BOSS_PASS_RATE,

@@ -19,13 +19,15 @@ type WorldMapProps = {
   /** A session is in progress: bosses wait until it ends. */
   busy: boolean;
   onFightBoss: (island: Island) => void;
+  /** La Salle de jeux, a page away from the map. */
+  onOpenGames?: () => void;
 };
 
 /**
  * One island per domain of the child's grade, one at a time (docs/design/maquettes/Carte.html):
  * the path of its skills up to its boss, the hero where the child stands.
  */
-export function WorldMap({ islands, busy, onFightBoss }: WorldMapProps) {
+export function WorldMap({ islands, busy, onFightBoss, onOpenGames }: WorldMapProps) {
   // The map opens on the island where the child stands.
   const stop = currentStop(islands);
   const [index, setIndex] = useState(() =>
@@ -47,6 +49,7 @@ export function WorldMap({ islands, busy, onFightBoss }: WorldMapProps) {
       busy={busy}
       onMove={(step) => setIndex((current) => current + step)}
       onFightBoss={() => onFightBoss({ grade: island.grade, domain: island.domain })}
+      onOpenGames={onOpenGames}
     />
   );
 }
@@ -59,6 +62,7 @@ type IslandScreenProps = {
   busy: boolean;
   onMove: (step: -1 | 1) => void;
   onFightBoss: () => void;
+  onOpenGames?: () => void;
 };
 
 function IslandScreen({
@@ -69,6 +73,7 @@ function IslandScreen({
   busy,
   onMove,
   onFightBoss,
+  onOpenGames,
 }: IslandScreenProps) {
   const [selected, setSelected] = useState<Selection>(current ?? 'boss');
   const name = t.islands[island.domain].name;
@@ -122,6 +127,15 @@ function IslandScreen({
               {t.soon}
             </ThemedText>
           )}
+          {onOpenGames ? (
+            <Button
+              title={strings.games.room.open}
+              accessibilityLabel={`${strings.games.room.open}. ${strings.games.room.openHint}`}
+              variant="outline"
+              icon={<Icon name="games" color="foreground" size="sm" />}
+              onPress={onOpenGames}
+            />
+          ) : null}
         </View>
       }
       footer={<Details island={island} selected={selected} busy={busy} onFightBoss={onFightBoss} />}

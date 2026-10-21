@@ -24,8 +24,8 @@ export async function refetchAfterWrite(client: QueryClient, queryKey: QueryKey)
 }
 
 /**
- * Profiles, routines, rewards and the universes are kept on the device; practice data has its own
- * store.
+ * Profiles, routines, rewards, the universes and the game room are kept on the device; practice
+ * data has its own store.
  */
 const PERSISTED_QUERIES = new Set([
   'children',
@@ -34,6 +34,7 @@ const PERSISTED_QUERIES = new Set([
   'universes',
   'interests',
   'learner-profile',
+  'game-room',
 ]);
 
 export const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {

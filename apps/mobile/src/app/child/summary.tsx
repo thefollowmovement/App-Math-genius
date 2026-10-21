@@ -1,7 +1,7 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useChild } from '@/data/children';
-import { usePracticeStore } from '@/data/practice/practice-store';
+import { creditOfDay, usePracticeStore } from '@/data/practice/practice-store';
 import { summarize } from '@/data/practice/summary';
 import { useRewards, useSessionAward } from '@/data/rewards';
 import { awardState, wornEffect } from '@/data/rewards-model';
@@ -13,6 +13,7 @@ export default function SummaryRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const child = useChild(id);
   const session = usePracticeStore((state) => state.children[id]?.lastCompleted ?? null);
+  const gameDay = usePracticeStore((state) => state.children[id]?.games?.day ?? null);
   const saved = usePracticeStore(
     (state) => !state.children[id]?.outbox.some((pending) => pending.id === session?.id),
   );
@@ -25,7 +26,7 @@ export default function SummaryRoute() {
 
   return (
     <SessionSummary
-      summary={summarize(session)}
+      summary={summarize(session, creditOfDay(gameDay, session))}
       saved={saved}
       award={awardState(saved, award.data)}
       onOpenChest={(chest) => router.push({ pathname: '/child/chest', params: { id, chest } })}

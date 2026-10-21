@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   completeSession,
+  creditOfDay,
   plannerContext,
   recordAnswer,
   usePracticeStore,
@@ -32,6 +33,9 @@ type Answered = { planned: PlannedExercise; exercise: Exercise; feedback: Practi
  */
 export function usePracticeSession(childId: string, onFinished: () => void) {
   const session = usePracticeStore((state) => state.children[childId]?.active ?? null);
+  // The day's mini-game rounds count for 30 % of the daily session's goal at most.
+  const gameDay = usePracticeStore((state) => state.children[childId]?.games?.day ?? null);
+  const games = useMemo(() => (session ? creditOfDay(gameDay, session) : null), [gameDay, session]);
   const context = useMemo(() => (session ? plannerContext(session) : null), [session]);
   const planned = useMemo(
     () => (context && session ? planNext(context, session.attempts) : null),
@@ -68,10 +72,12 @@ export function usePracticeSession(childId: string, onFinished: () => void) {
       timeMs,
       answeredAt: now.toISOString(),
     });
-    const { finished } = sessionProgress(session.goal, session.startedAt, [
-      ...session.attempts,
-      attempt,
-    ]);
+    const { finished } = sessionProgress(
+      session.goal,
+      session.startedAt,
+      [...session.attempts, attempt],
+      games ?? undefined,
+    );
     recordAnswer(childId, session.id, { ...attempt, response });
     setAnswered({
       planned,
@@ -103,7 +109,7 @@ export function usePracticeSession(childId: string, onFinished: () => void) {
   };
 
   const status = session
-    ? sessionProgress(session.goal, session.startedAt, session.attempts)
+    ? sessionProgress(session.goal, session.startedAt, session.attempts, games ?? undefined)
     : null;
 
   return {

@@ -23,6 +23,7 @@ const lea: Child = {
   avatar: {},
   personalization_consent_at: null,
   universe_asked_at: null,
+  game_minutes_limit: 20,
 };
 const tom: Child = { ...lea, id: 'tom', display_name: 'Tom' };
 const zoe: Child = { ...lea, id: 'zoe', display_name: 'Zoé' };

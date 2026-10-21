@@ -63,6 +63,7 @@ type ChildHomeProps = {
   onOpenMap?: () => void;
   onOpenShop?: () => void;
   onOpenLook?: () => void;
+  onOpenGames?: () => void;
   sync: SyncState;
   onStart: () => void;
   /** Shown when the device holds several profiles or a parent is signed in. */
@@ -101,6 +102,7 @@ export function ChildHome({
   onOpenMap,
   onOpenShop,
   onOpenLook,
+  onOpenGames,
   sync,
   onStart,
   onSwitchProfile,
@@ -109,6 +111,7 @@ export function ChildHome({
   const links = (
     [
       onOpenMap && { key: 'map', icon: 'map', label: nav.map, onPress: onOpenMap },
+      onOpenGames && { key: 'games', icon: 'games', label: nav.games, onPress: onOpenGames },
       onOpenShop && { key: 'shop', icon: 'shop', label: nav.shop, onPress: onOpenShop },
       onOpenBadges && { key: 'badges', icon: 'badges', label: nav.badges, onPress: onOpenBadges },
       onOpenLook && { key: 'look', icon: 'hero', label: nav.look, onPress: onOpenLook },
