@@ -56,6 +56,20 @@ export {
   type Weakness,
 } from './adaptive/profile';
 export { profileSummary } from './adaptive/profile-summary';
+export { answerText, coachFrame, givenText, type CoachFrame } from './coach/frame';
+export { foreignNumbers, numberTokens, numbersOf, type NumberToken } from './coach/numbers';
+export { coachSample } from './coach/sample';
+export {
+  EXPLANATION_PARTS,
+  MAX_EXPLANATION_WORDS,
+  explanationProblems,
+  renderExplanation,
+  showableExplanation,
+  wordCount,
+  type Explanation,
+  type ExplanationProblem,
+} from './coach/template';
+export { responseWith } from './respond';
 export {
   SLOT_PATTERN,
   buildExercise,

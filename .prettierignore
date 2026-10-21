@@ -1,9 +1,10 @@
 pnpm-lock.yaml
 **/dist/
 **/.expo/
+**/.next/
 **/coverage/
 supabase/.temp/
 *.md
-supabase/functions/**/engine.js
+supabase/functions/_shared/*.js
 # Reference mockups, kept as they were drawn.
 docs/design/maquettes/

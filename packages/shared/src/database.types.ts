@@ -3,6 +3,245 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string;
+          admin_id: string | null;
+          after: Json | null;
+          at: string;
+          before: Json | null;
+          created_at: string;
+          entity: string;
+          entity_id: string | null;
+          id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          action: string;
+          admin_id?: string | null;
+          after?: Json | null;
+          at?: string;
+          before?: Json | null;
+          created_at?: string;
+          entity: string;
+          entity_id?: string | null;
+          id?: string;
+          updated_at?: string;
+        };
+        Update: {
+          action?: string;
+          admin_id?: string | null;
+          after?: Json | null;
+          at?: string;
+          before?: Json | null;
+          created_at?: string;
+          entity?: string;
+          entity_id?: string | null;
+          id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      admin_users: {
+        Row: {
+          created_at: string;
+          role: Database['public']['Enums']['admin_role'];
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          role: Database['public']['Enums']['admin_role'];
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          role?: Database['public']['Enums']['admin_role'];
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      ai_banned_words: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          updated_at: string;
+          word: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          updated_at?: string;
+          word: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          updated_at?: string;
+          word?: string;
+        };
+        Relationships: [];
+      };
+      ai_prompts: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          created_by: string | null;
+          grade_band: string | null;
+          id: string;
+          notes: string | null;
+          system: string;
+          task: string;
+          updated_at: string;
+          user_template: string;
+          version: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          grade_band?: string | null;
+          id?: string;
+          notes?: string | null;
+          system: string;
+          task?: string;
+          updated_at?: string;
+          user_template: string;
+          version: number;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          grade_band?: string | null;
+          id?: string;
+          notes?: string | null;
+          system?: string;
+          task?: string;
+          updated_at?: string;
+          user_template?: string;
+          version?: number;
+        };
+        Relationships: [];
+      };
+      ai_settings: {
+        Row: {
+          created_at: string;
+          daily_cap_usd: number;
+          enabled: boolean;
+          id: number;
+          moderation: boolean;
+          monthly_cap_usd: number;
+          night_batch: number;
+          night_provider: Json | null;
+          realtime_provider: Json | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          daily_cap_usd?: number;
+          enabled?: boolean;
+          id?: number;
+          moderation?: boolean;
+          monthly_cap_usd?: number;
+          night_batch?: number;
+          night_provider?: Json | null;
+          realtime_provider?: Json | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          daily_cap_usd?: number;
+          enabled?: boolean;
+          id?: number;
+          moderation?: boolean;
+          monthly_cap_usd?: number;
+          night_batch?: number;
+          night_provider?: Json | null;
+          realtime_provider?: Json | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      ai_usage: {
+        Row: {
+          child_id: string | null;
+          cost_usd: number;
+          created_at: string;
+          error_type: string | null;
+          grade_band: string | null;
+          id: string;
+          latency_ms: number;
+          model: string;
+          outcome: string;
+          problems: string[];
+          prompt_version: number | null;
+          provider: string;
+          skill_code: string | null;
+          task: string;
+          tokens_in: number;
+          tokens_out: number;
+          universe_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id?: string | null;
+          cost_usd?: number;
+          created_at?: string;
+          error_type?: string | null;
+          grade_band?: string | null;
+          id?: string;
+          latency_ms?: number;
+          model: string;
+          outcome: string;
+          problems?: string[];
+          prompt_version?: number | null;
+          provider: string;
+          skill_code?: string | null;
+          task: string;
+          tokens_in?: number;
+          tokens_out?: number;
+          universe_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string | null;
+          cost_usd?: number;
+          created_at?: string;
+          error_type?: string | null;
+          grade_band?: string | null;
+          id?: string;
+          latency_ms?: number;
+          model?: string;
+          outcome?: string;
+          problems?: string[];
+          prompt_version?: number | null;
+          provider?: string;
+          skill_code?: string | null;
+          task?: string;
+          tokens_in?: number;
+          tokens_out?: number;
+          universe_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'ai_usage_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       attempts: {
         Row: {
           answer: NonNullable<Json>;
@@ -696,6 +935,129 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      explanation_feedback: {
+        Row: {
+          child_id: string;
+          created_at: string;
+          explanation_id: string;
+          id: string;
+          twin_correct: boolean | null;
+          understood: boolean;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          child_id: string;
+          created_at?: string;
+          explanation_id: string;
+          id?: string;
+          twin_correct?: boolean | null;
+          understood: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          child_id?: string;
+          created_at?: string;
+          explanation_id?: string;
+          id?: string;
+          twin_correct?: boolean | null;
+          understood?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'explanation_feedback_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'explanation_feedback_explanation_id_fkey';
+            columns: ['explanation_id'];
+            isOneToOne: false;
+            referencedRelation: 'explanations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      explanations: {
+        Row: {
+          content: NonNullable<Json>;
+          created_at: string;
+          error_type: string | null;
+          grade_band: string;
+          id: string;
+          model: string;
+          prompt_version: number;
+          reviewed_at: string | null;
+          reviewed_by: string | null;
+          shown_count: number;
+          skill_code: string;
+          status: Database['public']['Enums']['explanation_status'];
+          understood_count: number;
+          universe_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          content: NonNullable<Json>;
+          created_at?: string;
+          error_type?: string | null;
+          grade_band: string;
+          id?: string;
+          model: string;
+          prompt_version: number;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          shown_count?: number;
+          skill_code: string;
+          status?: Database['public']['Enums']['explanation_status'];
+          understood_count?: number;
+          universe_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          content?: NonNullable<Json>;
+          created_at?: string;
+          error_type?: string | null;
+          grade_band?: string;
+          id?: string;
+          model?: string;
+          prompt_version?: number;
+          reviewed_at?: string | null;
+          reviewed_by?: string | null;
+          shown_count?: number;
+          skill_code?: string;
+          status?: Database['public']['Enums']['explanation_status'];
+          understood_count?: number;
+          universe_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'explanations_error_type_fkey';
+            columns: ['error_type'];
+            isOneToOne: false;
+            referencedRelation: 'error_types';
+            referencedColumns: ['code'];
+          },
+          {
+            foreignKeyName: 'explanations_skill_code_fkey';
+            columns: ['skill_code'];
+            isOneToOne: false;
+            referencedRelation: 'skills';
+            referencedColumns: ['code'];
+          },
+          {
+            foreignKeyName: 'explanations_universe_id_fkey';
+            columns: ['universe_id'];
+            isOneToOne: false;
+            referencedRelation: 'universes';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       families: {
         Row: {
@@ -1614,6 +1976,70 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      admin_activate_prompt: { Args: { p_id: string }; Returns: undefined };
+      admin_ai_costs: { Args: { p_days?: number }; Returns: Json };
+      admin_interest_counts: {
+        Args: { p_months?: number };
+        Returns: {
+          children: number;
+          grade_band: string;
+          month: string;
+          universe_id: string;
+        }[];
+      };
+      admin_moderation_log: {
+        Args: { p_limit?: number };
+        Returns: {
+          created_at: string;
+          error_type: string;
+          grade_band: string;
+          id: string;
+          model: string;
+          outcome: string;
+          problems: string[];
+          prompt_version: number;
+          provider: string;
+          skill_code: string;
+          task: string;
+          universe_id: string;
+        }[];
+      };
+      admin_other_answers: {
+        Args: { p_status?: Database['public']['Enums']['moderation_status'] };
+        Returns: {
+          answer: string;
+          created_at: string;
+          grade_band: string;
+          id: string;
+          question_id: string;
+          status: Database['public']['Enums']['moderation_status'];
+        }[];
+      };
+      admin_review_explanation: {
+        Args: { p_id: string; p_status: Database['public']['Enums']['explanation_status'] };
+        Returns: undefined;
+      };
+      admin_review_other: {
+        Args: { p_id: string; p_status: Database['public']['Enums']['moderation_status'] };
+        Returns: undefined;
+      };
+      admin_set_role: {
+        Args: { p_email: string; p_role: Database['public']['Enums']['admin_role'] };
+        Returns: undefined;
+      };
+      admin_team: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          created_at: string;
+          email: string;
+          role: Database['public']['Enums']['admin_role'];
+          user_id: string;
+        }[];
+      };
+      admin_whoami: {
+        Args: Record<PropertyKey, never>;
+        Returns: Database['public']['Enums']['admin_role'];
+      };
       award_session: {
         Args: { p_now?: string; p_session_id: string; p_verdicts: Json };
         Returns: Json;
@@ -1642,6 +2068,40 @@ export type Database = {
       };
       buy_item: { Args: { p_child_id: string; p_item_code: string }; Returns: Json };
       child_badge_metrics: { Args: { p_child_id: string }; Returns: Json };
+      coach_cached: {
+        Args: {
+          p_error_type: string;
+          p_exclude?: string[];
+          p_grade_band: string;
+          p_skill_code: string;
+          p_universe_id: string;
+        };
+        Returns: {
+          content: Json;
+          id: string;
+        }[];
+      };
+      coach_context: { Args: { p_child_id: string }; Returns: Json };
+      coach_feedback: {
+        Args: { p_child_id: string; p_explanation_id: string; p_understood: boolean };
+        Returns: undefined;
+      };
+      coach_log_usage: { Args: { p_usage: Json }; Returns: undefined };
+      coach_night_plan: { Args: Record<PropertyKey, never>; Returns: Json };
+      coach_preview_context: { Args: { p_universe_id: string }; Returns: Json };
+      coach_save_explanation: {
+        Args: {
+          p_content: Json;
+          p_error_type: string;
+          p_grade_band: string;
+          p_model: string;
+          p_prompt_version: number;
+          p_skill_code: string;
+          p_universe_id: string;
+        };
+        Returns: string;
+      };
+      coach_shown: { Args: { p_explanation_id: string }; Returns: undefined };
       create_pairing_code: {
         Args: { p_child_id: string };
         Returns: {
@@ -1725,10 +2185,12 @@ export type Database = {
       weekly_challenge: { Args: { p_child_id: string; p_now?: string }; Returns: Json };
     };
     Enums: {
+      admin_role: 'super_admin' | 'editor' | 'moderator';
       badge_category: 'regularity' | 'mastery' | 'discovery' | 'progression';
       chest_kind: 'common' | 'rare';
       child_gender: 'girl' | 'boy';
       device_platform: 'ios' | 'android' | 'web';
+      explanation_status: 'pending' | 'approved' | 'rejected';
       gem_reason: 'session' | 'chest' | 'freeze' | 'shop' | 'challenge' | 'refund';
       grade: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
       interest_source: 'questionnaire' | 'parent';
@@ -1864,10 +2326,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admin_role: ['super_admin', 'editor', 'moderator'],
       badge_category: ['regularity', 'mastery', 'discovery', 'progression'],
       chest_kind: ['common', 'rare'],
       child_gender: ['girl', 'boy'],
       device_platform: ['ios', 'android', 'web'],
+      explanation_status: ['pending', 'approved', 'rejected'],
       gem_reason: ['session', 'chest', 'freeze', 'shop', 'challenge', 'refund'],
       grade: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
       interest_source: ['questionnaire', 'parent'],

@@ -553,6 +553,46 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
       { name: `Practice (${type}, right answer)`, render: () => screen('right') },
     ];
   }),
+  {
+    name: 'Practice (wrong answer, the coach explains)',
+    render: () => {
+      const exercise = exerciseOfType('numeric');
+      return (
+        <PracticeScreen
+          exercise={exercise}
+          slot="current"
+          twin={false}
+          reminder={false}
+          progress={0.4}
+          count={{ done: 6, total: 15, unit: 'exercises' }}
+          combo={0}
+          hintShown={false}
+          notice={null}
+          feedback={{
+            response: wrongResponse(exercise),
+            correct: false,
+            fast: false,
+            finished: false,
+          }}
+          coach={{
+            status: 'shown',
+            more: true,
+            explanation: {
+              what: 'Tu as oublié la retenue, c’est un piège classique !',
+              image: 'Dans Minecraft, une rangée pleine de blocs passe à la colonne d’à côté.',
+              tip: 'Écris la retenue en haut de la colonne suivante.',
+            },
+          }}
+          onShowHint={jest.fn()}
+          onSubmit={jest.fn()}
+          onContinue={jest.fn()}
+          onUnderstood={jest.fn()}
+          onExplainAgain={jest.fn()}
+          onPause={jest.fn()}
+        />
+      );
+    },
+  },
 ];
 
 describe.each(screens)('$name with native styles', ({ render, tall }) => {

@@ -417,6 +417,17 @@ export const fr = {
     wrong: 'Pas tout à fait…',
     rightAnswer: 'La bonne réponse',
     explanation: 'Comment faire',
+    // The coach's explanation after a wrong answer, presented by the child's hero.
+    coach: {
+      title: (hero: string) => `${hero} t’explique`,
+      thinking: 'Attends, je cherche comment t’expliquer…',
+      what: 'Ce qui s’est passé',
+      image: 'Imagine',
+      tip: 'L’astuce',
+      understood: 'J’ai compris',
+      again: 'Explique autrement',
+      noOther: 'C’est ma meilleure explication pour l’instant.',
+    },
     unreadable: 'Je n’arrive pas à lire ta réponse\u00a0: vérifie-la.',
     notIrreducible: 'C’est juste, mais simplifie ta fraction.',
     forms: {

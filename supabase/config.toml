@@ -423,3 +423,8 @@ enabled = true
 [functions.learner-profiles]
 # Called by pg_cron with the service key, which the function checks itself.
 verify_jwt = false
+
+[functions.ai-gateway]
+# The app (child device or parent token), the back-office (an editor's token) and pg_cron (the
+# service key): the function checks each caller itself, PostgREST and RLS do the rest.
+verify_jwt = false

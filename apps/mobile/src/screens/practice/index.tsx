@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import { strings } from '@/i18n';
 
+import type { CoachView } from './coach-bubble';
 import { Correction } from './correction';
 import { EclairTimer } from './eclair-timer';
 import { HeroLine } from './hero-line';
@@ -39,9 +40,14 @@ type PracticeScreenProps = {
   /** Answer to correct before grading (unreadable, wrong form). */
   notice: string | null;
   feedback: PracticeFeedback | null;
+  /** After a wrong answer: the coach's explanation, if there is one to show. */
+  coach?: CoachView | null;
   onShowHint: () => void;
   onSubmit: (response: ExerciseResponse) => void;
   onContinue: () => void;
+  /** « J'ai compris »: noted, then the session goes on. */
+  onUnderstood?: () => void;
+  onExplainAgain?: () => void;
   onPause: () => void;
 };
 
@@ -64,9 +70,12 @@ function ExerciseView({
   hintShown,
   notice,
   feedback,
+  coach = null,
   onShowHint,
   onSubmit,
   onContinue,
+  onUnderstood,
+  onExplainAgain,
   onPause,
 }: PracticeScreenProps) {
   const [draft, setDraft] = useState<ExerciseResponse | null>(null);
@@ -130,6 +139,12 @@ function ExerciseView({
         reminder={reminder}
         hintShown={hintShown}
         onShowHint={onShowHint}
+        coach={coach}
+        onUnderstood={() => {
+          onUnderstood?.();
+          onContinue();
+        }}
+        onExplainAgain={onExplainAgain}
       />
     </Screen>
   );

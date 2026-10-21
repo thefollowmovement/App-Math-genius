@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - services/*
 
 # Postinstall only re-checks native bindings already installed through optionalDependencies.
 ignoredBuiltDependencies:
