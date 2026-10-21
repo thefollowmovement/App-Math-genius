@@ -1,0 +1,60 @@
+import { Fredoka_600SemiBold } from '@expo-google-fonts/fredoka/600SemiBold';
+import type { CompanionId } from '@math-genius/shared';
+import { useFont, useImage, type SkFont, type SkImage } from '@shopify/react-native-skia';
+
+import { COMPANION_ART } from '@/components/companion/companion-art';
+
+import bombe from '../../../assets/games/bombe.webp';
+import bouchon from '../../../assets/games/bouchon.webp';
+import bulle from '../../../assets/games/bulle.webp';
+import coeur from '../../../assets/games/coeur.webp';
+import croquettes from '../../../assets/games/croquettes.webp';
+import fondPeche from '../../../assets/games/fond-peche.webp';
+import fondPluie from '../../../assets/games/fond-pluie.webp';
+import fondVol from '../../../assets/games/fond-vol.webp';
+import gemme from '../../../assets/games/gemme.webp';
+import pilier from '../../../assets/games/pilier-nuage.webp';
+import poisson from '../../../assets/games/poisson.webp';
+
+/**
+ * The games' pictures (docs/design/jeux, made WebP by `pnpm heroes:images`) and the companion, as
+ * Skia images for the scenes. Each is null until it is loaded: the scenes draw what they have.
+ */
+
+export const BACKGROUNDS = { peche: fondPeche, pluie: fondPluie, vol: fondVol } as const;
+export type Background = keyof typeof BACKGROUNDS;
+
+const SPRITES = { bombe, bouchon, bulle, coeur, croquettes, gemme, pilier, poisson } as const;
+export type Sprite = keyof typeof SPRITES;
+
+export type GameArt = {
+  background: SkImage | null;
+  sprites: Record<Sprite, SkImage | null>;
+  companion: SkImage | null;
+  /** The labels' font (Fredoka, the kawaii theme's), at the sizes the scenes use. */
+  font: SkFont | null;
+  bigFont: SkFont | null;
+};
+
+export const LABEL_SIZE = 22;
+export const BIG_LABEL_SIZE = 30;
+
+export function useGameArt(background: Background, companion: CompanionId): GameArt {
+  const sprites: Record<Sprite, SkImage | null> = {
+    bombe: useImage(SPRITES.bombe),
+    bouchon: useImage(SPRITES.bouchon),
+    bulle: useImage(SPRITES.bulle),
+    coeur: useImage(SPRITES.coeur),
+    croquettes: useImage(SPRITES.croquettes),
+    gemme: useImage(SPRITES.gemme),
+    pilier: useImage(SPRITES.pilier),
+    poisson: useImage(SPRITES.poisson),
+  };
+  return {
+    background: useImage(BACKGROUNDS[background]),
+    sprites,
+    companion: useImage(COMPANION_ART[companion][1]),
+    font: useFont(Fredoka_600SemiBold, LABEL_SIZE),
+    bigFont: useFont(Fredoka_600SemiBold, BIG_LABEL_SIZE),
+  };
+}

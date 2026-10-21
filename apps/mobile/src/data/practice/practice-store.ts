@@ -1,10 +1,14 @@
 import {
   DEFAULT_SESSION_GOAL,
+  MIN_ANSWER_MS,
+  NO_GAME_CREDIT,
   PLACEMENT_MAX_QUESTIONS,
+  activeMs,
   bossLength,
   finishSession,
   liveMastery,
   type ExerciseResponse,
+  type GameCredit,
   type Island,
   type ItemRatings,
   type MasteryMap,
@@ -14,7 +18,7 @@ import {
   type SessionGoal,
   type SkippedAnswer,
 } from '@math-genius/exercise-engine';
-import type { Grade } from '@math-genius/shared';
+import { GAME_ROUND_MAX_SECONDS, type Grade, type MiniGameId } from '@math-genius/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSyncExternalStore } from 'react';
 import { create } from 'zustand';
@@ -27,8 +31,14 @@ import { localDate } from '@/utils/local-date';
  * in progress (resumable after the app is closed) and the sessions waiting to be sent.
  */
 
-/** A boss session evaluates one island of the world map; a placement test places the child. */
-export type SessionKind = 'daily' | 'bonus' | 'boss' | 'placement';
+/**
+ * A boss session evaluates one island of the world map; a placement test places the child; a game
+ * is a round of a mini-game (its answers count like a session's, the round is no session).
+ */
+export type SessionKind = 'daily' | 'bonus' | 'boss' | 'placement' | 'game';
+
+/** What a round of a mini-game ended with: its score and stars (the device's, a personal best). */
+export type RoundResult = { id: MiniGameId; score: number; stars: number };
 
 /** The answer given, or « Je ne sais pas » in the placement test. */
 export type StoredAttempt = SessionAttempt & { response: ExerciseResponse | SkippedAnswer };
@@ -39,6 +49,8 @@ export type StoredSession = {
   kind: SessionKind;
   /** The island a boss session evaluates. */
   boss?: Island;
+  /** A round's game, and its score so far (its stars once over). */
+  game?: RoundResult;
   localDate: string;
   grade: Grade;
   goal: SessionGoal;
@@ -67,6 +79,18 @@ export type ChildPractice = {
   lastCompleted: StoredSession | null;
   /** End of the last placement test, on this device or another (from the server). */
   placedAt?: string | null;
+  /** The mini-game round being played (kept, like a session, until it ends). */
+  round?: StoredSession | null;
+  /** The best of each game on this device, and today's rounds. */
+  games?: ChildGames;
+};
+
+/** Today's rounds: their playing time (the parent's limit) and their share of the daily session. */
+export type GameDay = { date: string; playedS: number } & GameCredit;
+
+export type ChildGames = {
+  records: Partial<Record<MiniGameId, { score: number; stars: number }>>;
+  day: GameDay | null;
 };
 
 type PracticeState = {
@@ -125,6 +149,18 @@ function updateChild(childId: string, update: (child: ChildPractice) => ChildPra
   }));
 }
 
+/**
+ * The child's mastery with what a session changed: the skills it touched, nothing else. A mini-game
+ * round played meanwhile keeps what it changed on the other skills.
+ */
+function withChanges(child: ChildPractice, session: StoredSession, after: MasteryMap): MasteryMap {
+  const merged: Partial<Record<keyof MasteryMap, MasteryRecord>> = { ...child.mastery };
+  for (const [code, record] of Object.entries(after) as [keyof MasteryMap, MasteryRecord][]) {
+    if (record !== session.masteryAtStart[code]) merged[code] = record;
+  }
+  return merged;
+}
+
 /** An unfinished session from an earlier day: its answers count, the session does not. */
 function archive(child: ChildPractice, session: StoredSession): ChildPractice {
   if (session.attempts.length === 0) return { ...child, active: null };
@@ -132,7 +168,12 @@ function archive(child: ChildPractice, session: StoredSession): ChildPractice {
     at: session.attempts.at(-1)?.answeredAt ?? session.startedAt,
     completed: false,
   });
-  return { ...child, mastery, active: null, outbox: [...child.outbox, session] };
+  return {
+    ...child,
+    mastery: withChanges(child, session, mastery),
+    active: null,
+    outbox: [...child.outbox, session],
+  };
 }
 
 /** The goal of a new session: a boss or a test asks a number of exercises. */
@@ -224,8 +265,10 @@ export function completeSession(childId: string, sessionId: string, at: string) 
     const session = child.active;
     if (session?.id !== sessionId) return child;
     const completed = { ...session, completedAt: at };
+    const after = finishSession(plannerContext(session), session.attempts, { at, completed: true });
     return {
-      mastery: finishSession(plannerContext(session), session.attempts, { at, completed: true }),
+      ...child,
+      mastery: withChanges(child, session, after),
       active: null,
       outbox: [...child.outbox, completed],
       lastDailyDate: session.kind === 'daily' ? session.localDate : child.lastDailyDate,
@@ -272,7 +315,11 @@ export function dropSession(childId: string, sessionId: string) {
 /** Whether some of the child's answers are still only on the device. */
 export function hasUnsentAnswers(child: ChildPractice | undefined): boolean {
   if (!child) return false;
-  return child.outbox.length > 0 || (child.active !== null && !fullySynced(child.active));
+  return (
+    child.outbox.length > 0 ||
+    (child.active !== null && !fullySynced(child.active)) ||
+    Boolean(child.round?.attempts.length)
+  );
 }
 
 /** Sessions with answers or an ending the server does not have yet. */
@@ -310,4 +357,154 @@ export function currentMastery(child: ChildPractice): MasteryMap {
   return child.active
     ? liveMastery(plannerContext(child.active), child.active.attempts)
     : child.mastery;
+}
+
+// Mini-game rounds -------------------------------------------------------------------------------
+
+/** Playing time a round counts for the parent's limit: from its start to its end, 4 minutes at most. */
+export const roundSeconds = (round: Pick<StoredSession, 'startedAt' | 'completedAt'>) =>
+  round.completedAt
+    ? Math.min(
+        GAME_ROUND_MAX_SECONDS,
+        Math.max(
+          0,
+          Math.round((Date.parse(round.completedAt) - Date.parse(round.startedAt)) / 1000),
+        ),
+      )
+    : 0;
+
+/** Today's rounds on this device; nothing from an earlier day. */
+export function gameDayOf(child: ChildPractice | undefined, today: string): GameDay {
+  const day = child?.games?.day;
+  return day && day.date === today ? day : { date: today, playedS: 0, ...NO_GAME_CREDIT };
+}
+
+/** What the day's rounds bring to its daily session (sessionProgress caps it at 30 % of the goal). */
+export function creditOfDay(
+  day: GameDay | null | undefined,
+  session: Pick<StoredSession, 'kind' | 'localDate'>,
+): GameCredit {
+  if (session.kind !== 'daily' || !day || day.date !== session.localDate) return NO_GAME_CREDIT;
+  return { activeMs: day.activeMs, answers: day.answers };
+}
+
+export const gameCreditOf = (
+  child: ChildPractice | undefined,
+  session: Pick<StoredSession, 'kind' | 'localDate'>,
+): GameCredit => creditOfDay(child?.games?.day, session);
+
+/** A round from before (the app closed mid-round): it ends with what it had, without stars. */
+function closeRound(child: ChildPractice, round: StoredSession): ChildPractice {
+  const at = round.attempts.at(-1)?.answeredAt ?? round.startedAt;
+  return endRound(child, round, at, {
+    ...(round.game ?? { id: 'peche-eclair', score: 0 }),
+    stars: 0,
+  });
+}
+
+function endRound(
+  child: ChildPractice,
+  round: StoredSession,
+  at: string,
+  result: RoundResult,
+): ChildPractice {
+  const completed: StoredSession = { ...round, completedAt: at, game: result };
+  const mastery = liveMastery(plannerContext(round), round.attempts);
+  const games = child.games ?? { records: {}, day: null };
+  const day = gameDayOf(child, round.localDate);
+  const best = games.records[result.id];
+  return {
+    ...child,
+    mastery: withChanges(child, round, mastery),
+    round: null,
+    outbox: round.attempts.length > 0 ? [...child.outbox, completed] : child.outbox,
+    games: {
+      records: {
+        ...games.records,
+        [result.id]: {
+          score: Math.max(best?.score ?? 0, result.score),
+          stars: Math.max(best?.stars ?? 0, result.stars),
+        },
+      },
+      day: {
+        date: round.localDate,
+        playedS: day.playedS + roundSeconds(completed),
+        activeMs: day.activeMs + activeMs(round.startedAt, round.attempts),
+        answers:
+          day.answers + round.attempts.filter((attempt) => attempt.timeMs >= MIN_ANSWER_MS).length,
+      },
+    },
+  };
+}
+
+/**
+ * A new round of a game. Its questions are planned from the child's mastery now (the session in
+ * progress included), like a session's: masteryAtStart, seed and item ratings are frozen.
+ */
+export function openRound(input: {
+  childId: string;
+  grade: Grade;
+  game: MiniGameId;
+  minutes: number;
+  now: Date;
+  id: string;
+  seed: number;
+}): StoredSession {
+  let opened: StoredSession | undefined;
+  updateChild(input.childId, (current) => {
+    const child = current.round ? closeRound(current, current.round) : current;
+    opened = {
+      id: input.id,
+      childId: input.childId,
+      kind: 'game',
+      game: { id: input.game, score: 0, stars: 0 },
+      localDate: localDate(input.now),
+      grade: input.grade,
+      goal: { type: 'duration', minutes: input.minutes },
+      startedAt: input.now.toISOString(),
+      seed: input.seed,
+      masteryAtStart: currentMastery(child),
+      placed: Boolean(child.placedAt),
+      itemRatings: usePracticeStore.getState().itemRatings,
+      attempts: [],
+      completedAt: null,
+      synced: { attempts: 0, completed: false },
+    };
+    return { ...child, round: opened };
+  });
+  if (!opened) throw new Error('No round opened');
+  return opened;
+}
+
+/** Each answer is kept as soon as it is given, with the score so far. */
+export function recordRoundAnswer(
+  childId: string,
+  roundId: string,
+  attempt: StoredAttempt,
+  score: number,
+) {
+  updateChild(childId, (child) =>
+    child.round?.id === roundId && child.round.game
+      ? {
+          ...child,
+          round: {
+            ...child.round,
+            attempts: [...child.round.attempts, attempt],
+            game: { ...child.round.game, score },
+          },
+        }
+      : child,
+  );
+}
+
+/** The round is over: mastery takes its answers, it waits in the outbox, records and today grow. */
+export function finishRound(childId: string, roundId: string, at: string, result: RoundResult) {
+  updateChild(childId, (child) =>
+    child.round?.id === roundId ? endRound(child, child.round, at, result) : child,
+  );
+}
+
+/** A round left open by an app closed mid-game ends now. */
+export function closeStaleRound(childId: string) {
+  updateChild(childId, (child) => (child.round ? closeRound(child, child.round) : child));
 }
