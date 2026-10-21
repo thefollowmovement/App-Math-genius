@@ -21,6 +21,7 @@ const lea = {
   avatar: {},
   personalization_consent_at: null,
   universe_asked_at: null,
+  game_minutes_limit: 20,
 } as const;
 
 beforeEach(() => usePracticeStore.setState({ children: {}, itemRatings: {} }));

@@ -22,6 +22,8 @@ export const gemRainRules: GameRules = {
   hearts: 3,
   stars: STARS,
   action: null,
+  retry: false,
+  nextDelayMs: 400,
   start: () => newRound(3),
   onAnswer: (state, answer) =>
     answer.correct

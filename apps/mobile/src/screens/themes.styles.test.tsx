@@ -15,6 +15,15 @@ import { exerciseOfType } from '@/test-utils/exercises';
 import { ChildHome } from './child-home';
 import { PracticeScreen } from './practice';
 import { WorldMap } from './world-map';
+import { makeMutable } from 'react-native-reanimated';
+
+import { gameRoomView } from '@/data/games-model';
+import { fishingRules } from '@/games/fishing/rules';
+import { NO_INPUT } from '@/games/kit/scene';
+import { newRound } from '@/games/round';
+
+import { GamePlay } from './game-play';
+import { GameRoom } from './game-room';
 import { LookEditor } from './look';
 import { HeroIntro } from './hero-intro';
 import { PlacementScreen } from './placement';
@@ -38,6 +47,7 @@ const lea: Child = {
   avatar: {},
   personalization_consent_at: null,
   universe_asked_at: null,
+  game_minutes_limit: 20,
 };
 
 const COLOR_KEYS = /^(color|backgroundColor|border\w*Color|tintColor)$/;
@@ -222,6 +232,53 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
         onNext={jest.fn()}
         onStart={jest.fn()}
         onCustomize={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'GameRoom',
+    render: () => (
+      <GameRoom
+        view={gameRoomView({
+          server: undefined,
+          local: { records: { 'peche-eclair': { score: 640, stars: 2 } }, day: null },
+          today: '2026-10-21',
+          limitMinutes: 20,
+        })}
+        companion={{ id: 'hibou', stage: 1 }}
+        onPlay={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'GamePlay (the end of a round)',
+    render: () => (
+      <GamePlay
+        game="peche-eclair"
+        rules={fishingRules}
+        phase="over"
+        round={newRound(null)}
+        prompt="7 × 8"
+        companion={{ id: 'hibou', stage: 1 }}
+        clock={makeMutable(90_000)}
+        input={makeMutable(NO_INPUT)}
+        limitMs={90_000}
+        outcome={{ roundId: 'r1', score: 760, stars: 2, record: true, right: 6, answered: 8 }}
+        award={{ status: 'done', xp: 70, gems: 2, gemsFull: false }}
+        loading={false}
+        canReplay
+        sound
+        vibration
+        stage={() => null}
+        onStart={jest.fn()}
+        onPause={jest.fn()}
+        onResume={jest.fn()}
+        onQuit={jest.fn()}
+        onAction={jest.fn()}
+        onToggleSound={jest.fn()}
+        onToggleVibration={jest.fn()}
+        onReplay={jest.fn()}
+        onRoom={jest.fn()}
       />
     ),
   },

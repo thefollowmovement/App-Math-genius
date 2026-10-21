@@ -28,6 +28,7 @@ const lea: Child = {
   avatar: {},
   personalization_consent_at: null,
   universe_asked_at: null,
+  game_minutes_limit: 20,
 };
 
 function renderDetail(props: Partial<ComponentProps<typeof ChildDetail>> = {}) {

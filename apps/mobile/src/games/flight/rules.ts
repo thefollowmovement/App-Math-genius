@@ -11,6 +11,8 @@ export const flightRules: GameRules = {
   hearts: 3,
   stars: STARS,
   action: null,
+  retry: false,
+  nextDelayMs: 0,
   start: () => newRound(3),
   onAnswer: (state, answer) => (answer.correct ? rightAnswer(state, 100) : wrongAnswer(state)),
   onEnd: endOf(STARS),

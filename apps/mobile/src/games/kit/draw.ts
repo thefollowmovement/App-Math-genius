@@ -97,11 +97,15 @@ export function drawSprite(
   const imageWidth = image.width();
   const imageHeight = image.height();
   const fit = size / Math.max(imageWidth, imageHeight);
-  const width = imageWidth * fit * (options.scaleX ?? 1);
-  const height = imageHeight * fit * (options.scaleY ?? 1);
+  const scaleX = options.scaleX ?? 1;
+  const scaleY = options.scaleY ?? 1;
+  const width = imageWidth * fit * Math.abs(scaleX);
+  const height = imageHeight * fit * Math.abs(scaleY);
   canvas.save();
   canvas.translate(x, y);
   if (options.angle) canvas.rotate(options.angle, 0, 0);
+  // A mirrored picture (a fish swimming the other way): the canvas flips, the rectangle does not.
+  if (scaleX < 0 || scaleY < 0) canvas.scale(scaleX < 0 ? -1 : 1, scaleY < 0 ? -1 : 1);
   canvas.drawImageRect(
     image,
     Skia.XYWHRect(0, 0, imageWidth, imageHeight),
@@ -130,6 +134,12 @@ export function drawStretched(
   );
 }
 
+/** A text's width in a font (SkFont.measureText does not exist on the web). */
+export function textWidth(font: SkFont, text: string): number {
+  'worklet';
+  return font.getGlyphWidths(font.getGlyphIDs(text)).reduce((total, width) => total + width, 0);
+}
+
 export type LabelStyle = 'plain' | 'right' | 'wrong';
 
 /** An answer in a round white tag, as fish, gems and doors carry it. */
@@ -146,9 +156,9 @@ export function drawLabel(
   'worklet';
   if (!font || text === '') return;
   const size = font.getSize();
-  const textWidth = font.measureText(text).width;
+  const measured = textWidth(font, text);
   const height = size * 1.45;
-  const width = Math.max(height, textWidth + size);
+  const width = Math.max(height, measured + size);
   const box = Skia.RRectXY(
     Skia.XYWHRect(x - width / 2, y - height / 2, width, height),
     height / 2,
@@ -160,7 +170,7 @@ export function drawLabel(
   canvas.drawRRect(box, stroke(style === 'plain' ? palette.primary : background, 3, alpha));
   canvas.drawText(
     text,
-    x - textWidth / 2,
+    x - measured / 2,
     y + size * 0.36,
     fill(style === 'wrong' ? palette.surface : palette.foreground, alpha),
     font,

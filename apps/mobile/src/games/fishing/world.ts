@@ -60,8 +60,8 @@ export const FISHING = {
   rod: { x: 0.3, y: 0.37 },
   companion: { x: 0.17, y: 0.44, size: 0.27 },
   /** The band the fish swim in. */
-  water: { top: 0.68, bottom: 0.9 },
-  fishSize: 0.21,
+  water: { top: 0.66, bottom: 0.94 },
+  fishSize: 0.19,
   floatSize: 0.12,
   /** Fractions of the width per second. */
   swim: 0.12,

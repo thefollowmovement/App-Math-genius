@@ -11,6 +11,8 @@ export const fishingRules: GameRules = {
   hearts: null,
   stars: STARS,
   action: 'fish',
+  retry: true,
+  nextDelayMs: 900,
   start: () => newRound(null),
   onAnswer: (state, answer) =>
     answer.correct

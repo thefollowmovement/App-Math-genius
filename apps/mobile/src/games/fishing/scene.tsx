@@ -38,28 +38,42 @@ export function drawFishing(
   const floatX = width * FISHING.float.x + dip.wiggle * 3;
   const floatY = height * FISHING.float.y + dip.dy;
 
-  // The fish in the water, each with its answer.
-  for (const fish of world.fish) {
-    if (fish.phase === 'reel' || fish.phase === 'won' || fish.phase === 'release') continue;
-    const alpha = fish.away ? 0.35 : 1;
+  // The fish in the water, then their answers above them all (always readable).
+  const swimming = world.fish.filter(
+    (fish) => fish.phase !== 'reel' && fish.phase !== 'won' && fish.phase !== 'release',
+  );
+  for (const fish of swimming) {
     // The picture looks left.
     drawSprite(canvas, art.sprites.poisson, fish.x, fish.y, fishSize, {
       scaleX: fish.dir > 0 ? -1 : 1,
-      alpha,
+      alpha: fish.away ? 0.35 : 1,
     });
+  }
+  for (const fish of swimming) {
     drawLabel(
       canvas,
       art.font,
       feed.labels[fish.index] ?? '',
       fish.x,
-      fish.y - fishSize * 0.6,
+      fish.y - fishSize * 0.55,
       palette,
       'plain',
-      alpha,
+      fish.away ? 0.35 : 1,
     );
   }
 
-  // The line and the float, under water when a fish bites.
+  // The rod in the companion's paws, the line and the float, under water when a fish bites.
+  const rod = Skia.Paint();
+  rod.setColor(Skia.Color(palette.foreground));
+  rod.setStrokeWidth(4);
+  rod.setAntiAlias(true);
+  canvas.drawLine(
+    width * (FISHING.companion.x + 0.05),
+    height * (FISHING.companion.y + 0.04),
+    rodX,
+    rodY,
+    rod,
+  );
   const line = Skia.Paint();
   line.setColor(Skia.Color(palette.foreground));
   line.setAlphaf(0.55);

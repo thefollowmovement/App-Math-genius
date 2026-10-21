@@ -39,6 +39,10 @@ export type GameRules = {
   stars: readonly [number, number, number];
   /** « Pêcher ! » is a button; the other games are played on the scene itself. */
   action: 'fish' | null;
+  /** After a wrong answer, the same question stays (the other fish are still there). */
+  retry: boolean;
+  /** The next question waits this long after an answer, for the scene to show what happened. */
+  nextDelayMs: number;
   start(): RoundState;
   onAnswer(state: RoundState, answer: GameAnswer): RoundState;
   onEnd(state: RoundState): GameResult;

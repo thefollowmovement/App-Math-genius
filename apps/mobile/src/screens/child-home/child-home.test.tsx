@@ -20,6 +20,7 @@ const lea: Child = {
   avatar: {},
   personalization_consent_at: null,
   universe_asked_at: null,
+  game_minutes_limit: 20,
 };
 const t = strings.childHome;
 const goal = { type: 'duration', minutes: 15 } as const;
