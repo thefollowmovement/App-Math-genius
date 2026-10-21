@@ -1,5 +1,5 @@
 import type { SessionGoal } from '@math-genius/exercise-engine';
-import { avatarOf, type DayPlan } from '@math-genius/shared';
+import { avatarOf, type ChildHighlights, type DayPlan } from '@math-genius/shared';
 import { Button, Screen, ThemedText, View } from '@math-genius/ui';
 
 import { Decor } from '@/components/decor';
@@ -23,6 +23,7 @@ import { NextRewardCard } from '../rewards/next-reward-card';
 import { ChildNav, type NavLink } from './child-nav';
 import { MissionCard } from './mission-card';
 import { PlacementCard } from './placement-card';
+import { RecapCard } from './recap-card';
 import { SuperPowerCard } from './super-power-card';
 import { TopBar } from './top-bar';
 import { UniverseCard } from './universe-card';
@@ -46,6 +47,9 @@ type ChildHomeProps = {
   /** « Ton univers » to answer, once the parent agreed. */
   universe?: UniverseOffer;
   onOpenUniverse?: () => void;
+  /** Last week's or last month's card, at the start of a week or a month, until closed. */
+  highlights?: ChildHighlights | null;
+  onCloseHighlights?: () => void;
   /** The child's first strength, from the learning profile. */
   superPower?: SuperPower | null;
   /** Missing until the first award, or while loading. */
@@ -88,6 +92,8 @@ export function ChildHome({
   universe = null,
   onOpenUniverse,
   superPower = null,
+  highlights = null,
+  onCloseHighlights,
   rewards,
   challenge,
   nextReward,
@@ -138,6 +144,9 @@ export function ChildHome({
       {/* After the first test: the child is asked about their universe. */}
       {universe && onOpenUniverse && placement !== 'first' && placement !== 'resume' ? (
         <UniverseCard offer={universe} onOpen={onOpenUniverse} />
+      ) : null}
+      {highlights && onCloseHighlights ? (
+        <RecapCard highlights={highlights} avatar={avatar} onClose={onCloseHighlights} />
       ) : null}
       {chest && onOpenChest ? (
         <View className="flex-row items-center gap-3 rounded-lg border-2 border-accent bg-surface p-3 glow-accent">

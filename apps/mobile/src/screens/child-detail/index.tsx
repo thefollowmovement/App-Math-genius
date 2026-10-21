@@ -48,6 +48,8 @@ type ChildDetailProps = {
   /** Current and coming holidays. */
   vacations: readonly VacationRow[];
   onEditRoutine: () => void;
+  /** The « Progrès » page: calendar, curves, mastery, points of difficulty, recaps. */
+  onOpenProgress?: () => void;
   /** Real-life rewards set by the parent. */
   rewards: ParentRewardsState;
   /** The mini-games' daily limit and today's games. */
@@ -76,6 +78,7 @@ export function ChildDetail({
   routine,
   vacations,
   onEditRoutine,
+  onOpenProgress,
   rewards,
   games,
   profile,
@@ -104,6 +107,14 @@ export function ChildDetail({
           </ThemedText>
         ) : null}
       </View>
+      {onOpenProgress ? (
+        <View className="gap-2">
+          <Button title={t.progress} onPress={onOpenProgress} />
+          <ThemedText variant="caption" className="text-center">
+            {t.progressHint}
+          </ThemedText>
+        </View>
+      ) : null}
       <TodaySessions sessions={sessions} onOpenSession={onOpenSession} />
       <PlacementPanel report={placement} grade={child.grade} available={placementAvailable} />
       {profile ? <ProfilePanel childName={child.display_name} {...profile} /> : null}

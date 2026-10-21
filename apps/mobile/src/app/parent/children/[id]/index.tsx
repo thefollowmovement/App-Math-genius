@@ -66,6 +66,9 @@ export default function ChildDetailRoute() {
         onEditRoutine={() =>
           router.push({ pathname: '/parent/children/[id]/routine', params: { id } })
         }
+        onOpenProgress={() =>
+          router.push({ pathname: '/parent/children/[id]/progress', params: { id } })
+        }
         rewards={parentRewards}
         games={{
           limitMinutes: gameLimit.isPending

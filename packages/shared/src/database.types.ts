@@ -1066,6 +1066,7 @@ export type Database = {
         Row: {
           created_at: string;
           id: string;
+          language: string;
           name: string | null;
           plan: string;
           timezone: string;
@@ -1075,6 +1076,7 @@ export type Database = {
         Insert: {
           created_at?: string;
           id?: string;
+          language?: string;
           name?: string | null;
           plan?: string;
           timezone?: string;
@@ -1083,6 +1085,7 @@ export type Database = {
         Update: {
           created_at?: string;
           id?: string;
+          language?: string;
           name?: string | null;
           plan?: string;
           timezone?: string;
@@ -1374,6 +1377,61 @@ export type Database = {
           },
         ];
       };
+      mastery_history: {
+        Row: {
+          attempts_count: number;
+          child_id: string;
+          created_at: string;
+          elo: number;
+          id: string;
+          last_practiced_at: string | null;
+          mastered_at: string | null;
+          recorded_at: string;
+          skill_code: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attempts_count: number;
+          child_id: string;
+          created_at?: string;
+          elo: number;
+          id?: string;
+          last_practiced_at?: string | null;
+          mastered_at?: string | null;
+          recorded_at: string;
+          skill_code: string;
+          updated_at?: string;
+        };
+        Update: {
+          attempts_count?: number;
+          child_id?: string;
+          created_at?: string;
+          elo?: number;
+          id?: string;
+          last_practiced_at?: string | null;
+          mastered_at?: string | null;
+          recorded_at?: string;
+          skill_code?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'mastery_history_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'mastery_history_skill_code_fkey';
+            columns: ['skill_code'];
+            isOneToOne: false;
+            referencedRelation: 'skills';
+            referencedColumns: ['code'];
+          },
+        ];
+      };
       mini_games: {
         Row: {
           created_at: string;
@@ -1413,6 +1471,7 @@ export type Database = {
           push_request_id: number | null;
           push_status: number | null;
           push_tokens: string[];
+          recipient_id: string | null;
           sent_at: string | null;
           title: string;
           updated_at: string;
@@ -1432,6 +1491,7 @@ export type Database = {
           push_request_id?: number | null;
           push_status?: number | null;
           push_tokens?: string[];
+          recipient_id?: string | null;
           sent_at?: string | null;
           title: string;
           updated_at?: string;
@@ -1450,6 +1510,7 @@ export type Database = {
           push_request_id?: number | null;
           push_status?: number | null;
           push_tokens?: string[];
+          recipient_id?: string | null;
           sent_at?: string | null;
           title?: string;
           updated_at?: string;
@@ -1709,6 +1770,179 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [];
+      };
+      recap_emails: {
+        Row: {
+          created_at: string;
+          error: string | null;
+          id: string;
+          parent_id: string;
+          provider_id: string | null;
+          recap_id: string;
+          sent_at: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          error?: string | null;
+          id?: string;
+          parent_id: string;
+          provider_id?: string | null;
+          recap_id: string;
+          sent_at?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          error?: string | null;
+          id?: string;
+          parent_id?: string;
+          provider_id?: string | null;
+          recap_id?: string;
+          sent_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'recap_emails_parent_id_fkey';
+            columns: ['parent_id'];
+            isOneToOne: false;
+            referencedRelation: 'parents';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recap_emails_recap_id_fkey';
+            columns: ['recap_id'];
+            isOneToOne: false;
+            referencedRelation: 'recaps';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      recap_files_trash: {
+        Row: {
+          created_at: string;
+          id: string;
+          path: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          path: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          path?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      recap_preferences: {
+        Row: {
+          created_at: string;
+          id: string;
+          monthly_email: boolean;
+          monthly_push: boolean;
+          parent_id: string;
+          unsubscribe_token: string;
+          updated_at: string;
+          weekly_email: boolean;
+          weekly_push: boolean;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          monthly_email?: boolean;
+          monthly_push?: boolean;
+          parent_id: string;
+          unsubscribe_token?: string;
+          updated_at?: string;
+          weekly_email?: boolean;
+          weekly_push?: boolean;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          monthly_email?: boolean;
+          monthly_push?: boolean;
+          parent_id?: string;
+          unsubscribe_token?: string;
+          updated_at?: string;
+          weekly_email?: boolean;
+          weekly_push?: boolean;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'recap_preferences_parent_id_fkey';
+            columns: ['parent_id'];
+            isOneToOne: true;
+            referencedRelation: 'parents';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      recaps: {
+        Row: {
+          advice: Json | null;
+          attempts: number;
+          child_id: string;
+          content: NonNullable<Json>;
+          created_at: string;
+          delivered_at: string | null;
+          id: string;
+          kind: Database['public']['Enums']['recap_kind'];
+          last_error: string | null;
+          pdf_path: string | null;
+          period_end: string;
+          period_start: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          advice?: Json | null;
+          attempts?: number;
+          child_id: string;
+          content: NonNullable<Json>;
+          created_at?: string;
+          delivered_at?: string | null;
+          id?: string;
+          kind: Database['public']['Enums']['recap_kind'];
+          last_error?: string | null;
+          pdf_path?: string | null;
+          period_end: string;
+          period_start: string;
+          updated_at?: string;
+        };
+        Update: {
+          advice?: Json | null;
+          attempts?: number;
+          child_id?: string;
+          content?: NonNullable<Json>;
+          created_at?: string;
+          delivered_at?: string | null;
+          id?: string;
+          kind?: Database['public']['Enums']['recap_kind'];
+          last_error?: string | null;
+          pdf_path?: string | null;
+          period_end?: string;
+          period_start?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'recaps_child_id_fkey';
+            columns: ['child_id'];
+            isOneToOne: false;
+            referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       routines: {
         Row: {
@@ -2084,6 +2318,7 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: Database['public']['Enums']['admin_role'];
       };
+      advice_context: { Args: { p_child_id: string }; Returns: Json };
       award_session: {
         Args: { p_now?: string; p_session_id: string; p_verdicts: Json };
         Returns: Json;
@@ -2112,6 +2347,11 @@ export type Database = {
       };
       buy_item: { Args: { p_child_id: string; p_item_code: string }; Returns: Json };
       child_badge_metrics: { Args: { p_child_id: string }; Returns: Json };
+      child_highlights: { Args: { p_child_id: string; p_now?: string }; Returns: Json };
+      child_progress: {
+        Args: { p_child_id: string; p_month?: string; p_now?: string; p_range?: string };
+        Returns: Json;
+      };
       coach_cached: {
         Args: {
           p_error_type: string;
@@ -2162,6 +2402,20 @@ export type Database = {
       open_chest: { Args: { p_chest_id: string }; Returns: Json };
       profile_input: { Args: { p_child_id: string; p_now?: string }; Returns: Json };
       profiles_due: { Args: { p_limit?: number; p_now?: string }; Returns: string[] };
+      recap_delivery: { Args: { p_recap_id: string }; Returns: Json };
+      recap_done: { Args: { p_error?: string; p_recap_id: string }; Returns: undefined };
+      recap_email_result: {
+        Args: { p_error?: string; p_parent_id: string; p_provider_id?: string; p_recap_id: string };
+        Returns: undefined;
+      };
+      recap_files_deleted: { Args: { p_paths: string[] }; Returns: undefined };
+      recap_files_to_delete: { Args: { p_limit?: number }; Returns: string[] };
+      recap_save: {
+        Args: { p_advice?: Json; p_pdf_path?: string; p_recap_id: string };
+        Returns: undefined;
+      };
+      recap_unsubscribe: { Args: { p_kind: string; p_token: string }; Returns: boolean };
+      recaps_to_deliver: { Args: { p_limit?: number; p_now?: string }; Returns: Json };
       record_answer_errors: { Args: { p_session_id: string; p_verdicts: Json }; Returns: number };
       redeem_pairing_code: {
         Args: { p_code: string; p_platform: Database['public']['Enums']['device_platform'] };
@@ -2252,10 +2506,13 @@ export type Database = {
         | 'not_started'
         | 'missed'
         | 'session_done'
-        | 'parent_message';
+        | 'parent_message'
+        | 'weekly_recap'
+        | 'monthly_recap';
       parent_reward_goal: 'streak' | 'xp' | 'islands';
       parent_role: 'owner' | 'co_parent';
       push_status: 'enabled' | 'denied' | 'unsupported';
+      recap_kind: 'weekly' | 'monthly';
       session_goal_type: 'duration' | 'count';
       session_kind: 'daily' | 'bonus' | 'placement' | 'boss' | 'game';
       session_slot: 'current' | 'review' | 'automatism' | 'challenge';
@@ -2394,10 +2651,13 @@ export const Constants = {
         'missed',
         'session_done',
         'parent_message',
+        'weekly_recap',
+        'monthly_recap',
       ],
       parent_reward_goal: ['streak', 'xp', 'islands'],
       parent_role: ['owner', 'co_parent'],
       push_status: ['enabled', 'denied', 'unsupported'],
+      recap_kind: ['weekly', 'monthly'],
       session_goal_type: ['duration', 'count'],
       session_kind: ['daily', 'bonus', 'placement', 'boss', 'game'],
       session_slot: ['current', 'review', 'automatism', 'challenge'],

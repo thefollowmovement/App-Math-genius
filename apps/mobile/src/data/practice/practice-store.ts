@@ -98,6 +98,8 @@ type PracticeState = {
   itemRatings: ItemRatings;
   /** Children who saw the intro on this device (« Choisis ton héros », then 3 screens). */
   introSeen: Record<string, true>;
+  /** The last week or month card each child closed on this device (highlightsKey). */
+  recapsSeen: Record<string, string>;
 };
 
 const EMPTY_CHILD: ChildPractice = {
@@ -110,7 +112,7 @@ const EMPTY_CHILD: ChildPractice = {
 };
 
 export const usePracticeStore = create<PracticeState>()(
-  persist(() => ({ children: {}, itemRatings: {}, introSeen: {} }), {
+  persist(() => ({ children: {}, itemRatings: {}, introSeen: {}, recapsSeen: {} }), {
     name: 'math-genius.practice',
     version: 1,
     storage: createJSONStorage(() => AsyncStorage),
@@ -127,6 +129,11 @@ export function usePracticeHydrated(): boolean {
 
 export function markIntroSeen(childId: string) {
   usePracticeStore.setState((state) => ({ introSeen: { ...state.introSeen, [childId]: true } }));
+}
+
+/** The child closed the card of a week or a month: it does not come back for that period. */
+export function markRecapSeen(childId: string, key: string) {
+  usePracticeStore.setState((state) => ({ recapsSeen: { ...state.recapsSeen, [childId]: key } }));
 }
 
 export const plannerContext = (session: StoredSession): PlannerContext => ({

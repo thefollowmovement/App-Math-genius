@@ -6,7 +6,14 @@ import { useChild } from '@/data/children';
 import { useIsOnline } from '@/data/network';
 import { currentStop } from '@/data/mission-model';
 import { placementOffer } from '@/data/placement-model';
-import { currentMastery, hasUnsentAnswers, usePracticeStore } from '@/data/practice/practice-store';
+import { useChildHighlights } from '@/data/progress';
+import { highlightsKey } from '@/data/progress-model';
+import {
+  currentMastery,
+  hasUnsentAnswers,
+  markRecapSeen,
+  usePracticeStore,
+} from '@/data/practice/practice-store';
 import { practiceStatus } from '@/data/practice/summary';
 import { usePracticeSync } from '@/data/practice/sync';
 import { useParentRewards } from '@/data/parent-rewards';
@@ -30,6 +37,7 @@ export default function ChildHomeRoute() {
   const practice = usePracticeStore((state) => state.children[id]);
   const unsent = usePracticeStore((state) => hasUnsentAnswers(state.children[id]));
   const introSeen = usePracticeStore((state) => state.introSeen[id] === true);
+  const recapSeen = usePracticeStore((state) => state.recapsSeen[id]);
   const online = useIsOnline();
   const start = useStartSession(child.data);
   const routines = useRoutines();
@@ -39,6 +47,7 @@ export default function ChildHomeRoute() {
   const islands = useIslands(child.data?.id);
   const consent = Boolean(child.data?.personalization_consent_at);
   const profile = useLearnerProfile(child.data?.id, consent);
+  const highlights = useChildHighlights(child.data?.id);
   const { date } = useLocalClock();
   usePracticeSync(child.data?.id);
 
@@ -48,6 +57,8 @@ export default function ChildHomeRoute() {
   if (!introSeen) return <Redirect href={{ pathname: '/child/intro', params: { id } }} />;
 
   const profileCount = child.allProfiles.length;
+  const card = highlights.data ?? null;
+  const showCard = card !== null && highlightsKey(card) !== recapSeen;
 
   return (
     <ChildHome
@@ -69,6 +80,8 @@ export default function ChildHomeRoute() {
       universe={universeOffer(child.data, new Date())}
       onOpenUniverse={() => router.push({ pathname: '/child/universe', params: { id } })}
       superPower={consent ? superPower(profile.data?.profile) : null}
+      highlights={showCard ? card : null}
+      onCloseHighlights={card ? () => markRecapSeen(id, highlightsKey(card)) : undefined}
       rewards={rewards.data}
       challenge={challenge.data}
       nextReward={nextReward(

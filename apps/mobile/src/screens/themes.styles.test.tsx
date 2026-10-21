@@ -97,6 +97,30 @@ const childScreens: { name: string; render: () => ReactElement }[] = [
     ),
   },
   {
+    name: 'ChildHome (recap card)',
+    render: () => (
+      <ChildHome
+        child={lea}
+        practice={{ status: 'done' }}
+        plan={{ kind: 'planned', start: 17 * 60, deadline: 18 * 60 }}
+        goal={{ type: 'count', count: 10 }}
+        highlights={{
+          kind: 'week',
+          from: '2026-09-21',
+          to: '2026-09-27',
+          days: 4,
+          correct: 36,
+          xp: 380,
+          learned: 1,
+          badges: 1,
+        }}
+        onCloseHighlights={jest.fn()}
+        sync="idle"
+        onStart={jest.fn()}
+      />
+    ),
+  },
+  {
     name: 'UniverseQuestionnaire',
     render: () => (
       <UniverseQuestionnaire

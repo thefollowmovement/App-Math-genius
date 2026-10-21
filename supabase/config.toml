@@ -428,3 +428,8 @@ verify_jwt = false
 # The app (child device or parent token), the back-office (an editor's token) and pg_cron (the
 # service key): the function checks each caller itself, PostgREST and RLS do the rest.
 verify_jwt = false
+
+[functions.recaps]
+# pg_cron (the service key), the app (a parent's token, RLS decides) and the emails' unsubscribe
+# links (no token but the link's own): the function checks each caller itself.
+verify_jwt = false

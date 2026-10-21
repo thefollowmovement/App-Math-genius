@@ -42,6 +42,7 @@ export default function ParentHomeRoute() {
       onAddChild={() => router.push('/parent/children/new')}
       onOpenChild={(id) => router.push({ pathname: '/parent/children/[id]', params: { id } })}
       onChildMode={() => router.push('/child/profiles')}
+      onOpenRecaps={() => router.push('/parent/recaps')}
       onSignOut={() => signOut.mutate()}
     />
   );

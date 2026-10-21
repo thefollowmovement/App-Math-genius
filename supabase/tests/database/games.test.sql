@@ -1,9 +1,10 @@
 -- Mini-games (phase 9b): the catalog the team turns on and off, a round synced as a session of
--- kind 'game', its share of the daily session, its gems capped per day, the game room and the
--- parent's daily limit. Run with `pnpm supabase:test`.
+-- kind 'game', its share of the daily session, its gems capped per day, the game room, the
+-- parent's daily limit, and a round left out of the day's status (reminders, statistics). Run
+-- with `pnpm supabase:test`.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(27);
+select plan(28);
 
 -- Eva (editor), Alice's family (Léa, CM1, Paris time) and Léa's device.
 insert into auth.users (id, aud, role, email, raw_user_meta_data, is_anonymous)
@@ -284,6 +285,14 @@ select is(
   private.enqueue_reminders('2026-10-19 18:00+02'),
   1,
   'A round does not stop the reminders of the day''s session'
+);
+update public.routines set created_at = '2026-10-01 00:00+02';
+select is(
+  (select row(status, answered)::text
+   from private.child_days('00000000-0000-4000-8000-0000000000c1', '2026-10-19', '2026-10-19',
+     '2026-10-20 12:00+02')),
+  row('missed', 5)::text,
+  'Nor does it make the day done in the statistics: its answers still count'
 );
 
 select * from finish();
