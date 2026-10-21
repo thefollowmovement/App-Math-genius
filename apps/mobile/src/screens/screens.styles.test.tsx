@@ -1,5 +1,6 @@
 import { worldMap } from '@math-genius/exercise-engine';
-import { DEFAULT_ROUTINE } from '@math-genius/shared';
+import { DEFAULT_ROUTINE, readProgress } from '@math-genius/shared';
+import { PROGRESS_SAMPLE } from '@math-genius/shared/src/testing/progress-samples';
 import type { ReactElement } from 'react';
 import { registerCSS } from 'react-native-css/jest';
 
@@ -41,6 +42,8 @@ import { UniverseQuestionnaire } from './universe';
 import { ParentHome } from './parent-home';
 import { PracticeScreen } from './practice';
 import { ProfilePicker } from './profile-picker';
+import { Progress } from './progress';
+import { RecapSettings } from './recap-settings';
 import { RoutineSettings } from './routine-settings';
 import { SignIn } from './sign-in';
 import { SessionDetail } from './session-detail';
@@ -592,6 +595,67 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
         />
       );
     },
+  },
+  {
+    name: 'ChildHome (recap card)',
+    render: () => (
+      <ChildHome
+        child={lea}
+        practice={{ status: 'ready' }}
+        plan={{ kind: 'planned', start: 17 * 60, deadline: 18 * 60 }}
+        goal={{ type: 'count', count: 10 }}
+        highlights={{
+          kind: 'month',
+          from: '2026-09-01',
+          to: '2026-09-30',
+          days: 15,
+          correct: 122,
+          xp: 1050,
+          learned: 6,
+          badges: 2,
+        }}
+        onCloseHighlights={jest.fn()}
+        sync="idle"
+        onStart={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'Progress',
+    render: () => (
+      <Progress
+        childName="Léa"
+        grade="CM1"
+        progress={readProgress(PROGRESS_SAMPLE) ?? undefined}
+        error={false}
+        onRetry={jest.fn()}
+        range="month"
+        onRange={jest.fn()}
+        month="2026-09-01"
+        onMonth={jest.fn()}
+        canGoNext={false}
+        recaps={[{ id: 'r1', periodStart: '2026-08-01' }]}
+        onOpenRecap={jest.fn()}
+        openingRecapId={null}
+        recapError={false}
+        onOpenSettings={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'RecapSettings',
+    render: () => (
+      <RecapSettings
+        preferences={{
+          weeklyPush: true,
+          weeklyEmail: true,
+          monthlyPush: false,
+          monthlyEmail: true,
+        }}
+        onChange={jest.fn()}
+        error={null}
+      />
+    ),
   },
 ];
 

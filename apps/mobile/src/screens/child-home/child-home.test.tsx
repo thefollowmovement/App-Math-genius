@@ -313,3 +313,56 @@ describe('ChildHome personalization', () => {
     expect(screen.queryByText(strings.superPower.label)).not.toBeOnTheScreen();
   });
 });
+
+describe('ChildHome recap card', () => {
+  const highlights = {
+    kind: 'month',
+    from: '2026-09-01',
+    to: '2026-09-30',
+    days: 15,
+    correct: 122,
+    xp: 1050,
+    learned: 6,
+    badges: 2,
+  } as const;
+
+  it('celebrates last month with the hero, and closes', async () => {
+    const onCloseHighlights = jest.fn();
+    const user = userEvent.setup();
+    await renderWithTheme(
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'ready' }}
+        highlights={highlights}
+        onCloseHighlights={onCloseHighlights}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(strings.recapCard.label.month)).toBeOnTheScreen();
+    expect(screen.getByText(strings.recapCard.title.month('septembre'))).toBeOnTheScreen();
+    expect(screen.getByText(strings.recapCard.learned(6))).toBeOnTheScreen();
+    expect(screen.getByText(strings.recapCard.days(15))).toBeOnTheScreen();
+    expect(screen.getByText(strings.recapCard.badges(2))).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: strings.recapCard.closeLabel }));
+    expect(onCloseHighlights).toHaveBeenCalledTimes(1);
+  });
+
+  it('says what was done when nothing new was learnt last week', async () => {
+    await renderWithTheme(
+      <ChildHome
+        {...today}
+        child={lea}
+        practice={{ status: 'ready' }}
+        highlights={{ ...highlights, kind: 'week', learned: 0, badges: 0, from: '2026-09-21' }}
+        onCloseHighlights={jest.fn()}
+        sync="idle"
+        onStart={jest.fn()}
+      />,
+    );
+    expect(screen.getByText(strings.recapCard.label.week)).toBeOnTheScreen();
+    expect(screen.getByText(strings.recapCard.correct(122))).toBeOnTheScreen();
+    expect(screen.queryByText(strings.recapCard.badges(0))).not.toBeOnTheScreen();
+  });
+});

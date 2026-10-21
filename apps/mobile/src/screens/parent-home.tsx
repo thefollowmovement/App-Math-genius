@@ -16,6 +16,8 @@ type ParentHomeProps = {
   onAddChild: () => void;
   onOpenChild: (childId: string) => void;
   onChildMode: () => void;
+  /** How the weekly and monthly recaps reach this parent. */
+  onOpenRecaps?: () => void;
   onSignOut: () => void;
 };
 
@@ -26,6 +28,7 @@ export function ParentHome({
   onAddChild,
   onOpenChild,
   onChildMode,
+  onOpenRecaps,
   onSignOut,
 }: ParentHomeProps) {
   return (
@@ -53,6 +56,9 @@ export function ParentHome({
       <Button size="lg" title={t.addChild} onPress={onAddChild} />
       {childProfiles.length > 0 ? (
         <Button variant="secondary" title={t.childMode} onPress={onChildMode} />
+      ) : null}
+      {onOpenRecaps && childProfiles.length > 0 ? (
+        <Button variant="outline" title={t.recaps} onPress={onOpenRecaps} />
       ) : null}
       <Button variant="ghost" title={t.signOut} onPress={onSignOut} />
     </Screen>
