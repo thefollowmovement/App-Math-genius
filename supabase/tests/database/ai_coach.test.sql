@@ -235,7 +235,8 @@ insert into public.ai_prompts (task, version, system, user_template, notes)
 values ('explain', 2, 'Système', 'Utilisateur {{exercice}}', 'Plus court');
 select public.admin_activate_prompt((select id from public.ai_prompts where version = 2));
 select is(
-  (select array_agg(version order by version) from public.ai_prompts where active),
+  (select array_agg(version order by version) from public.ai_prompts
+   where active and task = 'explain'),
   array[2],
   'An editor makes a new version of the prompt the active one'
 );
