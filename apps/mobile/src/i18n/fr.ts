@@ -90,6 +90,7 @@ export const fr = {
       bonus: 'Entraînement bonus',
       placement: 'Test de départ',
       boss: 'Défi de fin d’île',
+      game: 'Mini-jeu',
     },
     states: {
       in_progress: 'En cours',

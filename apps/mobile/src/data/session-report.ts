@@ -19,17 +19,18 @@ export type SessionState = 'in_progress' | 'validated' | 'not_validated' | 'fini
 
 export const sessionState = (session: SessionRow): SessionState => {
   if (session.completed_at === null) return 'in_progress';
-  // A placement test has no goal to meet.
-  if (session.kind === 'placement') return 'finished';
+  // A placement test and a mini-game round have no goal to meet.
+  if (session.kind === 'placement' || session.kind === 'game') return 'finished';
   return session.goal_met ? 'validated' : 'not_validated';
 };
 
 /**
  * Whether to warn the parent of answers too fast to be read. Not for a placement test: there, a
- * quick « Je ne sais pas » is the honest answer the test asks for.
+ * quick « Je ne sais pas » is the honest answer the test asks for. Nor for a mini-game, where the
+ * reflex is the game.
  */
 export const showsFastAnswers = (session: Pick<SessionRow, 'flagged' | 'kind'>) =>
-  session.flagged && session.kind !== 'placement';
+  session.flagged && session.kind !== 'placement' && session.kind !== 'game';
 
 export const minutesOf = (session: Pick<SessionRow, 'duration_s'>) =>
   Math.round(session.duration_s / 60);
@@ -54,10 +55,12 @@ export function childDay(
   plan: DayPlan = NOTHING_PLANNED,
   minute = 0,
 ): ChildDay {
-  const daily = sessions.filter((session) => session.kind === 'daily');
-  const main = (daily.length > 0 ? daily : sessions).at(-1) ?? null;
-  // A placement test is not the day's session (the server's reminders agree).
-  const counted = sessions.filter((session) => session.kind !== 'placement');
+  // A mini-game round is no session to sum the day up with.
+  const played = sessions.filter((session) => session.kind !== 'game');
+  const daily = played.filter((session) => session.kind === 'daily');
+  const main = (daily.length > 0 ? daily : played).at(-1) ?? null;
+  // Nor is a placement test the day's session (the server's reminders agree).
+  const counted = played.filter((session) => session.kind !== 'placement');
   const planned = plan.kind === 'planned' ? plan : null;
   const day = (status: DayStatus): ChildDay => ({
     status,

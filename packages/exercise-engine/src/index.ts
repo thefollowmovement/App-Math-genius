@@ -91,11 +91,15 @@ export {
 } from './adaptive/ratings';
 export {
   DEFAULT_SESSION_GOAL,
+  GAME_SHARE_PERCENT,
   MAX_GAP_MS,
   MIN_ANSWER_MS,
   MIN_SUCCESS_RATE,
+  NO_GAME_CREDIT,
   activeMs,
+  gameCredit,
   sessionProgress,
+  type GameCredit,
   type SessionAttempt,
   type SessionGoal,
   type SessionProgress,
