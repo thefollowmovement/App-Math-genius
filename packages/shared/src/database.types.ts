@@ -1873,6 +1873,7 @@ export type Database = {
           pdf_path: string | null;
           period_end: string;
           period_start: string;
+          test_parent_id: string | null;
           updated_at: string;
         };
         ComputedFields: never;
@@ -1889,6 +1890,7 @@ export type Database = {
           pdf_path?: string | null;
           period_end: string;
           period_start: string;
+          test_parent_id?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -1904,6 +1906,7 @@ export type Database = {
           pdf_path?: string | null;
           period_end?: string;
           period_start?: string;
+          test_parent_id?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -1912,6 +1915,13 @@ export type Database = {
             columns: ['child_id'];
             isOneToOne: false;
             referencedRelation: 'children';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recaps_test_parent_id_fkey';
+            columns: ['test_parent_id'];
+            isOneToOne: false;
+            referencedRelation: 'parents';
             referencedColumns: ['id'];
           },
         ];
