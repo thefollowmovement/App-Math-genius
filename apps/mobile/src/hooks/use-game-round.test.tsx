@@ -1,9 +1,11 @@
 import { act, renderHook } from '@testing-library/react-native';
 
 import { childPractice, creditOfDay, usePracticeStore } from '@/data/practice/practice-store';
+import { bubblesRules } from '@/games/bubbles/rules';
 import { fishingRules } from '@/games/fishing/rules';
 import { flightRules } from '@/games/flight/rules';
 import { gemRainRules } from '@/games/gem-rain/rules';
+import { memoryRules } from '@/games/memory/rules';
 import type { GameRules } from '@/games/round';
 
 import { useGameRound } from './use-game-round';
@@ -90,6 +92,64 @@ describe('useGameRound', () => {
     expect(creditOfDay(child.games?.day, { kind: 'daily', localDate: '2026-10-21' }).answers).toBe(
       0,
     );
+  });
+
+  it('grades two bubbles by what they make, and keeps the question after a wrong pair', async () => {
+    const { result } = await playRound(bubblesRules);
+    const feed = result.current.feed.get();
+    expect(feed.labels).toHaveLength(6);
+    const [, target = '', operator] = /^(\S+) = \? ([+×]) \?$/.exec(feed.prompt) ?? [];
+    const value = (label: string) => Number(label.replace(/\s/g, '').replace('\u2212', '-'));
+    const pairs = feed.labels.flatMap((a, i) =>
+      feed.labels.slice(i + 1).map((b, k) => ({
+        indexes: [i, i + 1 + k],
+        makes: operator === '+' ? value(a) + value(b) : value(a) * value(b),
+      })),
+    );
+    const right = pairs.find((pair) => pair.makes === value(target));
+    const wrong = pairs.find((pair) => pair.makes !== value(target));
+    if (!right || !wrong) throw new Error('no pair');
+
+    await act(async () => result.current.onEvent({ type: 'pick', key: 1, indexes: wrong.indexes }));
+    expect(result.current.feed.get().verdict).toMatchObject({
+      correct: false,
+      indexes: wrong.indexes,
+    });
+    await act(async () => jest.advanceTimersByTime(bubblesRules.nextDelayMs));
+    expect(result.current.feed.get().key).toBe(1);
+
+    await act(async () => result.current.onEvent({ type: 'pick', key: 1, indexes: right.indexes }));
+    expect(childPractice(CHILD).round?.attempts.map((attempt) => attempt.correct)).toEqual([
+      false,
+      true,
+    ]);
+    await act(async () => jest.advanceTimersByTime(bubblesRules.nextDelayMs));
+    expect(result.current.feed.get().key).toBe(2);
+  });
+
+  it('deals a board of pairs: a pair found is a right answer, a known mismatch a wrong one', async () => {
+    const { result } = await playRound(memoryRules);
+    const { key, labels } = result.current.feed.get();
+    expect(labels).toHaveLength(12);
+    expect(new Set(labels).size).toBe(12);
+    expect(result.current.prompt).toBe('Trouve les paires');
+    const attempts = () => childPractice(CHILD).round?.attempts.map((attempt) => attempt.correct);
+    const pick = (indexes: number[], known: boolean) =>
+      act(async () => result.current.onEvent({ type: 'pick', key, indexes, known }));
+
+    // Two new cards that do not go together: a guess, not a mistake.
+    await pick([0, 3], false);
+    expect(attempts()).toEqual([]);
+    expect(result.current.feed.get().verdict).toMatchObject({ correct: false, indexes: [0, 3] });
+    // Two cards already seen: the calculation of pair 0 answered with the result of pair 1.
+    await pick([0, 3], true);
+    expect(attempts()).toEqual([false]);
+    // Every pair found: pair 0 counts no more, the others are right answers.
+    for (let pair = 0; pair < 6; pair++) await pick([pair * 2 + 1, pair * 2], true);
+    expect(attempts()).toEqual([false, true, true, true, true, true]);
+    expect(result.current.round.score).toBeGreaterThanOrEqual(5 * 100 + 200);
+    await act(async () => jest.advanceTimersByTime(memoryRules.nextDelayMs));
+    expect(result.current.feed.get().key).toBeGreaterThan(key);
   });
 
   it('ends the round when the child leaves the screen', async () => {

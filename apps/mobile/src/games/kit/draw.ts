@@ -140,6 +140,46 @@ export function textWidth(font: SkFont, text: string): number {
   return font.getGlyphWidths(font.getGlyphIDs(text)).reduce((total, width) => total + width, 0);
 }
 
+/** A text centered on (x, y), made smaller when it is wider than `maxWidth`. */
+export function drawFitText(
+  canvas: SkCanvas,
+  font: SkFont | null,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  color: string,
+  alpha = 1,
+) {
+  'worklet';
+  if (!font || text === '') return;
+  const measured = textWidth(font, text);
+  const scale = measured > maxWidth ? maxWidth / measured : 1;
+  canvas.save();
+  canvas.translate(x, y);
+  canvas.scale(scale, scale);
+  canvas.drawText(text, -measured / 2, font.getSize() * 0.36, fill(color, alpha), font);
+  canvas.restore();
+}
+
+/** A rounded box, filled and outlined. */
+export function drawCard(
+  canvas: SkCanvas,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+  background: string,
+  border: string,
+  alpha = 1,
+) {
+  'worklet';
+  const box = Skia.RRectXY(Skia.XYWHRect(x, y, width, height), radius, radius);
+  canvas.drawRRect(box, fill(background, alpha));
+  canvas.drawRRect(box, stroke(border, 3, alpha));
+}
+
 export type LabelStyle = 'plain' | 'right' | 'wrong';
 
 /** An answer in a round white tag, as fish, gems and doors carry it. */
@@ -177,6 +217,30 @@ export function drawLabel(
   );
 }
 
+/** Five little stars in a ring of `reach` around (x, y), turned by `turn` radians. */
+export function drawSparkles(
+  canvas: SkCanvas,
+  x: number,
+  y: number,
+  reach: number,
+  color: string,
+  alpha = 1,
+  turn = 0,
+) {
+  'worklet';
+  if (alpha <= 0) return;
+  const paint = fill(color, alpha);
+  for (let i = 0; i < 5; i++) {
+    const angle = (i / 5) * Math.PI * 2 + turn;
+    canvas.drawCircle(
+      x + Math.cos(angle) * reach,
+      y + Math.sin(angle) * reach,
+      reach * 0.09,
+      paint,
+    );
+  }
+}
+
 const JOY_MS = 700;
 const SAD_MS = 1200;
 
@@ -204,17 +268,15 @@ export function drawCompanion(
   let scaleY = options.scaleY ?? 1;
   if (mood.kind === 'joy' && elapsed < JOY_MS) {
     if (!still) dy = -Math.sin((elapsed / JOY_MS) * Math.PI) * size * 0.25;
-    const sparkle = fill(palette.accent, 1 - elapsed / JOY_MS);
-    for (let i = 0; i < 5; i++) {
-      const turn = (i / 5) * Math.PI * 2 + (still ? 0 : elapsed / 300);
-      const reach = size * (0.55 + (still ? 0.1 : (elapsed / JOY_MS) * 0.2));
-      canvas.drawCircle(
-        x + Math.cos(turn) * reach,
-        y + dy + Math.sin(turn) * reach,
-        size * 0.05,
-        sparkle,
-      );
-    }
+    drawSparkles(
+      canvas,
+      x,
+      y + dy,
+      size * (0.55 + (still ? 0.1 : (elapsed / JOY_MS) * 0.2)),
+      palette.accent,
+      1 - elapsed / JOY_MS,
+      still ? 0 : elapsed / 300,
+    );
   } else if (mood.kind === 'sad' && elapsed < SAD_MS) {
     if (!still) {
       angle += -8 * Math.sin(Math.min(1, elapsed / 200) * (Math.PI / 2));

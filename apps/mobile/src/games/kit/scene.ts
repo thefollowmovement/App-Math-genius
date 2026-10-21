@@ -10,8 +10,11 @@ export type GameSound = 'right' | 'wrong' | 'pop' | 'crunch' | 'splash' | 'flap'
 export type SceneEvent =
   /** The child picked an answer: the `index`-th label of the question `key`. */
   | { type: 'choice'; key: number; index: number }
-  /** A pair of labels (memory, bubbles): the indexes picked together. */
-  | { type: 'pick'; key: number; indexes: number[] }
+  /**
+   * Labels picked together (two bubbles, two memory cards). `known`: the child had seen both
+   * cards before (a memory slip is not a mistake in maths).
+   */
+  | { type: 'pick'; key: number; indexes: number[]; known?: boolean }
   /** Points with no question behind them: croquettes, a pillar passed. */
   | { type: 'points'; points: number }
   /** A bomb, a pillar: one heart less. */
@@ -28,7 +31,14 @@ export type SceneFeed = {
   /** The question itself, for the banner: also drawn by some scenes. */
   prompt: string;
   /** The engine's verdict on the last pick, for the scene to react (a wrong gem turns to a bomb). */
-  verdict: { key: number; index: number; correct: boolean; serial: number } | null;
+  verdict: {
+    key: number;
+    index: number;
+    /** Every label of a pick (two bubbles, two cards). */
+    indexes?: readonly number[];
+    correct: boolean;
+    serial: number;
+  } | null;
 };
 
 export const EMPTY_FEED: SceneFeed = { key: 0, labels: [], prompt: '', verdict: null };

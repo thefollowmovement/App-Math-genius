@@ -66,7 +66,7 @@ export function GameCard({ card, open, onPlay }: GameCardProps) {
         <Image
           source={thumb.sprite}
           contentFit="contain"
-          style={{ width: 64, height: 64, opacity: card.ready ? 1 : 0.5 }}
+          style={{ width: 64, height: 64 }}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
         />
@@ -82,17 +82,13 @@ export function GameCard({ card, open, onPlay }: GameCardProps) {
         <ThemedText variant="caption">
           {card.record === null ? t.room.noRecord : t.room.record(card.record)}
         </ThemedText>
-        {card.ready ? (
-          <Button
-            title={t.play.start}
-            accessibilityLabel={t.room.play(item.name)}
-            icon={<Icon name="play" color="onPrimary" size="sm" />}
-            disabled={!open}
-            onPress={onPlay}
-          />
-        ) : (
-          <Button title={t.room.soon} variant="outline" disabled onPress={() => undefined} />
-        )}
+        <Button
+          title={t.play.start}
+          accessibilityLabel={t.room.play(item.name)}
+          icon={<Icon name="play" color="onPrimary" size="sm" />}
+          disabled={!open}
+          onPress={onPlay}
+        />
       </View>
     </View>
   );

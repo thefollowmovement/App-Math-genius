@@ -11,8 +11,6 @@ import {
   type MiniGameId,
 } from '@math-genius/shared';
 
-import { rulesOf } from '@/games/catalog';
-
 import type { ChildGames } from './practice/practice-store';
 
 /** What game_room returns (supabase/migrations/*_mini_games.sql). */
@@ -55,8 +53,6 @@ export function parseGameRoom(value: unknown): GameRoomData | null {
 
 export type GameCard = {
   id: MiniGameId;
-  /** False while the game is still to come in this version of the app. */
-  ready: boolean;
   record: number | null;
   stars: number;
 };
@@ -106,7 +102,6 @@ export function gameRoomView(input: {
       );
       return {
         id,
-        ready: rulesOf(id) !== null,
         // A best of 0 is no record yet.
         record: scores.length > 0 && Math.max(...scores) > 0 ? Math.max(...scores) : null,
         stars: Math.max(fromServer?.bestStars ?? 0, fromDevice?.stars ?? 0),

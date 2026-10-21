@@ -29,8 +29,8 @@ describe('GameRoom', () => {
       screen.getByRole('button', { name: t.room.play(t.items['vol-du-chaton'].name) }),
     );
     expect(onPlay).toHaveBeenCalledWith('vol-du-chaton');
-    // The games still to come are there, not playable yet.
-    expect(screen.getAllByRole('button', { name: t.room.soon }).length).toBe(3);
+    // All six games are there.
+    expect(screen.getAllByRole('button', { name: /^Jouer à / })).toHaveLength(6);
   });
 
   it('says when today’s time is up, and plays nothing more', async () => {

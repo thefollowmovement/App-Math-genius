@@ -43,9 +43,9 @@ describe('the game room', () => {
       limitMinutes: 20,
     });
     expect(view.cards).toEqual([
-      { id: 'peche-eclair', ready: true, record: 900, stars: 2 },
-      { id: 'vol-du-chaton', ready: true, record: 450, stars: 1 },
-      { id: 'bulles-magiques', ready: false, record: null, stars: 0 },
+      { id: 'peche-eclair', record: 900, stars: 2 },
+      { id: 'vol-du-chaton', record: 450, stars: 1 },
+      { id: 'bulles-magiques', record: null, stars: 0 },
     ]);
     expect(view).toMatchObject({ state: 'open', playedMinutes: 5, leftS: 900, gemsToday: 6 });
   });

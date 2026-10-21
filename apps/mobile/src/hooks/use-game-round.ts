@@ -3,6 +3,7 @@ import {
   liveMastery,
   planGameQuestion,
   recordAttempt,
+  sumResponse,
   type ExerciseResponse,
   type PlannedGameQuestion,
   type PlannerContext,
@@ -36,6 +37,7 @@ import {
   type GameRules,
   type RoundState,
 } from '@/games/round';
+import { strings } from '@/i18n';
 
 /** ready: the rules and « JOUER »; playing; paused; over: the end of the round. */
 export type RoundPhase = 'ready' | 'playing' | 'paused' | 'over';
@@ -53,17 +55,36 @@ type Live = {
   attempts: StoredAttempt[];
   /** Questions asked so far: the next one's index. */
   asked: number;
-  question: PlannedGameQuestion | null;
-  /** When the question appeared, on the round's clock. */
+  /** The question on screen, or the board of pairs (Memory). */
+  questions: PlannedGameQuestion[];
+  /** Pairs of the board already answered: one answer each. */
+  answered: Set<number>;
+  matched: number;
+  /** When the question appeared (or the last answer), on the round's clock. */
   shownAt: number;
   serial: number;
   ended: boolean;
 };
 
+const isBoard = (questions: readonly PlannedGameQuestion[]) =>
+  questions.length > 1 || questions[0]?.question.kind === 'pair';
+
 /** What the question shows on the scene: the answers to pick from, and the banner. */
-function feedOf(next: PlannedGameQuestion | null, key: number, previous: SceneFeed): SceneFeed {
-  if (!next) return { ...previous, key, labels: [], prompt: '' };
-  const { question } = next;
+function feedOf(
+  questions: readonly PlannedGameQuestion[],
+  key: number,
+  previous: SceneFeed,
+): SceneFeed {
+  const [first] = questions;
+  if (!first) return { ...previous, key, labels: [], prompt: '' };
+  if (isBoard(questions)) {
+    // Each pair's calculation, then its result: label 2 × n and 2 × n + 1.
+    const labels = questions.flatMap(({ question }) =>
+      question.kind === 'pair' ? [question.left, question.right] : [],
+    );
+    return { ...previous, key, labels, prompt: strings.games.play.pairs };
+  }
+  const { question } = first;
   switch (question.kind) {
     case 'choices':
       return {
@@ -77,19 +98,34 @@ function feedOf(next: PlannedGameQuestion | null, key: number, previous: SceneFe
         ...previous,
         key,
         labels: question.numbers.map((number) => number.label),
-        prompt: question.target,
+        prompt: strings.games.play.target(question.target, question.operator),
       };
     case 'pair':
       return { ...previous, key, labels: [question.left, question.right], prompt: '' };
   }
 }
 
-/** The answer a pick stands for, graded by the engine. */
-function responseOf(next: PlannedGameQuestion, index: number): ExerciseResponse | null {
-  const { question } = next;
-  if (question.kind === 'choices') return question.choices[index]?.response ?? null;
-  if (question.kind === 'pair') return question.response;
-  return null;
+/**
+ * A board of pairs never shows the same card twice: two « 12 » would make two right pairings for
+ * one calculation.
+ */
+function boardOf(
+  plan: (index: number) => PlannedGameQuestion | null,
+  from: number,
+  size: number,
+): PlannedGameQuestion[] {
+  const board: PlannedGameQuestion[] = [];
+  const seen = new Set<string>();
+  for (let index = from; index < from + size * 3 && board.length < size; index++) {
+    const next = plan(index);
+    if (!next || next.question.kind !== 'pair') continue;
+    const { left, right } = next.question;
+    if (seen.has(left) || seen.has(right)) continue;
+    seen.add(left);
+    seen.add(right);
+    board.push(next);
+  }
+  return board;
 }
 
 /**
@@ -137,14 +173,26 @@ export function useGameRound({
   const ask = useCallback(() => {
     const current = live.current;
     if (!current || current.ended) return;
-    const context = { ...current.context, mastery: liveMastery(current.context, current.attempts) };
-    const next = planGameQuestion(context, current.asked, rules.question);
-    current.asked += 1;
-    current.question = next;
+    const plan = (index: number) =>
+      planGameQuestion(
+        { ...current.context, mastery: liveMastery(current.context, current.attempts) },
+        index,
+        rules.question,
+      );
+    const size = rules.board ?? 1;
+    const questions =
+      size > 1
+        ? boardOf(plan, current.asked, size)
+        : [plan(current.asked)].filter((next): next is PlannedGameQuestion => next !== null);
+    current.asked += size > 1 ? size * 3 : 1;
+    current.questions = questions;
+    current.answered = new Set();
+    current.matched = 0;
     current.shownAt = clock.get();
-    feed.set(feedOf(next, current.asked, feed.get()));
-    setPrompt(next ? feedOf(next, current.asked, EMPTY_FEED).prompt : null);
-  }, [clock, feed, rules.question]);
+    const next = feedOf(questions, current.asked, feed.get());
+    feed.set(next);
+    setPrompt(questions.length > 0 ? next.prompt : null);
+  }, [clock, feed, rules.board, rules.question]);
 
   const end = useCallback(() => {
     const current = live.current;
@@ -165,13 +213,12 @@ export function useGameRound({
     setPhase('over');
   }, [bestScore, childId, rules]);
 
-  const answer = useCallback(
-    (key: number, index: number) => {
+  /** Records an answer to the question at `position`, graded by the engine; returns the verdict. */
+  const record = useCallback(
+    (position: number, response: ExerciseResponse): boolean | null => {
       const current = live.current;
-      const next = current?.question;
-      if (!current || current.ended || !next || key !== current.asked) return;
-      const response = responseOf(next, index);
-      if (!response) return;
+      const next = current?.questions[position];
+      if (!current || !next) return null;
       const correct = gradeResponse(next.question.exercise, response).correct;
       const timeMs = Math.max(0, Math.round(clock.get() - current.shownAt));
       const attempt = recordAttempt(current.context, current.attempts, next.planned, {
@@ -182,25 +229,105 @@ export function useGameRound({
       });
       const stored: StoredAttempt = { ...attempt, response };
       current.attempts = [...current.attempts, stored];
+      current.answered.add(position);
+      current.shownAt = clock.get();
       const after = rules.onAnswer(state.current, { correct, timeMs });
       update(after);
       recordRoundAnswer(childId, current.id, stored, after.score);
       playSound(correct ? 'right' : 'wrong');
       if (correct) feel.right();
       else feel.wrong();
+      return correct;
+    },
+    [childId, clock, rules, update],
+  );
+
+  /** Tells the scene, then moves on (or ends the round at the last heart). */
+  const settle = useCallback(
+    (key: number, indexes: number[], correct: boolean, moveOn: boolean) => {
+      const current = live.current;
+      if (!current) return;
       current.serial += 1;
-      feed.set({ ...feed.get(), verdict: { key, index, correct, serial: current.serial } });
-      if (outOfHearts(after)) {
+      feed.set({
+        ...feed.get(),
+        verdict: { key, index: indexes[0] ?? 0, indexes, correct, serial: current.serial },
+      });
+      if (outOfHearts(state.current)) {
         end();
         return;
       }
-      if (correct || !rules.retry) {
+      if (moveOn) {
         // The same key until the next question: a late pick of this one is ignored.
-        current.question = null;
+        current.questions = [];
         timer.current = setTimeout(ask, rules.nextDelayMs);
       }
     },
-    [ask, childId, clock, end, feed, rules, update],
+    [ask, end, feed, rules.nextDelayMs],
+  );
+
+  const choose = useCallback(
+    (key: number, index: number) => {
+      const current = live.current;
+      const next = current?.questions[0];
+      if (!current || current.ended || !next || key !== current.asked) return;
+      if (next.question.kind !== 'choices') return;
+      const response = next.question.choices[index]?.response;
+      if (!response) return;
+      const correct = record(0, response);
+      if (correct === null) return;
+      settle(key, [index], correct, correct || !rules.retry);
+    },
+    [record, rules.retry, settle],
+  );
+
+  const pick = useCallback(
+    (key: number, indexes: number[], known: boolean) => {
+      const current = live.current;
+      const [first] = current?.questions ?? [];
+      if (!current || current.ended || !first || key !== current.asked) return;
+      const [a, b] = indexes;
+      if (a === undefined || b === undefined || a === b) return;
+
+      // Two bubbles: their sum (or product) is the answer.
+      if (!isBoard(current.questions) && first.question.kind === 'sum') {
+        const { numbers } = first.question;
+        const values = [numbers[a]?.value, numbers[b]?.value].filter(
+          (value): value is NonNullable<typeof value> => value !== undefined,
+        );
+        if (values.length !== 2) return;
+        const correct = record(0, sumResponse(first.question, values));
+        if (correct === null) return;
+        settle(key, indexes, correct, correct || !rules.retry);
+        return;
+      }
+
+      // Two cards of a board: card 2 × n is pair n's calculation, 2 × n + 1 its result.
+      const pairA = Math.floor(a / 2);
+      const pairB = Math.floor(b / 2);
+      if (pairA === pairB) {
+        const pair = current.questions[pairA]?.question;
+        if (pair?.kind === 'pair' && !current.answered.has(pairA)) record(pairA, pair.response);
+        else playSound('right');
+        current.matched += 1;
+        if (current.matched >= current.questions.length) {
+          update(addPoints(state.current, rules.boardBonus ?? 0));
+        }
+        settle(key, indexes, true, current.matched >= current.questions.length);
+        return;
+      }
+      // A slip of memory is not a mistake in maths: only cards the child had seen both count.
+      const calculation = [a, b].find((index) => index % 2 === 0);
+      const result = [a, b].find((index) => index % 2 === 1);
+      if (known && calculation !== undefined && result !== undefined) {
+        const position = Math.floor(calculation / 2);
+        const other = current.questions[Math.floor(result / 2)]?.question;
+        if (other?.kind === 'pair' && !current.answered.has(position)) {
+          record(position, other.response);
+        }
+      }
+      settle(key, indexes, false, false);
+    },
+    [record, rules.boardBonus, rules.retry, settle, update],
   );
 
   const onEvent = useCallback(
@@ -208,9 +335,10 @@ export function useGameRound({
       if (!live.current || live.current.ended) return;
       switch (event.type) {
         case 'choice':
-          answer(event.key, event.index);
+          choose(event.key, event.index);
           break;
         case 'pick':
+          pick(event.key, event.indexes, event.known === true);
           break;
         case 'points':
           update(addPoints(state.current, event.points));
@@ -230,7 +358,7 @@ export function useGameRound({
           break;
       }
     },
-    [answer, end, update],
+    [choose, end, pick, update],
   );
 
   /** A new round, as long as `limitS` (the game's length, or today's time left). */
@@ -250,7 +378,9 @@ export function useGameRound({
         context: plannerContext(stored),
         attempts: [],
         asked: 0,
-        question: null,
+        questions: [],
+        answered: new Set(),
+        matched: 0,
         shownAt: 0,
         serial: 0,
         ended: false,

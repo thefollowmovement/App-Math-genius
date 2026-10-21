@@ -43,6 +43,10 @@ export type GameRules = {
   retry: boolean;
   /** The next question waits this long after an answer, for the scene to show what happened. */
   nextDelayMs: number;
+  /** Questions shown together (a board of pairs for Memory); one otherwise. */
+  board?: number;
+  /** Points for a board cleared. */
+  boardBonus?: number;
   start(): RoundState;
   onAnswer(state: RoundState, answer: GameAnswer): RoundState;
   onEnd(state: RoundState): GameResult;

@@ -4,22 +4,28 @@ import { Canvas } from '@shopify/react-native-skia';
 import { useMemo, type ComponentType } from 'react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
+import { BubblesScene } from './bubbles/scene';
 import { FlightScene } from './flight/scene';
 import { FishingScene } from './fishing/scene';
 import { GemRainScene } from './gem-rain/scene';
 import { useGameArt, type Background } from './kit/art';
 import { paletteOf } from './kit/draw';
 import type { SceneProps } from './kit/scene-props';
+import { MemoryScene } from './memory/scene';
+import { RaceScene } from './race/scene';
 
 /**
  * The game itself: a Skia canvas the size of the scene, and the touches that drive it. Loaded on
  * demand (load-stage.ts): on the web, Skia needs CanvasKit first.
  */
 
-const SCENES: Partial<Record<MiniGameId, ComponentType<SceneProps>>> = {
+const SCENES: Record<MiniGameId, ComponentType<SceneProps>> = {
   'peche-eclair': FishingScene,
   'pluie-de-gemmes': GemRainScene,
   'vol-du-chaton': FlightScene,
+  'bulles-magiques': BubblesScene,
+  'memory-du-compagnon': MemoryScene,
+  'course-des-croquettes': RaceScene,
 };
 
 export type StageProps = Omit<SceneProps, 'art' | 'palette'> & {
@@ -62,7 +68,6 @@ export default function GameStage({ game, background, companion, ...props }: Sta
     [input],
   );
   const Scene = SCENES[game];
-  if (!Scene) return null;
   const { width, height } = props.settings;
   return (
     <GestureDetector gesture={gesture}>
