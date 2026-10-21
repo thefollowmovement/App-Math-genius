@@ -1,4 +1,19 @@
 export {
+  ADVICE_TIPS,
+  DEFAULT_ADVICE_PROMPT,
+  MAX_TIP_WORDS,
+  adviceProblems,
+  advise,
+  buildAdvicePrompt,
+  parseAdvice,
+  readAdviceContext,
+  type AdviceContext,
+  type AdviceInput,
+  type AdviceProblem,
+  type AdviceResult,
+  type AdviceSettings,
+} from './advice';
+export {
   bannedWordsIn,
   checkExplanation,
   explanationText,

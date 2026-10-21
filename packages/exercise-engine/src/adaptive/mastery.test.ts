@@ -43,6 +43,24 @@ describe('mastery', () => {
     expect(decayedElo(startingRecord(decimals, 'CM1'), day(400))).toBe(1150);
   });
 
+  // The same case as supabase/tests/database/recaps.test.sql: the parent's statistics compute
+  // mastery in SQL (private.mastery_at and private.mastery_status_at).
+  it('fades and changes status as the database computes it', () => {
+    const at = (days: number) => new Date(Date.UTC(2026, 2, 1 + days)).toISOString();
+    const record: MasteryRecord = {
+      elo: 1500,
+      attempts: 12,
+      streak: 2,
+      masteredAt: null,
+      practicedAt: at(0),
+    };
+    expect([0, 7, 30, 365].map((days) => masteryOf(record, at(days)))).toEqual([88, 85, 74, 63]);
+    expect(masteryStatus({ ...record, attempts: 0, practicedAt: null }, at(7))).toBe('to_discover');
+    expect(masteryStatus(record, at(7))).toBe('in_progress');
+    expect(masteryStatus({ ...record, masteredAt: at(0) }, at(7))).toBe('mastered');
+    expect(masteryStatus({ ...record, masteredAt: at(0) }, at(30))).toBe('to_review');
+  });
+
   it('goes from in progress to mastered after two sessions at 80 or more', () => {
     let record = practise(startingRecord(decimals, 'CM1'), Array(12).fill(true), day(0));
     expect(masteryStatus(record, day(0))).toBe('in_progress');

@@ -68,6 +68,7 @@ export const fr = {
     addChild: 'Ajouter un enfant',
     childMode: 'Passer en mode enfant',
     signOut: 'Me déconnecter',
+    recaps: 'Réglages des récaps',
     today: {
       not_started: 'Pas encore de séance aujourd’hui',
       in_progress: 'Séance en cours',
@@ -151,6 +152,8 @@ export const fr = {
       minutes > 1 ? `Valable encore ${minutes}\u00a0minutes` : 'Valable encore 1 minute',
     expired: 'Ce code a expiré.',
     paired: 'Appareil relié\u00a0!',
+    progress: 'Voir les progrès',
+    progressHint: 'Calendrier, courbes, maîtrise et points de blocage',
     devicesTitle: 'Appareils reliés',
     noDevices: 'Aucun appareil relié pour l’instant.',
     pairedOn: (date: string) => `Relié depuis le ${date}`,
@@ -298,6 +301,176 @@ export const fr = {
       removeLabel: (period: string) => `Supprimer les vacances du ${period}`,
       period: (from: string, to: string) => `Du ${from} au ${to}`,
     },
+  },
+  progress: {
+    title: 'Progrès',
+    loading: 'Calcul des progrès…',
+    error: 'Les progrès n’ont pas pu être chargés.',
+    retry: 'Réessayer',
+    verdict: {
+      label: 'Ces deux dernières semaines',
+      title: {
+        good: 'Ça va bien',
+        watch: 'À surveiller',
+        alert: 'À reprendre en main',
+        none: 'Pas encore de séance',
+      },
+      sessions: (done: number, planned: number) =>
+        `${done}\u00a0séance${done > 1 ? 's' : ''} sur ${planned} prévue${planned > 1 ? 's' : ''}`,
+      played: (days: number) => `${days}\u00a0jour${days > 1 ? 's' : ''} d’exercices`,
+      percent: (rate: number) => `${Math.round(rate * 100)}\u00a0%`,
+      none: (name: string) => `Pas encore de séance pour ${name} ces deux dernières semaines.`,
+      inactive: (name: string, planned: number) =>
+        `${name} n’a fait aucune des ${planned} séances prévues : un petit coup de pouce aidera à reprendre.`,
+      good: (name: string, regular: string, success: string | null) =>
+        success
+          ? `${name} a fait ${regular}, avec ${success} de bonnes réponses.`
+          : `${name} a fait ${regular}.`,
+      irregular: (name: string, regular: string, success: string | null, many: boolean) =>
+        `${many ? 'Beaucoup de séances manquées' : 'Quelques séances manquées'}\u00a0: ${regular}.${success ? ` Quand ${name} joue, la réussite est bonne (${success}).` : ''}`,
+      struggling: (regular: string, success: string) =>
+        `La régularité est là (${regular}), mais la réussite baisse\u00a0: ${success}. Les points de blocage disent où aider.`,
+      both: (regular: string, success: string) =>
+        `Des séances manquées (${regular}) et une réussite en baisse (${success})\u00a0: c’est le moment d’en parler ensemble.`,
+    },
+    calendar: {
+      title: 'Calendrier',
+      previous: 'Mois précédent',
+      next: 'Mois suivant',
+      weekdays: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
+      status: {
+        done: 'fait',
+        started: 'commencé, pas terminé',
+        missed: 'manqué',
+        off: 'jour off',
+        vacation: 'vacances',
+        pending: 'prévu',
+        none: 'rien de prévu',
+      },
+      legend: {
+        done: 'Fait',
+        started: 'Commencé',
+        missed: 'Manqué',
+        off: 'Off ou vacances',
+      },
+      day: (date: string, status: string, minutes: number) =>
+        `${date}\u00a0: ${status}${minutes > 0 ? `, ${minutes}\u00a0min` : ''}`,
+    },
+    curves: {
+      title: 'Courbes',
+      ranges: { week: 'Semaine', month: 'Mois', quarter: 'Trimestre' },
+      time: { day: 'Temps par jour', week: 'Temps par semaine' },
+      success: { day: 'Taux de réussite par jour', week: 'Taux de réussite par semaine' },
+      xp: { day: 'XP par jour', week: 'XP par semaine' },
+      empty: 'Pas encore de séance sur la période.',
+      timeTotal: (minutes: number) => `${minutes}\u00a0min en tout`,
+      successTotal: (rate: number | null) =>
+        rate === null
+          ? 'Trop peu de réponses pour juger'
+          : `${rate}\u00a0% de bonnes réponses en tout`,
+      xpTotal: (xp: number) => `${xp.toLocaleString('fr-FR')}\u00a0XP en tout`,
+      point: (label: string, value: string) => `${label}\u00a0: ${value}`,
+      minutes: (minutes: number) => `${minutes}\u00a0min`,
+      rate: (rate: number) => `${rate}\u00a0%`,
+      xpValue: (xp: number) => `${xp}\u00a0XP`,
+      weekOf: (date: string) => `semaine du ${date}`,
+    },
+    domains: {
+      title: 'Maîtrise par domaine',
+      hint: (grade: string) => `Part du programme de ${grade} maîtrisée.`,
+      names: {
+        numbers: 'Nombres et calcul',
+        measures: 'Grandeurs et mesures',
+        geometry: 'Espace et géométrie',
+        data: 'Données et problèmes',
+      },
+      value: (value: number, mastered: number, total: number) =>
+        `${value}\u00a0% · ${mastered} compétence${mastered > 1 ? 's' : ''} maîtrisée${mastered > 1 ? 's' : ''} sur ${total}`,
+      percent: (value: number) => `${value}\u00a0%`,
+      mastered: (mastered: number, total: number) =>
+        `${mastered} compétence${mastered > 1 ? 's' : ''} maîtrisée${mastered > 1 ? 's' : ''} sur ${total}`,
+      none: 'Pas encore d’exercices pour cette classe.',
+    },
+    skills: {
+      title: 'Compétences',
+      lists: {
+        mastered: 'Maîtrisées',
+        in_progress: 'En cours',
+        to_consolidate: 'À consolider',
+      },
+      empty: 'Aucune pour l’instant.',
+      mastery: (mastery: number) => `${mastery}\u00a0%`,
+    },
+    blocking: {
+      title: 'Points de blocage',
+      hint: 'Les compétences avec le plus d’erreurs ce mois-ci, avec une vraie erreur.',
+      none: 'Pas de point de blocage ce mois-ci.',
+      errors: (errors: number, answered: number) =>
+        `${errors} erreur${errors > 1 ? 's' : ''} sur ${answered} réponse${answered > 1 ? 's' : ''}`,
+      mistake: (label: string) => `Erreur repérée\u00a0: ${label}`,
+      prompt: 'Énoncé',
+      given: 'Réponse',
+      expected: 'Bonne réponse',
+      unavailable: 'Exemple indisponible dans cette version de l’app.',
+    },
+    programme: {
+      title: 'Comparaison au programme',
+      ranks: {
+        ahead: 'En avance',
+        on_track: 'Dans le rythme',
+        behind: 'Un peu en retard',
+      },
+      text: (
+        grade: string,
+        expected: number,
+        total: number,
+        name: string,
+        mastered: number,
+        working: number,
+      ) =>
+        `À cette période, la classe de ${grade} a abordé environ ${expected} compétence${expected > 1 ? 's' : ''} sur ${total}. ${name} en maîtrise ${mastered} et en travaille ${working}.`,
+      gaps: (gaps: number, titles: string) =>
+        `${gaps} notion${gaps > 1 ? 's' : ''} des années précédentes à consolider\u00a0: ${titles}.`,
+      note: 'Estimation\u00a0: le programme de l’année est réparti de septembre à juin.',
+      none: 'Pas encore d’exercices pour cette classe.',
+    },
+    recaps: {
+      title: 'Récaps mensuels',
+      none: 'Le premier récap mensuel arrivera le 1er du mois prochain.',
+      item: (month: string) => `Récap ${/^[aeiou]/.test(month) ? 'd’' : 'de '}${month}`,
+      download: 'PDF',
+      downloadLabel: (month: string) =>
+        `Télécharger le récap ${/^[aeiou]/.test(month) ? 'd’' : 'de '}${month} en PDF`,
+      error: 'Le PDF n’a pas pu être ouvert. Réessayez dans un instant.',
+      settings: 'Réglages des récaps',
+    },
+  },
+  recapSettings: {
+    title: 'Récaps',
+    intro:
+      'Chaque dimanche à 19\u00a0h, le récap de la semaine ; le 1er du mois, le bilan du mois avec ses conseils et son PDF. Choisissez comment les recevoir.',
+    weekly: 'Récap hebdomadaire',
+    weeklyHint:
+      'Séances faites, série, temps, réussite, une compétence acquise et un point à travailler.',
+    monthly: 'Récap mensuel',
+    monthlyHint:
+      'Régularité avec les dates, maîtrise par domaine, badges, récompenses et trois conseils pour le mois suivant.',
+    push: 'Notification',
+    email: 'Email',
+    saved: 'Réglages enregistrés.',
+    loading: 'Chargement des réglages…',
+  },
+  recapCard: {
+    label: { week: 'Ta semaine', month: 'Ton mois' },
+    learned: (count: number) =>
+      `Tu as appris ${count} nouvelle${count > 1 ? 's' : ''} chose${count > 1 ? 's' : ''}\u00a0!`,
+    correct: (count: number) => `Tu as réussi ${count} exercice${count > 1 ? 's' : ''}\u00a0!`,
+    days: (count: number) => `${count}\u00a0jour${count > 1 ? 's' : ''} de mission`,
+    xp: (xp: number) => `+${xp.toLocaleString('fr-FR')}\u00a0XP`,
+    badges: (count: number) => `${count} badge${count > 1 ? 's' : ''}`,
+    title: { week: 'La semaine dernière', month: (month: string) => `En ${month}` },
+    close: 'Super\u00a0!',
+    closeLabel: 'Fermer le récap',
   },
   nudge: {
     title: (name: string) => `Envoyer un message à ${name}`,

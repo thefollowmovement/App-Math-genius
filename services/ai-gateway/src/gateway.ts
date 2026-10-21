@@ -48,7 +48,8 @@ export type CacheKey = {
 
 export type CachedExplanation = { id: string; template: Explanation };
 
-export type Task = 'realtime' | 'night' | 'preview';
+/** advice: the monthly recap's tips to the parent (advice.ts). */
+export type Task = 'realtime' | 'night' | 'preview' | 'advice';
 export type Outcome = 'ok' | 'rejected' | 'unreadable' | 'error';
 
 export type Usage = {

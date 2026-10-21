@@ -295,7 +295,12 @@ export const strings = {
       skill: 'Compétence',
       band: 'Tranche',
     },
-    tasks: { realtime: 'Temps réel', night: 'Nuit', preview: 'Test' } as Record<string, string>,
+    tasks: {
+      realtime: 'Temps réel',
+      night: 'Nuit',
+      preview: 'Test',
+      advice: 'Conseils du récap',
+    } as Record<string, string>,
     outcomes: { rejected: 'Refusée', unreadable: 'Illisible', error: 'Échec' } as Record<
       string,
       string
