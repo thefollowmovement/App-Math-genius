@@ -1,5 +1,23 @@
 // Generated from services/ai-gateway/src/index.ts by `pnpm functions:bundle`. Do not edit.
 
+// ../../packages/shared/src/grade.ts
+var GRADES = ["CP", "CE1", "CE2", "CM1", "CM2", "6e", "5e", "4e", "3e"];
+
+// ../../packages/shared/src/grade-bands.ts
+var GRADE_BANDS = ["cp-ce2", "cm1-cm2", "6e-5e", "4e-3e"];
+var BANDS = {
+  CP: "cp-ce2",
+  CE1: "cp-ce2",
+  CE2: "cp-ce2",
+  CM1: "cm1-cm2",
+  CM2: "cm1-cm2",
+  "6e": "6e-5e",
+  "5e": "6e-5e",
+  "4e": "4e-3e",
+  "3e": "4e-3e"
+};
+var gradeBand = (grade) => BANDS[grade];
+
 // ../../packages/curriculum/src/types.ts
 function defineGradeSkills(grade, programVersion, skills2) {
   return skills2.map((skill) => ({ ...skill, subject: "math", grade, programVersion }));
@@ -1133,24 +1151,6 @@ function getSkill(code) {
   return skill;
 }
 
-// ../../packages/shared/src/grade.ts
-var GRADES = ["CP", "CE1", "CE2", "CM1", "CM2", "6e", "5e", "4e", "3e"];
-
-// ../../packages/shared/src/grade-bands.ts
-var GRADE_BANDS = ["cp-ce2", "cm1-cm2", "6e-5e", "4e-3e"];
-var BANDS = {
-  CP: "cp-ce2",
-  CE1: "cp-ce2",
-  CE2: "cp-ce2",
-  CM1: "cm1-cm2",
-  CM2: "cm1-cm2",
-  "6e": "6e-5e",
-  "5e": "6e-5e",
-  "4e": "4e-3e",
-  "3e": "4e-3e"
-};
-var gradeBand = (grade) => BANDS[grade];
-
 // ../../packages/exercise-engine/src/random.ts
 function createRng(seed) {
   let state = seed >>> 0;
@@ -1672,11 +1672,11 @@ var nombres_decimaux_default = defineGenerator({
       [hundredths, "centi\xE8me", "centiemes"]
     ];
     const shown2 = parts2.filter(([count]) => count > 0);
-    const words = shown2.map(([count, name]) => plural(count, name));
+    const words2 = shown2.map(([count, name]) => plural(count, name));
     const answer = decimal(units * 100 + tenths * 10 + hundredths, 2);
     return {
       type: "numeric",
-      prompt: `\xC9cris ce nombre avec une virgule : ${list(words)}.`,
+      prompt: `\xC9cris ce nombre avec une virgule : ${list(words2)}.`,
       check: shown2.map(([count, , fn]) => fn ? `${fn}(${count})` : `${count}`).join(" + "),
       answer,
       mistakes: {
@@ -1688,7 +1688,7 @@ var nombres_decimaux_default = defineGenerator({
       },
       forms: ["decimal"],
       hint: "Les dixi\xE8mes s\u2019\xE9crivent juste apr\xE8s la virgule, puis viennent les centi\xE8mes.",
-      explanation: [`${list(words)} : ${formatDecimal(answer)}`]
+      explanation: [`${list(words2)} : ${formatDecimal(answer)}`]
     };
   }
 });
@@ -2734,12 +2734,12 @@ function parseExplanation(text2) {
 }
 var normalize = (text2) => text2.toLocaleLowerCase("fr").normalize("NFD").replace(/\p{M}/gu, "");
 function bannedWordsIn(text2, banned) {
-  const words = new Set(normalize(text2).split(/[^\p{L}\p{N}'’-]+/u));
+  const words2 = new Set(normalize(text2).split(/[^\p{L}\p{N}'’-]+/u));
   const plain = normalize(text2);
   return banned.filter((word) => {
     const term = normalize(word.trim());
     if (!term) return false;
-    return term.includes(" ") ? plain.includes(term) : words.has(term);
+    return term.includes(" ") ? plain.includes(term) : words2.has(term);
   });
 }
 function checkExplanation(template, frame, banned) {
@@ -2782,9 +2782,9 @@ var DEFAULT_PROMPT = {
 };
 var universeText = (universe) => {
   if (!universe) return EVERYDAY;
-  const words = universe.vocabulary.words?.join(", ");
+  const words2 = universe.vocabulary.words?.join(", ");
   const images = universe.vocabulary.images?.join(" ; ");
-  return [universe.name, words && `mots : ${words}`, images && `images : ${images}`].filter(Boolean).join(" \u2014 ");
+  return [universe.name, words2 && `mots : ${words2}`, images && `images : ${images}`].filter(Boolean).join(" \u2014 ");
 };
 function buildPrompt(template, context) {
   const { frame } = context;
@@ -2991,6 +2991,144 @@ var usageRow = (usage, childId) => ({
   prompt_version: usage.promptVersion
 });
 
+// src/advice.ts
+var ADVICE_TIPS = 3;
+var MAX_TIP_WORDS = 35;
+var MIN_TIP_WORDS = 4;
+var TIMEOUT_MS = 2e4;
+var MAX_TOKENS = 350;
+var DEFAULT_ADVICE_PROMPT = {
+  version: 1,
+  system: [
+    "Tu es le coach d\u2019une app de maths pour enfants. Tu \xE9cris au parent trois conseils concrets pour le mois qui vient, \xE0 partir du bilan que l\u2019app a calcul\xE9 et du profil d\u2019apprentissage de son enfant.",
+    "Le code a d\xE9j\xE0 tout calcul\xE9 : tu ne calcules rien et tu n\u2019\xE9cris aucun chiffre.",
+    "Tu vouvoies le parent et tu parles de \xAB votre enfant \xBB, jamais d\u2019un pr\xE9nom. Ton bienveillant, sans culpabiliser : pas de reproche, pas de comparaison avec d\u2019autres enfants, pas de diagnostic.",
+    "Chaque conseil est une action simple, \xE0 faire \xE0 la maison ou avec l\u2019app, en une phrase de moins de trente mots.",
+    'R\xE9ponds uniquement en JSON : {"tips": ["premier conseil", "deuxi\xE8me conseil", "troisi\xE8me conseil"]}.'
+  ].join("\n"),
+  user: [
+    "Classe : {{classe}}.",
+    "Bilan du mois : {{bilan}}",
+    "Profil d\u2019apprentissage : {{profil}}"
+  ].join("\n")
+};
+function buildAdvicePrompt(template, input) {
+  const fields = {
+    classe: input.grade,
+    bilan: input.facts.map((fact) => `- ${fact}`).join("\n") || "(rien de notable)",
+    profil: input.summary?.trim() || "(pas de profil)"
+  };
+  const fill = (text2) => text2.replace(/\{\{(\w+)\}\}/g, (all, name) => fields[name] ?? all);
+  return { system: fill(template.system), user: fill(template.user) };
+}
+function parseAdvice(text2) {
+  const start = text2.indexOf("{");
+  const end = text2.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  let value;
+  try {
+    value = JSON.parse(text2.slice(start, end + 1));
+  } catch {
+    return null;
+  }
+  if (typeof value !== "object" || value === null) return null;
+  const { tips } = value;
+  if (!Array.isArray(tips) || !tips.every((tip) => typeof tip === "string")) return null;
+  return tips.map((tip) => tip.trim().replace(/\s+/g, " "));
+}
+var words = (text2) => text2.split(/\s+/).filter(Boolean).length;
+function adviceProblems(tips, banned) {
+  if (!tips) return ["unreadable"];
+  const problems = /* @__PURE__ */ new Set();
+  if (tips.length !== ADVICE_TIPS) problems.add("count");
+  for (const tip of tips) {
+    const count = words(tip);
+    if (count < MIN_TIP_WORDS || count > MAX_TIP_WORDS) problems.add("length");
+    if (/\d/.test(tip)) problems.add("digits");
+    if (bannedWordsIn(tip, banned).length > 0) problems.add("banned-word");
+  }
+  return [...problems];
+}
+var withinBudget = (settings, provider) => provider.price.input === 0 && provider.price.output === 0 || settings.spentTodayUsd < settings.dailyCapUsd && settings.spentMonthUsd < settings.monthlyCapUsd;
+async function advise(input, settings, store, fetcher = fetch) {
+  if (!settings.enabled) return { ok: false, reason: "off" };
+  const provider = settings.realtime ?? settings.night;
+  if (!provider) return { ok: false, reason: "no-provider" };
+  if (!withinBudget(settings, provider)) return { ok: false, reason: "budget" };
+  const usage = (fields) => ({
+    task: "advice",
+    provider: provider.kind,
+    model: provider.model,
+    tokensIn: 0,
+    tokensOut: 0,
+    costUsd: 0,
+    latencyMs: 0,
+    outcome: "ok",
+    problems: [],
+    key: null,
+    promptVersion: settings.prompt.version,
+    ...fields
+  });
+  let result;
+  try {
+    result = await chat(
+      provider,
+      {
+        ...buildAdvicePrompt(settings.prompt, input),
+        maxTokens: MAX_TOKENS,
+        temperature: 0.6,
+        timeoutMs: TIMEOUT_MS
+      },
+      fetcher
+    );
+  } catch (failure) {
+    await store.logUsage(
+      usage({
+        outcome: "error",
+        latencyMs: failure instanceof ProviderError ? failure.latencyMs : 0,
+        problems: [failure instanceof Error ? failure.message : "error"]
+      })
+    );
+    return { ok: false, reason: "failed" };
+  }
+  const spent = {
+    tokensIn: result.tokensIn,
+    tokensOut: result.tokensOut,
+    costUsd: callCost(provider, result.tokensIn, result.tokensOut),
+    latencyMs: result.latencyMs
+  };
+  const tips = parseAdvice(result.text);
+  let problems = adviceProblems(tips, settings.banned);
+  if (problems.length === 0 && tips && settings.moderation) {
+    try {
+      const flagged = await moderate(settings.moderation, tips.join("\n"), fetcher);
+      if (flagged.length > 0) problems = ["moderation"];
+    } catch {
+      problems = ["moderation"];
+    }
+  }
+  const outcome = problems.length === 0 ? "ok" : tips ? "rejected" : "unreadable";
+  await store.logUsage(usage({ ...spent, outcome, problems }));
+  return outcome === "ok" && tips ? { ok: true, tips } : { ok: false, reason: "rejected" };
+}
+function readAdviceContext(value, secrets) {
+  if (typeof value !== "object" || value === null) return null;
+  const context = value;
+  const grade = GRADES.find((item) => item === context.grade);
+  if (!grade) return null;
+  const settings = readSettings(context, secrets);
+  const prompt = typeof context.prompt === "object" && context.prompt !== null ? context.prompt : {};
+  const system = typeof prompt.system === "string" ? prompt.system : "";
+  const user = typeof prompt.user === "string" ? prompt.user : "";
+  return {
+    grade,
+    settings: {
+      ...settings,
+      prompt: system && user ? { version: typeof prompt.version === "number" ? prompt.version : 1, system, user } : DEFAULT_ADVICE_PROMPT
+    }
+  };
+}
+
 // src/night.ts
 var keyString = (key) => [key.skill, key.error ?? "", key.universe ?? "", key.band].join("|");
 var BAND_GRADE = {
@@ -3028,8 +3166,8 @@ function nightJobs(input) {
 var REALTIME_TIMEOUT_MS = 8e3;
 var NIGHT_TIMEOUT_MS = 45e3;
 var NIGHT_RUN_MS = 9e4;
-var MAX_TOKENS = 400;
-var withinBudget = (settings, provider) => provider.price.input === 0 && provider.price.output === 0 || settings.spentTodayUsd < settings.dailyCapUsd && settings.spentMonthUsd < settings.monthlyCapUsd;
+var MAX_TOKENS2 = 400;
+var withinBudget2 = (settings, provider) => provider.price.input === 0 && provider.price.output === 0 || settings.spentTodayUsd < settings.dailyCapUsd && settings.spentMonthUsd < settings.monthlyCapUsd;
 async function generate(input, provider, settings, fetcher = fetch) {
   const frame = coachFrame(input.exercise, input.response);
   const error = input.key.error;
@@ -3061,7 +3199,7 @@ async function generate(input, provider, settings, fetcher = fetch) {
       provider,
       {
         ...messages,
-        maxTokens: MAX_TOKENS,
+        maxTokens: MAX_TOKENS2,
         temperature: 0.7,
         timeoutMs: input.task === "realtime" ? REALTIME_TIMEOUT_MS : NIGHT_TIMEOUT_MS
       },
@@ -3134,7 +3272,7 @@ async function explain(input, settings, store, fetcher = fetch) {
   }
   const provider = settings.realtime;
   if (!provider) return { source: "standard", reason: "no-provider" };
-  if (!withinBudget(settings, provider)) return { source: "standard", reason: "budget" };
+  if (!withinBudget2(settings, provider)) return { source: "standard", reason: "budget" };
   const generated = await generate(
     {
       exercise,
@@ -3179,7 +3317,7 @@ async function pregenerate(jobs, settings, store, fetcher = fetch, clock = {
   if (!settings.enabled || !provider) return { ...counts, skipped: jobs.length };
   let spent = 0;
   for (const job of jobs) {
-    const affordable = withinBudget(
+    const affordable = withinBudget2(
       { ...settings, spentTodayUsd: settings.spentTodayUsd + spent },
       provider
     );
@@ -3224,7 +3362,7 @@ async function pregenerate(jobs, settings, store, fetcher = fetch, clock = {
 async function preview(input, settings, store, fetcher = fetch) {
   const provider = input.night ? settings.night ?? settings.realtime : settings.realtime;
   if (!provider) return { ok: false, reason: "no-provider" };
-  if (!withinBudget(settings, provider)) return { ok: false, reason: "budget" };
+  if (!withinBudget2(settings, provider)) return { ok: false, reason: "budget" };
   const sample = coachSample(input.key.skill, input.key.error);
   if (!sample) return { ok: false, reason: "no-sample" };
   const generated = await generate(
@@ -3292,15 +3430,21 @@ function parsePreviewRequest(body) {
   };
 }
 export {
+  ADVICE_TIPS,
+  DEFAULT_ADVICE_PROMPT,
   DEFAULT_PROMPT,
   EVERYDAY,
   GRADES,
+  MAX_TIP_WORDS,
   MISTRAL_URL,
   NIGHT_RUN_MS,
   ProviderError,
   TONES,
+  adviceProblems,
+  advise,
   bandGrade,
   bannedWordsIn,
+  buildAdvicePrompt,
   buildPrompt,
   callCost,
   chat,
@@ -3316,6 +3460,7 @@ export {
   keyString,
   moderate,
   nightJobs,
+  parseAdvice,
   parseCoachRequest,
   parseExplanation,
   parsePreviewRequest,
@@ -3323,6 +3468,7 @@ export {
   pregenerate,
   preview,
   providerOf,
+  readAdviceContext,
   readChildContext,
   readNightPlan,
   readSettings,

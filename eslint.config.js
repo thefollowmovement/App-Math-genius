@@ -32,7 +32,10 @@ module.exports = defineConfig([
   },
   {
     // Domain packages stay framework-free so they run in the app, in tests and on the server.
-    files: ['packages/{shared,curriculum,exercise-engine}/**/*.ts', 'services/ai-gateway/**/*.ts'],
+    files: [
+      'packages/{shared,curriculum,exercise-engine}/**/*.ts',
+      'services/{ai-gateway,recaps}/**/*.ts',
+    ],
     rules: {
       'no-restricted-imports': [
         'error',
