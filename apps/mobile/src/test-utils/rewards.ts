@@ -23,6 +23,7 @@ export const award = (overrides: Partial<Award> = {}): Award => ({
   boss: null,
   challenge: null,
   parent_rewards: [],
+  game: null,
   ...overrides,
 });
 

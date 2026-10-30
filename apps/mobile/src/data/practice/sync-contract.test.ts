@@ -4,10 +4,15 @@ import { join } from 'node:path';
 import { sessionPayload } from './sync-engine';
 import type { StoredSession } from './practice-store';
 
-// The keys sync_session reads, taken from the migration itself.
+// The keys sync_session reads, taken from the last migration that writes it.
 const migrations = join(__dirname, '../../../../../supabase/migrations');
-const file = readdirSync(migrations).find((name) => name.endsWith('_practice_sessions.sql'));
-const sql = readFileSync(join(migrations, file ?? ''), 'utf8');
+const sql =
+  readdirSync(migrations)
+    .filter((name) => name.endsWith('.sql'))
+    .sort()
+    .map((name) => readFileSync(join(migrations, name), 'utf8'))
+    .filter((text) => /function public\.sync_session\(/.test(text))
+    .at(-1) ?? '';
 
 function recordsetColumns(alias: string): string[] {
   const match = new RegExp(`\\) as ${alias} \\(([^)]*)\\)`, 's').exec(sql);
@@ -63,8 +68,23 @@ describe('sync_session contract', () => {
 
   it('sends every session field the server reads', () => {
     const read = [...sql.matchAll(/p_session ->>? '([a-z_]+)'/g)].map((match) => match[1]);
-    expect(read.length).toBeGreaterThan(5);
+    expect(read).toContain('game');
     for (const key of read) expect(payload).toHaveProperty(key ?? '');
     expect(payload.goal).toEqual({ type: 'duration', value: 15 });
+    expect(payload.game).toBeNull();
+  });
+
+  it('sends a round with its game, score and stars, as the server reads them', () => {
+    const round = sessionPayload({
+      ...session,
+      kind: 'game',
+      goal: { type: 'duration', minutes: 2 },
+      game: { id: 'vol-du-chaton', score: 640, stars: 2 },
+    });
+    const read = [...sql.matchAll(/p_session -> 'game' ->> '([a-z_]+)'/g)].map((match) => match[1]);
+    expect(read.sort()).toEqual(['id', 'score', 'stars']);
+    expect(round.game).toEqual({ id: 'vol-du-chaton', score: 640, stars: 2 });
+    // A round moves the ratings, not the sessions in a row toward « maîtrisée ».
+    expect(round.mastery[0]).toMatchObject({ sessions_streak: 0 });
   });
 });

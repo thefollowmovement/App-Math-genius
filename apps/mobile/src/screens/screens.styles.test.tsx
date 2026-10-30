@@ -51,6 +51,15 @@ import { SessionSummary } from './session-summary';
 import { Shop } from './shop';
 import { SignUp } from './sign-up';
 import { WorldMap } from './world-map';
+import { makeMutable } from 'react-native-reanimated';
+
+import { gameRoomView } from '@/data/games-model';
+import { fishingRules } from '@/games/fishing/rules';
+import { NO_INPUT } from '@/games/kit/scene';
+import { newRound } from '@/games/round';
+
+import { GamePlay } from './game-play';
+import { GameRoom } from './game-room';
 
 const globalCss = compileGlobalCss();
 
@@ -64,6 +73,7 @@ const lea: Child = {
   avatar: {},
   personalization_consent_at: null,
   universe_asked_at: null,
+  game_minutes_limit: 20,
 };
 const tom: Child = { ...lea, id: 'tom', display_name: 'Tom', gender: 'boy', grade: 'CM1' };
 const vacation: VacationRow = {
@@ -152,6 +162,13 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
         vacations={[vacation]}
         onEditRoutine={jest.fn()}
         rewards={parentRewards({ error: 'network' })}
+        games={{
+          limitMinutes: 20,
+          today: { playedMinutes: 12, gems: 6, gemsCap: 20 },
+          saving: false,
+          error: null,
+          onChangeLimit: jest.fn(),
+        }}
         profile={{
           enabled: true,
           profile: {
@@ -440,6 +457,53 @@ const screens: { name: string; render: () => ReactElement; tall?: boolean }[] = 
         onBuyFreeze={jest.fn()}
         onBuy={jest.fn()}
         onWear={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'GameRoom',
+    render: () => (
+      <GameRoom
+        view={gameRoomView({
+          server: undefined,
+          local: { records: { 'peche-eclair': { score: 640, stars: 2 } }, day: null },
+          today: '2026-10-21',
+          limitMinutes: 20,
+        })}
+        companion={{ id: 'hibou', stage: 1 }}
+        onPlay={jest.fn()}
+      />
+    ),
+  },
+  {
+    name: 'GamePlay (the end of a round)',
+    render: () => (
+      <GamePlay
+        game="peche-eclair"
+        rules={fishingRules}
+        phase="over"
+        round={newRound(null)}
+        prompt="7 × 8"
+        companion={{ id: 'hibou', stage: 1 }}
+        clock={makeMutable(90_000)}
+        input={makeMutable(NO_INPUT)}
+        limitMs={90_000}
+        outcome={{ roundId: 'r1', score: 760, stars: 2, record: true, right: 6, answered: 8 }}
+        award={{ status: 'done', xp: 70, gems: 2, gemsFull: false }}
+        loading={false}
+        canReplay
+        sound
+        vibration
+        stage={() => null}
+        onStart={jest.fn()}
+        onPause={jest.fn()}
+        onResume={jest.fn()}
+        onQuit={jest.fn()}
+        onAction={jest.fn()}
+        onToggleSound={jest.fn()}
+        onToggleVibration={jest.fn()}
+        onReplay={jest.fn()}
+        onRoom={jest.fn()}
       />
     ),
   },

@@ -49,6 +49,19 @@ const ICONS = {
     paths: ['M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.6 5.8 21.1l1.4-7L2 9.3l7-.8z'],
   },
   bolt: { fill: true, paths: ['M13 2L4 14h7l-1 8 9-12h-7z'] },
+  games: {
+    fill: false,
+    paths: [
+      'M7 7h10a5 5 0 0 1 5 5v3a3 3 0 0 1-5.5 1.6L15 15H9l-1.5 1.6A3 3 0 0 1 2 15v-3a5 5 0 0 1 5-5z',
+      'M7 10v4M5 12h4',
+      'M15.5 11h.01M18 13h.01',
+    ],
+  },
+  pause: { fill: true, paths: ['M6 4h4v16H6z', 'M14 4h4v16h-4z'] },
+  heart: {
+    fill: true,
+    paths: ['M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z'],
+  },
 } as const;
 
 export type IconName = keyof typeof ICONS;

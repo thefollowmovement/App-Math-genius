@@ -2,7 +2,7 @@ import { canSee, homeFor, pageOf, pagesFor } from './navigation';
 
 describe('the back-office’s pages by role', () => {
   it('shows the super-admin everything', () => {
-    expect(pagesFor('super_admin')).toHaveLength(8);
+    expect(pagesFor('super_admin')).toHaveLength(9);
     expect(canSee('super_admin', 'equipe')).toBe(true);
   });
 
@@ -11,6 +11,7 @@ describe('the back-office’s pages by role', () => {
       'tendances',
       'radar',
       'questionnaire',
+      'jeux',
       'relecture',
       'prompts',
       'ia',

@@ -91,6 +91,7 @@ export const fr = {
       bonus: 'Entraînement bonus',
       placement: 'Test de départ',
       boss: 'Défi de fin d’île',
+      game: 'Mini-jeu',
     },
     states: {
       in_progress: 'En cours',
@@ -554,6 +555,127 @@ export const fr = {
       shop: 'Boutique',
       badges: 'Badges',
       look: 'Mon héros',
+      games: 'Jeux',
+    },
+  },
+  games: {
+    room: {
+      title: 'Salle de jeux',
+      intro: (companion: string) => `${companion} t’attend pour jouer\u00a0!`,
+      playtime: (played: number, limit: number) =>
+        `Temps de jeu aujourd’hui\u00a0: ${played}\u00a0min sur ${limit}`,
+      gems: (earned: number, cap: number) =>
+        `Gemmes des jeux aujourd’hui\u00a0: ${earned} sur ${cap}`,
+      gemsFull:
+        'Tu as gagné toutes les gemmes des jeux du jour. Les jeux rapportent encore de l’XP.',
+      limitReached: 'C’est tout pour aujourd’hui\u00a0! Reviens demain pour jouer encore.',
+      off: 'Les jeux sont en pause. Tes parents peuvent les rallumer.',
+      record: (score: number) => `Record\u00a0: ${score}`,
+      noRecord: 'Pas encore de record',
+      stars: (count: number) => `${count} étoile${count > 1 ? 's' : ''} sur 3`,
+      play: (name: string) => `Jouer à ${name}`,
+      open: 'Salle de jeux',
+      openHint: 'Joue avec ton compagnon aux jeux de maths.',
+    },
+    items: {
+      'peche-eclair': {
+        name: 'Pêche éclair',
+        pitch: 'Pêche le poisson qui porte la bonne réponse.',
+        howTo:
+          'Quand le bouchon plonge, appuie vite sur PÊCHER\u00a0! Ne garde que le poisson qui porte la bonne réponse.',
+        hint: 'Attends que le bouchon plonge…',
+      },
+      'pluie-de-gemmes': {
+        name: 'Pluie de gemmes',
+        pitch: 'Attrape la gemme de la bonne réponse, évite les bombes.',
+        howTo:
+          'Glisse ton doigt pour bouger ton compagnon. La bonne gemme rapporte gros, une mauvaise se change en bombe. Les croquettes donnent des petits points.',
+        hint: 'Glisse ton doigt pour bouger',
+      },
+      'vol-du-chaton': {
+        name: 'Vol du Chaton',
+        pitch: 'Vole entre les nuages et passe par la bonne bulle.',
+        howTo:
+          'Touche l’écran pour battre des ailes. Tous les 3 piliers, deux passages\u00a0: passe par celui de la bonne réponse.',
+        hint: 'Touche l’écran pour voler',
+      },
+      'bulles-magiques': {
+        name: 'Bulles magiques',
+        pitch: 'Touche les bulles qui font le nombre cible.',
+        howTo:
+          'Des bulles montent avec des nombres. Touche deux bulles qui, ensemble, font le nombre cible.',
+        hint: 'Touche deux bulles',
+      },
+      'memory-du-compagnon': {
+        name: 'Memory du compagnon',
+        pitch: 'Retrouve chaque calcul et son résultat.',
+        howTo: 'Retourne deux cartes\u00a0: un calcul et son résultat forment une paire.',
+        hint: 'Retourne deux cartes',
+      },
+      'course-des-croquettes': {
+        name: 'Course des croquettes',
+        pitch: 'Cours dans le couloir de la bonne réponse.',
+        howTo:
+          'Glisse à gauche ou à droite pour changer de couloir. Passe la porte de la bonne réponse et ramasse les croquettes.',
+        hint: 'Glisse pour changer de couloir',
+      },
+    },
+    play: {
+      loading: 'Le jeu se prépare…',
+      start: 'JOUER',
+      ready: 'Prêt\u00a0?',
+      pause: 'Pause',
+      paused: 'Pause',
+      resume: 'Reprendre',
+      quit: 'Arrêter la partie',
+      sound: 'Sons',
+      vibration: 'Vibrations',
+      fish: 'PÊCHER\u00a0!',
+      fishHint: 'Pêcher le poisson qui mord',
+      scoreLabel: (score: number) => `Score\u00a0: ${score}`,
+      timeLabel: (seconds: number) => `Encore ${seconds}\u00a0secondes`,
+      hearts: (count: number) => `${count} cœur${count > 1 ? 's' : ''}`,
+      question: 'Question',
+      target: (target: string, operator: string) => `${target} = ? ${operator} ?`,
+      pairs: 'Trouve les paires',
+      noQuestion: 'Pas de question qui convienne à ce jeu pour l’instant.',
+      sceneLabel: (name: string) => `Jeu ${name}`,
+    },
+    end: {
+      titles: [
+        'Joli essai\u00a0!',
+        'Bien joué\u00a0!',
+        'Super partie\u00a0!',
+        'Incroyable\u00a0!',
+      ] as const,
+      record: 'Nouveau record\u00a0!',
+      right: (right: number, answered: number) =>
+        `${right} bonne${right > 1 ? 's' : ''} réponse${right > 1 ? 's' : ''} sur ${answered}`,
+      score: 'Score',
+      xp: 'XP',
+      gems: 'Gemmes',
+      gemsFull: 'Gemmes des jeux au maximum pour aujourd’hui',
+      tile: (label: string, value: string) => `${label}\u00a0: ${value}`,
+      pending: 'en cours de calcul',
+      saved:
+        'Partie enregistrée sur l’appareil\u00a0: tes récompenses arrivent dès qu’elle est envoyée.',
+      again: 'REJOUER',
+      room: 'Salle de jeux',
+      limitReached: 'C’est tout pour les jeux aujourd’hui. À demain\u00a0!',
+      cheer: (companion: string) => `${companion} a adoré jouer avec toi\u00a0!`,
+    },
+    parent: {
+      title: 'Mini-jeux',
+      intro:
+        'Des jeux de maths avec son compagnon. Ils comptent au plus pour 30\u00a0% de la séance du jour, puis restent ouverts jusqu’à la limite que vous choisissez.',
+      limit: 'Temps de jeu par jour',
+      choice: (minutes: number) =>
+        minutes === 0 ? 'Pas de mini-jeux' : `${minutes}\u00a0minutes par jour`,
+      saving: 'Enregistrement…',
+      today: (played: number, limit: number) =>
+        `Aujourd’hui\u00a0: ${played}\u00a0min de jeu sur ${limit}`,
+      gems: (gems: number, cap: number) =>
+        `Gemmes gagnées aux jeux aujourd’hui\u00a0: ${gems} sur ${cap}`,
     },
   },
   practice: {

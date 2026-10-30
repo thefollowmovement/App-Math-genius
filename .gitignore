@@ -30,3 +30,7 @@ coverage/
 # Next.js (apps/admin)
 .next/
 next-env.d.ts
+
+# Skia's CanvasKit for the web, copied at install (apps/mobile/scripts/copy-canvaskit.js)
+apps/mobile/public/canvaskit.wasm
+__pycache__/

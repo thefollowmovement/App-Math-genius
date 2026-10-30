@@ -36,6 +36,7 @@ const grade = (value: unknown): Grade | null => GRADES.find((item) => item === v
 const difficulty = (value: unknown): Difficulty | null =>
   DIFFICULTIES.find((item) => item === value) ?? null;
 
+// Mini-game rounds ('game') are left out: an arcade round says little about how the child learns.
 const KINDS: readonly ProfileSessionKind[] = ['daily', 'bonus', 'boss', 'placement'];
 const SLOTS: readonly Slot[] = ['current', 'review', 'automatism', 'challenge'];
 

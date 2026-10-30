@@ -82,9 +82,22 @@ describe('a child’s day', () => {
     expect(childDay([test, sessionRow()], PLANNED, AT(21)).status).toBe('done');
   });
 
-  it('warns of fast answers, except in a placement test (« Je ne sais pas »)', () => {
+  it('does not count a mini-game round as the day’s session', () => {
+    const round = sessionRow({ id: 'round', kind: 'game' });
+    expect(sessionState(round)).toBe('finished');
+    expect(childDay([round], PLANNED, AT(18))).toEqual({
+      status: 'not_started',
+      main: null,
+      startsAt: null,
+    });
+    expect(childDay([round], PLANNED, AT(21)).status).toBe('missed');
+    expect(childDay([sessionRow(), round], PLANNED, AT(21)).main?.kind).toBe('daily');
+  });
+
+  it('warns of fast answers, except in a placement test (« Je ne sais pas ») or a game', () => {
     expect(showsFastAnswers(sessionRow({ flagged: true }))).toBe(true);
     expect(showsFastAnswers(sessionRow({ flagged: true, kind: 'placement' }))).toBe(false);
+    expect(showsFastAnswers(sessionRow({ flagged: true, kind: 'game' }))).toBe(false);
   });
 });
 

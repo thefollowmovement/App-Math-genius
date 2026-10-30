@@ -776,6 +776,7 @@ export type Database = {
           created_at: string;
           display_name: string;
           family_id: string;
+          game_minutes_limit: number;
           gender: Database['public']['Enums']['child_gender'];
           grade: Database['public']['Enums']['grade'];
           id: string;
@@ -793,6 +794,7 @@ export type Database = {
           created_at?: string;
           display_name: string;
           family_id: string;
+          game_minutes_limit?: number;
           gender: Database['public']['Enums']['child_gender'];
           grade: Database['public']['Enums']['grade'];
           id?: string;
@@ -809,6 +811,7 @@ export type Database = {
           created_at?: string;
           display_name?: string;
           family_id?: string;
+          game_minutes_limit?: number;
           gender?: Database['public']['Enums']['child_gender'];
           grade?: Database['public']['Enums']['grade'];
           id?: string;
@@ -1429,6 +1432,31 @@ export type Database = {
           },
         ];
       };
+      mini_games: {
+        Row: {
+          created_at: string;
+          enabled: boolean;
+          id: string;
+          position: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          enabled?: boolean;
+          id: string;
+          position: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          enabled?: boolean;
+          id?: string;
+          position?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       notifications: {
         Row: {
           audience: Database['public']['Enums']['notification_audience'];
@@ -1988,6 +2016,9 @@ export type Database = {
           device_id: string | null;
           duration_s: number;
           flagged: boolean;
+          game_id: string | null;
+          game_score: number | null;
+          game_stars: number | null;
           goal_met: boolean;
           goal_type: Database['public']['Enums']['session_goal_type'];
           goal_value: number;
@@ -2012,6 +2043,9 @@ export type Database = {
           device_id?: string | null;
           duration_s?: number;
           flagged?: boolean;
+          game_id?: string | null;
+          game_score?: number | null;
+          game_stars?: number | null;
           goal_met?: boolean;
           goal_type: Database['public']['Enums']['session_goal_type'];
           goal_value: number;
@@ -2035,6 +2069,9 @@ export type Database = {
           device_id?: string | null;
           duration_s?: number;
           flagged?: boolean;
+          game_id?: string | null;
+          game_score?: number | null;
+          game_stars?: number | null;
           goal_met?: boolean;
           goal_type?: Database['public']['Enums']['session_goal_type'];
           goal_value?: number;
@@ -2061,6 +2098,13 @@ export type Database = {
             columns: ['device_id'];
             isOneToOne: false;
             referencedRelation: 'devices';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'sessions_game_id_fkey';
+            columns: ['game_id'];
+            isOneToOne: false;
+            referencedRelation: 'mini_games';
             referencedColumns: ['id'];
           },
         ];
@@ -2363,6 +2407,7 @@ export type Database = {
         Args: { p_child_id: string; p_equipped: boolean; p_item_code: string };
         Returns: undefined;
       };
+      game_room: { Args: { p_child_id: string; p_now?: string }; Returns: Json };
       give_parent_reward: { Args: { p_reward_id: string }; Returns: undefined };
       open_chest: { Args: { p_chest_id: string }; Returns: Json };
       profile_input: { Args: { p_child_id: string; p_now?: string }; Returns: Json };
@@ -2425,6 +2470,9 @@ export type Database = {
           device_id: string | null;
           duration_s: number;
           flagged: boolean;
+          game_id: string | null;
+          game_score: number | null;
+          game_stars: number | null;
           goal_met: boolean;
           goal_type: Database['public']['Enums']['session_goal_type'];
           goal_value: number;
@@ -2455,7 +2503,7 @@ export type Database = {
       child_gender: 'girl' | 'boy';
       device_platform: 'ios' | 'android' | 'web';
       explanation_status: 'pending' | 'approved' | 'rejected';
-      gem_reason: 'session' | 'chest' | 'freeze' | 'shop' | 'challenge' | 'refund';
+      gem_reason: 'session' | 'chest' | 'freeze' | 'shop' | 'challenge' | 'refund' | 'game';
       grade: 'CP' | 'CE1' | 'CE2' | 'CM1' | 'CM2' | '6e' | '5e' | '4e' | '3e';
       interest_source: 'questionnaire' | 'parent';
       mastery_status: 'to_discover' | 'in_progress' | 'mastered' | 'to_review';
@@ -2476,7 +2524,7 @@ export type Database = {
       push_status: 'enabled' | 'denied' | 'unsupported';
       recap_kind: 'weekly' | 'monthly';
       session_goal_type: 'duration' | 'count';
-      session_kind: 'daily' | 'bonus' | 'placement' | 'boss';
+      session_kind: 'daily' | 'bonus' | 'placement' | 'boss' | 'game';
       session_slot: 'current' | 'review' | 'automatism' | 'challenge';
       shop_item_kind: 'companion' | 'outfit' | 'accessory' | 'effect';
       skill_domain: 'numbers' | 'measures' | 'geometry' | 'data';
@@ -2599,7 +2647,7 @@ export const Constants = {
       child_gender: ['girl', 'boy'],
       device_platform: ['ios', 'android', 'web'],
       explanation_status: ['pending', 'approved', 'rejected'],
-      gem_reason: ['session', 'chest', 'freeze', 'shop', 'challenge', 'refund'],
+      gem_reason: ['session', 'chest', 'freeze', 'shop', 'challenge', 'refund', 'game'],
       grade: ['CP', 'CE1', 'CE2', 'CM1', 'CM2', '6e', '5e', '4e', '3e'],
       interest_source: ['questionnaire', 'parent'],
       mastery_status: ['to_discover', 'in_progress', 'mastered', 'to_review'],
@@ -2621,7 +2669,7 @@ export const Constants = {
       push_status: ['enabled', 'denied', 'unsupported'],
       recap_kind: ['weekly', 'monthly'],
       session_goal_type: ['duration', 'count'],
-      session_kind: ['daily', 'bonus', 'placement', 'boss'],
+      session_kind: ['daily', 'bonus', 'placement', 'boss', 'game'],
       session_slot: ['current', 'review', 'automatism', 'challenge'],
       shop_item_kind: ['companion', 'outfit', 'accessory', 'effect'],
       skill_domain: ['numbers', 'measures', 'geometry', 'data'],

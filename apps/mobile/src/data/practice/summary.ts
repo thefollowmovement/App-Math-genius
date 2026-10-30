@@ -1,16 +1,19 @@
 import { getSkill } from '@math-genius/curriculum';
 import {
+  NO_GAME_CREDIT,
   finishSession,
   masteryOf,
   practicableSkills,
   sessionProgress,
   startingRecord,
+  type GameCredit,
   type SessionGoal,
   type SessionProgress,
 } from '@math-genius/exercise-engine';
 import type { Grade } from '@math-genius/shared';
 
 import {
+  gameCreditOf,
   plannerContext,
   type ChildPractice,
   type SessionKind,
@@ -27,8 +30,12 @@ export type SessionSummary = {
   progressed: { title: string; mastery: number }[];
 };
 
-export function summarize(session: StoredSession): SessionSummary {
-  const progress = sessionProgress(session.goal, session.startedAt, session.attempts);
+/** `games`: what the day's mini-game rounds brought to a daily session (gameCreditOf). */
+export function summarize(
+  session: StoredSession,
+  games: GameCredit = NO_GAME_CREDIT,
+): SessionSummary {
+  const progress = sessionProgress(session.goal, session.startedAt, session.attempts, games);
   const at = session.completedAt ?? session.attempts.at(-1)?.answeredAt ?? session.startedAt;
   const after = finishSession(plannerContext(session), session.attempts, { at, completed: true });
   const skills = [...new Set(session.attempts.map((attempt) => attempt.skill))];
@@ -73,20 +80,34 @@ export function practiceStatus(
   if (practicableSkills(grade).length === 0) return { status: 'unavailable' };
   const active = child?.active;
   if (active && active.localDate === today && active.attempts.length > 0) {
-    const { progress } = sessionProgress(active.goal, active.startedAt, active.attempts);
+    const { progress } = sessionProgress(
+      active.goal,
+      active.startedAt,
+      active.attempts,
+      gameCreditOf(child, active),
+    );
     return { status: 'in-progress', percent: Math.min(99, Math.round(progress * 100)) };
   }
   return child?.lastDailyDate === today ? { status: 'done' } : { status: 'ready' };
 }
 
-/** How far the session has gone toward its goal: exercises, or whole minutes of active time. */
+/**
+ * How far the session has gone toward its goal: exercises, or whole minutes of active time, the
+ * share of the day's mini-games included.
+ */
 export function sessionCount(
   goal: SessionGoal,
-  progress: Pick<SessionProgress, 'answered' | 'activeMs'>,
+  progress: Pick<SessionProgress, 'answered' | 'activeMs'> &
+    Partial<Pick<SessionProgress, 'fromGames'>>,
 ): { done: number; total: number; unit: 'exercises' | 'minutes' } {
+  const fromGames = progress.fromGames ?? 0;
   return goal.type === 'count'
-    ? { done: progress.answered, total: goal.count, unit: 'exercises' }
-    : { done: Math.floor(progress.activeMs / 60_000), total: goal.minutes, unit: 'minutes' };
+    ? { done: progress.answered + fromGames, total: goal.count, unit: 'exercises' }
+    : {
+        done: Math.floor((progress.activeMs + fromGames) / 60_000),
+        total: goal.minutes,
+        unit: 'minutes',
+      };
 }
 
 /** Right answers in a row from which the combo shows (and Phénix catches fire). */

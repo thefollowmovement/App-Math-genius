@@ -62,11 +62,14 @@ function ChildStack() {
         />
         <Stack.Screen name="chest" options={{ headerShown: false, presentation: 'modal' }} />
         <Stack.Screen name="universe" options={{ headerShown: false }} />
+        {/* A round of a mini-game: no swipe back mid-game (the pause menu stops it). */}
+        <Stack.Screen name="game" options={{ headerShown: false, gestureEnabled: false }} />
         {/* These screens show their own title. */}
         <Stack.Screen name="badges" />
         <Stack.Screen name="map" />
         <Stack.Screen name="shop" />
         <Stack.Screen name="look" />
+        <Stack.Screen name="games" />
       </Stack>
     </>
   );

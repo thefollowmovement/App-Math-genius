@@ -1,4 +1,4 @@
-import { activeMs, sessionProgress } from './session';
+import { activeMs, gameCredit, sessionProgress } from './session';
 
 const START = '2026-10-15T17:00:00.000Z';
 const at = (seconds: number) => new Date(Date.parse(START) + seconds * 1000).toISOString();
@@ -59,5 +59,42 @@ describe('session progress', () => {
     const progress = sessionProgress({ type: 'count', count: 20 }, START, attempts);
     expect(progress.flagged).toBe(true);
     expect(progress.finished).toBe(false);
+  });
+});
+
+describe('mini-games in the daily session', () => {
+  // Same case as supabase/tests/database/games.test.sql: a 5-minute round before the session,
+  // 4 of its 5 answers slow enough to count.
+  const GAME_START = '2026-10-15T16:30:00.000Z';
+  const round = {
+    startedAt: GAME_START,
+    attempts: [60, 120, 180, 240, 300].map((seconds, index) => ({
+      answeredAt: new Date(Date.parse(GAME_START) + seconds * 1000).toISOString(),
+      timeMs: index === 2 ? 800 : 3000,
+    })),
+  };
+  const games = gameCredit([round]);
+  const every30s = (count: number) => Array.from({ length: count }, (_, i) => answer((i + 1) * 30));
+
+  it('measure a round like a session', () => {
+    expect(games).toEqual({ activeMs: 300_000, answers: 4 });
+  });
+
+  it('count for 30 % of a duration goal at most', () => {
+    const goal = { type: 'duration', minutes: 15 } as const;
+    const done = sessionProgress(goal, START, every30s(21), games);
+    expect(done.fromGames).toBe(270_000);
+    expect(done.progress).toBe(1);
+    expect(done.goalMet).toBe(true);
+    expect(sessionProgress(goal, START, every30s(20), games).goalReached).toBe(false);
+    expect(sessionProgress(goal, START, every30s(21)).goalReached).toBe(false);
+  });
+
+  it('count for 30 % of a count goal at most', () => {
+    const goal = { type: 'count', count: 10 } as const;
+    const done = sessionProgress(goal, START, every30s(7), games);
+    expect(done.fromGames).toBe(3);
+    expect(done.goalReached).toBe(true);
+    expect(sessionProgress(goal, START, every30s(6), games).goalReached).toBe(false);
   });
 });

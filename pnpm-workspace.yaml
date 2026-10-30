@@ -3,6 +3,10 @@ packages:
   - packages/*
   - services/*
 
+# Skia's postinstall copies its native libraries from the packages already installed (no download).
+onlyBuiltDependencies:
+  - '@shopify/react-native-skia'
+
 # Postinstall only re-checks native bindings already installed through optionalDependencies.
 ignoredBuiltDependencies:
   - '@swc/core'

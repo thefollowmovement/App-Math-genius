@@ -31,6 +31,8 @@ export type SyncPayload = {
   started_at: string;
   completed_at: string | null;
   goal: { type: 'duration' | 'count'; value: number };
+  /** A mini-game round's game, score and stars; null for a session. */
+  game: { id: string; score: number; stars: number } | null;
   attempts: Json[];
   mastery: Json[];
 };
@@ -41,9 +43,11 @@ const toJson = (value: unknown): Json => JSON.parse(JSON.stringify(value));
 export function sessionPayload(session: StoredSession): SyncPayload {
   const context = plannerContext(session);
   const at = session.completedAt ?? session.attempts.at(-1)?.answeredAt ?? session.startedAt;
-  const mastery = session.completedAt
-    ? finishSession(context, session.attempts, { at, completed: true })
-    : liveMastery(context, session.attempts);
+  // A round's answers move the ratings; only a finished session counts toward « maîtrisée ».
+  const mastery =
+    session.completedAt && session.kind !== 'game'
+      ? finishSession(context, session.attempts, { at, completed: true })
+      : liveMastery(context, session.attempts);
   // A finished placement test also sends what it concluded on the skills it did not ask.
   const practised =
     session.kind === 'placement' && session.completedAt
@@ -63,6 +67,7 @@ export function sessionPayload(session: StoredSession): SyncPayload {
       session.goal.type === 'duration'
         ? { type: 'duration', value: session.goal.minutes }
         : { type: 'count', value: session.goal.count },
+    game: session.kind === 'game' && session.game ? session.game : null,
     attempts: session.attempts.map((attempt, position) =>
       toJson({
         position,

@@ -1,5 +1,5 @@
 import { worldMap } from '@math-genius/exercise-engine';
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 
 import { LoadingScreen } from '@/components/loading-screen';
 import { useChild } from '@/data/children';
@@ -12,6 +12,7 @@ import { WorldMap } from '@/screens/world-map';
 
 export default function MapRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const child = useChild(id);
   const practice = usePracticeStore((state) => state.children[id]);
   const islands = useIslands(child.data?.id);
@@ -32,6 +33,7 @@ export default function MapRoute() {
       })}
       busy={practiceStatus(practice, child.data.grade, date).status === 'in-progress'}
       onFightBoss={(island) => start('push', island)}
+      onOpenGames={() => router.push({ pathname: '/child/games', params: { id } })}
     />
   );
 }

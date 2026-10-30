@@ -7,3 +7,14 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 jest.mock('@react-native-community/netinfo', () =>
   require('@react-native-community/netinfo/jest/netinfo-mock'),
 );
+
+// Sounds play nowhere in tests.
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: () => ({
+    volume: 1,
+    play: jest.fn(),
+    seekTo: jest.fn(() => Promise.resolve()),
+    remove: jest.fn(),
+  }),
+  setAudioModeAsync: jest.fn(() => Promise.resolve()),
+}));
